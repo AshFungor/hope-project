@@ -2,4 +2,14 @@
 
 {% block title %}Главная страница{% endblock %}
 
-{% block content %}<h1>Главная страница</h1>{% endblock %}
+{% block content %}
+<h1>Главная страница</h1>
+<button class="btn btn_lk" onclick="window.location.href='{{ url_for( 'person_lk.person_cabinet' )}}';">Личный кабинет</button>
+<button class="btn btn_company_lk">Кабинет фирмы</button>
+<button class="btn btn__city_lk">Кабинет города</button>
+<button class="btn btn_prefect_lk">Кабинет префектуры</button>
+<button class="btn btn_lk">Кабинет мэрии “Надежды”</button>
+<button class="btn btn_lk">Кабинет мастера игры</button>
+<button class="btn btn_lk">Кабинет администратора</button>
+
+{% endblock %}
