@@ -17,3 +17,7 @@ venv/bin/pip -V && venv/bin/pip install -r requirements.txt
 ```
 venv/bin/flask run
 ```
+
+## Таски в CI
+
+Пока доступен один раннер и простая таска

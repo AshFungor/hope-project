@@ -1,0 +1,9 @@
+name: Autotests
+on:
+  push:
+jobs:
+  build-test:
+    name: test server API
+    steps:
+      - name: Checks tests existence
+        run: echo "Hello, world!"
