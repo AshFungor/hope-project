@@ -1,7 +1,19 @@
-# hope_project
+# Hope Project
 
 Проект для лагеря Надежда
 
-Установить зависимости из requirements
-Запускать командой:
-# flask run
+## Установка
+
+```
+alias python=python3
+python -m venv ./venv --symlinks --clear
+venv/bin/pip -V && venv/bin/pip install -r requirements.txt
+```
+
+## Запуск
+
+Все бинари должны лежать в **venv/bin**! И запускать их надо оттуда
+
+```
+venv/bin/flask run
+```
