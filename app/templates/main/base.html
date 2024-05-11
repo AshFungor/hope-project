@@ -4,7 +4,56 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
 </head>
+
+
+
 <body>
+    <header>
+        <div class="px-3 py-2 text-bg-dark border-bottom">
+            <div class="container">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                    <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
+                        <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+                    </a>
+    
+                    <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                    <li>
+                        <a href="{{ url_for( 'person_lk.person_cabinet' ) }}" class="nav-link text-secondary">
+                            <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#home"></use></svg><ya-tr-span data-index="21-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Home " data-translation=" Главная " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Главная  </ya-tr-span></a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#speedometer2"></use></svg><ya-tr-span data-index="22-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Dashboard " data-translation=" Информационная панель " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Информационная панель  </ya-tr-span></a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#table"></use></svg><ya-tr-span data-index="23-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Orders " data-translation=" Заказы " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Заказы  </ya-tr-span></a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#grid"></use></svg><ya-tr-span data-index="24-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Products " data-translation=" Продукты " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Продукты  </ya-tr-span></a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link text-white">
+                            <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#people-circle"></use></svg><ya-tr-span data-index="25-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Customers " data-translation=" Клиенты " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Клиенты  </ya-tr-span></a>
+                    </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="px-3 py-2 border-bottom mb-3">
+            <div class="container d-flex flex-wrap justify-content-center">
+                <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search">
+                    <input type="search" class="form-control" placeholder="Поиск..." aria-label="Поиск">
+                </form>
+    
+                <div class="text-end">
+                    <button type="button" class="btn btn-light text-dark me-2"><ya-tr-span data-index="26-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Login" data-translation="Вход" data-ch="0" data-type="trSpan" style="visibility: initial !important;">Вход</ya-tr-span></button>
+                    <button type="button" class="btn btn-primary"><ya-tr-span data-index="26-1" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Sign-up" data-translation="Регистрация" data-ch="0" data-type="trSpan" style="visibility: initial !important;">Регистрация</ya-tr-span></button>
+                </div>
+            </div>
+        </div>
+    </header>
     {% block content %}{% endblock %}
 </body>
 </html>
