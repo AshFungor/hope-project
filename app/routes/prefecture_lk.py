@@ -6,4 +6,4 @@ prefecture_lk = Blueprint('prefecture_lk', __name__)
 @prefecture_lk.route('/prefecture_lk')
 def prefecture_cabinet():
     """Личный кабинет префектуры"""
-    return "Кабинет префектуры!!!"
+    return render_template('main/prefecture_lk_page.html')
