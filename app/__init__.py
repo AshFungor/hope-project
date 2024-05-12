@@ -1,5 +1,7 @@
 from flask import Flask
+import logging
 from .config import Config
+from .extensions import db
 
 from .routes.main import main
 from .routes.person_lk import person_lk
@@ -12,9 +14,17 @@ from .routes.admin_lk import admin_lk
 
 
 def create_app(config_class=Config):
+
+    logging.info("Инициализация приложения")
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    logging.info("Инициализация и создание базы данных")
+    db.init_app(app)
+    with app.app_context():
+        db.create_all()
+
+    logging.info("Подключение роутов к приложению")
     app.register_blueprint(main)
     app.register_blueprint(person_lk)
     app.register_blueprint(company_lk)
