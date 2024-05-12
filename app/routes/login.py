@@ -6,4 +6,4 @@ login = Blueprint('login', __name__)
 @login.route('/login')
 def login():
     """Страничка входа"""
-    return "Логинка!!!"
+    return render_template("login/authorization.html")
