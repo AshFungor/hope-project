@@ -1,2 +1,2 @@
 class Config(object):
-    pass
+    SQLALCHEMY_DATABASE_URI = "sqlite:///DataBase.db"
