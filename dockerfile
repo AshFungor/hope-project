@@ -18,6 +18,8 @@ RUN $PIP install -r requirements.txt
 
 # add testing stage (?)
 
+# handle SSL certs
+
 ENV FLASK /hope-project/venv/bin/flask
 ENV APP /hope-project/app
 CMD $FLASK --app $APP run --host 0.0.0.0 --port 5000
