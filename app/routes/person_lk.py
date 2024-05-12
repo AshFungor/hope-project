@@ -14,4 +14,4 @@ def person_cabinet():
     db.session.add(user)
     db.session.commit()
     """Личный кабинет пользователя"""
-    return user.name
+    return render_template('main/person_lk_page.html')
