@@ -11,6 +11,7 @@ from .routes.prefecture_lk import prefecture_lk
 from .routes.city_hall_lk import city_hall_lk
 from .routes.master_lk import master_lk
 from .routes.admin_lk import admin_lk
+from .routes.login import login
 
 
 def create_app(config_class=Config):
@@ -33,6 +34,7 @@ def create_app(config_class=Config):
     app.register_blueprint(city_hall_lk)
     app.register_blueprint(master_lk)
     app.register_blueprint(admin_lk)
+    app.register_blueprint(login)
 
     return app
 
