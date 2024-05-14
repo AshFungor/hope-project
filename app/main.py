@@ -35,15 +35,15 @@ def create_app():
 
     logging.info("handling routes")
 
-    from routes.main import main
-    from routes.person_lk import person_lk
-    from routes.company_lk import company_lk
-    from routes.city_lk import city_lk
-    from routes.prefecture_lk import prefecture_lk
-    from routes.city_hall_lk import city_hall_lk
-    from routes.master_lk import master_lk
-    from routes.admin_lk import admin_lk
-    from routes.login import login
+    from app.routes.main import main
+    from app.routes.person_lk import person_lk
+    from app.routes.company_lk import company_lk
+    from app.routes.city_lk import city_lk
+    from app.routes.prefecture_lk import prefecture_lk
+    from app.routes.city_hall_lk import city_hall_lk
+    from app.routes.master_lk import master_lk
+    from app.routes.admin_lk import admin_lk
+    from app.routes.login import login
 
     app.register_blueprint(main)
     app.register_blueprint(person_lk)
