@@ -71,6 +71,10 @@ class EnvironmentHandlingTest(unittest.TestCase):
         mocked_flask = Mock()
         mocked_flask.Config = EnvironmentHandlingTest.mocked_flask_config_class
         result['flask'] = mocked_flask
+        # multiprocessing
+        mocked_multiprocessing = Mock()
+        mocked_multiprocessing.Queue = Mock()
+        result['multiprocessing'] = mocked_multiprocessing
         return result
 
 

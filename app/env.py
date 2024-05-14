@@ -4,6 +4,7 @@ import sys
 import logging
 import os.path
 import logging.handlers
+import multiprocessing
 
 from typing import Union
 
@@ -100,18 +101,23 @@ class Env:
         # and route them in whatever way (to file, to standard output or error streams - terminal)
         file_log_sink = logging.handlers.RotatingFileHandler('server.log', maxBytes=4096, backupCount=2)
         std_out_sink = logging.StreamHandler(sys.stdout)
-        std_err_sink = logging.StreamHandler(sys.stderr)
+        # std_err_sink = logging.StreamHandler(sys.stderr)
+        # we also need to sync file rotation, because it dies on windows
+        queue = multiprocessing.Queue()
+        queue_handler = logging.handlers.QueueHandler(queue)
+        listeners = logging.handlers.QueueListener(queue, file_log_sink, std_out_sink)
         # logging is by default done only for warnings and errors
         # for sanity, we enable for debug additionally
         logging.basicConfig(
             handlers=[
-                file_log_sink, 
-                std_out_sink,
-                std_err_sink
+                queue_handler
             ],
             level=self._validate_logging_level(getattr(self, 'server_logging_level')),
             force=True # in case logger was already configured for some reason
         )
+
+        self.logging_listeners = listeners
+        self.logging_listeners.start()
 
 
     # load env from file

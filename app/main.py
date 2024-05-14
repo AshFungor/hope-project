@@ -6,14 +6,25 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 # base
+import sys
 import logging
+import signal
+import tracemalloc
 
 # local
 from app.modules.database.handlers import Database
 from app.modules.database.handlers import MockStorage
 
 
+# close running threads, connections etc.
+def cleanup(signum: int, stacktrace: tracemalloc.Frame) -> None:
+    env.logging_listeners.stop()
+    sys.exit(signum)
+
+
 def create_app():
+
+    signal.signal(signal.SIGINT, cleanup)
 
     logging.info("initializing Flask app")
     app = Flask(__name__)
