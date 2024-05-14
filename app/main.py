@@ -1,0 +1,58 @@
+# env import must be always first (!!!)
+from app.env import env
+
+# flask
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+# base
+import logging
+
+# local
+from app.modules.database.handlers import Database
+from app.modules.database.handlers import MockStorage
+
+
+def create_app():
+
+    logging.info("initializing Flask app")
+    app = Flask(__name__)
+
+    # merge received through Env config with default one that app has 
+    app.config.update(env.make_flask_config(env.env_flask_vars))
+
+    logging.info("handling Database creation")
+    env.assign_new(None, 'db')
+    if env.server_use_mocked_database:
+        mockedHandle = MockStorage(app)
+        env.db = Database(mockedHandle)
+    else:
+        handle = SQLAlchemy()
+        handle.init_app(app)
+        with app.app_context():
+            handle.create_all()
+        env.db = Database(handle)
+
+    logging.info("handling routes")
+
+    from routes.main import main
+    from routes.person_lk import person_lk
+    from routes.company_lk import company_lk
+    from routes.city_lk import city_lk
+    from routes.prefecture_lk import prefecture_lk
+    from routes.city_hall_lk import city_hall_lk
+    from routes.master_lk import master_lk
+    from routes.admin_lk import admin_lk
+    from routes.login import login
+
+    app.register_blueprint(main)
+    app.register_blueprint(person_lk)
+    app.register_blueprint(company_lk)
+    app.register_blueprint(city_lk)
+    app.register_blueprint(prefecture_lk)
+    app.register_blueprint(city_hall_lk)
+    app.register_blueprint(master_lk)
+    app.register_blueprint(admin_lk)
+    app.register_blueprint(login)
+
+    return app

@@ -1,5 +1,6 @@
-from ..extensions import db
+from app.env import env
 
+db = env.db.impl()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)

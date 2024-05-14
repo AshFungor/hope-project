@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, url_for
-from ..extensions import db
-from ..models.user import User
+from app.env import env
+from app.models.user import User
 
 person_lk = Blueprint('person_lk', __name__)
 
@@ -11,7 +11,7 @@ def person_cabinet():
     # ПРИМЕР СОЗДАНИЯ ОБЪЕКТА В БД
 
     user = User(name="test")
-    db.session.add(user)
-    db.session.commit()
+    env.db.session.add(user)
+    env.db.session.commit()
     """Личный кабинет пользователя"""
     return render_template('main/person_lk_page.html')
