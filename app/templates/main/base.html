@@ -10,7 +10,7 @@
 
 
 <body>
-    <div class="container">
+    <div class="container overflow-hidden">
         <header>
             <div class="px-3 py-2 text-bg-dark border-bottom">
                 <div class="container">
@@ -57,7 +57,11 @@
                 </div>
             </div>
         </header>
+
+        
         {% block content %}{% endblock %}
+        
+        
     </div> 
 </body>
 </html>

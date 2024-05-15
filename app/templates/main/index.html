@@ -3,14 +3,83 @@
 {% block title %}Главная страница{% endblock %}
 
 {% block content %}
-<h1>Главная страница</h1><br/>
-<button class="btn btn_lk" onclick="window.location.href='{{ url_for( 'person_lk.person_cabinet' ) }}';">Личный кабинет</button><br/>
-<button class="btn btn_company_lk" onclick="window.location.href='{{ url_for( 'company_lk.company_cabinet' ) }}';">Кабинет фирмы</button><br/>
-<button class="btn btn_city_lk" onclick="window.location.href='{{ url_for( 'city_lk.city_cabinet' ) }}';">Кабинет города</button><br/>
-<button class="btn btn_prefecture_lk" onclick="window.location.href='{{ url_for( 'prefecture_lk.prefecture_cabinet' ) }}';">Кабинет префектуры</button><br/>
-<button class="btn btn_city_hall_lk" onclick="window.location.href='{{ url_for( 'city_hall_lk.city_hall_cabinet' ) }}';">Кабинет мэрии “Надежды”</button><br/>
-<button class="btn btn_master_lk" onclick="window.location.href='{{ url_for( 'master_lk.master_cabinet' ) }}';">Кабинет мастера игры</button><br/>
-<button class="btn btn_admin_lk" onclick="window.location.href='{{ url_for( 'admin_lk.admin_cabinet' ) }}';">Кабинет администратора</button><br/>
-<button class="btn btn_login" onclick="window.location.href='{{ url_for( 'login.authorization' ) }}';">Логинка</button><br/>
 
+
+<div class="row row-cols-2 row-cols-lg-5 g-2 g-lg-3 justify-content-center text-center">
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_lk" onclick="window.location.href='{{ url_for( 'person_lk.person_cabinet' ) }}';">Личный кабинет</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_company_lk" onclick="window.location.href='{{ url_for( 'company_lk.company_cabinet' ) }}';">Фирма</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_city_lk" onclick="window.location.href='{{ url_for( 'city_lk.city_cabinet' ) }}';">Город</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_prefecture_lk" onclick="window.location.href='{{ url_for( 'prefecture_lk.prefecture_cabinet' ) }}';">Префектура</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_city_hall_lk" onclick="window.location.href='{{ url_for( 'city_hall_lk.city_hall_cabinet' ) }}';">Мэрия</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_master_lk" onclick="window.location.href='{{ url_for( 'master_lk.master_cabinet' ) }}';">Мастер игры</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_admin_lk" onclick="window.location.href='{{ url_for( 'admin_lk.admin_cabinet' ) }}';">Администратор</button>
+        </div>
+    </div>
+    <div class="col-5">
+        <div class="p-3 border rounded-4">
+            <button class="btn btn_login" onclick="window.location.href='{{ url_for( 'login.authorization' ) }}';">Логинка</button>
+        </div>
+    </div>
+</div>
+
+<div class="row gy-5 px-3">
+    <div class="col-3">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur in ducimus eaque quisquam repudiandae quos? Alias sit mollitia, eligendi voluptatum praesentium cum incidunt, provident ex ratione maiores sed odit esse!
+    </div>
+    <div class="col-6">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio assumenda rerum, quibusdam nostrum consequuntur nemo soluta officia. Natus facere voluptas neque ipsam autem quasi voluptate? Id voluptate porro ab sit!
+    </div>
+    <div class="col-3">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Repellendus cumque voluptates, dicta fuga rem recusandae et, numquam mollitia consequuntur impedit laboriosam quidem eaque magni libero, dolorem deleniti iste perferendis tempora?
+    </div>
+</div>
+
+<div class="row gy-5 px-3">
+    <div class="col-3">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
+    </div>
+    <div class="col-6">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequuntur itaque quod cumque commodi, saepe quam officiis dignissimos blanditiis ex, nihil porro. Consequatur excepturi culpa nobis, commodi id quod alias repellendus?
+    </div>
+    <div class="col-3">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
+    </div>
+</div>
+<div class="row gy-5 px-3">
+    <div class="col-3">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
+    </div>
+    <div class="col-6">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequuntur itaque quod cumque commodi, saepe quam officiis dignissimos blanditiis ex, nihil porro. Consequatur excepturi culpa nobis, commodi id quod alias repellendus?
+    </div>
+    <div class="col-3">
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
+    </div>
+</div>
 {% endblock %}
