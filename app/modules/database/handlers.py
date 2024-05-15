@@ -2,10 +2,19 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 
+import sqlalchemy
+import sqlalchemy.orm
+
+# local
+from app.env import env
+
 # default
 from abc import abstractmethod
 from typing import Union
+
+import urllib.parse
 import logging
+import enum
 
 # Session handle represents endpoint for mock session calls
 # add, remove, execute, etc.
@@ -86,40 +95,83 @@ class MockStorage(ISessionHandle):
         return '<InPlaceStorage class>'
 
 
+class DatabaseType(enum.IntEnum):
+    SQL_LITE = 1
+    POSTGRES = 2
+    MOCK = 3
+
+    @staticmethod
+    def from_str(string: str) -> Union[enum.IntEnum, None]:
+        mappings = {
+            'postgres': DatabaseType.POSTGRES,
+            'sqlite': DatabaseType.SQL_LITE,
+            'mock': DatabaseType.MOCK
+        }
+        return mappings.get(string, None)
+    
+
+class ModelBase(sqlalchemy.orm.DeclarativeBase):
+    pass
+
+
 # Database facade
 class Database:
 
-    def __init__(self, engine: Union[SQLAlchemy, MockStorage]) -> None:
-        self.engine = engine
-        self.setup()
+
+    def __init__(self, type: DatabaseType, app: Flask) -> None:
+        self.engine = self._match_database_type(type, app)
+
 
     def impl(self) -> Union[SQLAlchemy, MockStorage]:
         return self.engine
 
-    def setup(self) -> int:
-        if isinstance(self.engine, SQLAlchemy):
-            self._handle_sql_alchemy_setup()
-            return
-        
-        if isinstance(self.engine, MockStorage):
-            self._handle_in_place_storage_setup()
-            return
 
-        raise TypeError(f'database impl is not supported: {repr(self.engine)}')
+    def _handle_sql_alchemy_setup(self, app: Flask) -> SQLAlchemy:
+        handle = SQLAlchemy(model_class=ModelBase)
+        handle.init_app(app)
+        with app.app_context():
+            handle.create_all()
+        return handle
 
-    def connect(self) -> int:
-        if isinstance(self.engine, SQLAlchemy):
-            pass
-        
-        if isinstance(self.engine, MockStorage):
-            pass
 
-    def _handle_sql_alchemy_setup(self):
-        if not hasattr(self.engine, 'session'):
-            raise ValueError('database sql alchemy impl must be initialized, missing session attr')
-
-    def _handle_in_place_storage_setup(self):
+    def _handle_in_place_storage_setup(self, app: Flask) -> None:
         pass
+
+
+    def _handle_postgres_setup(self, app: Flask) -> SQLAlchemy:
+        url = sqlalchemy.URL.create(
+                'postgresql',
+                username=env.get_var('POSTGRES_USER'),
+                password=urllib.parse.quote_plus(env.get_var('POSTGRES_PASSWORD')),
+                host=env.get_var('POSTGRESQL_HOSTNAME'),
+                port=env.get_var('POSTGRESQL_PORT'),
+                database=env.get_var('POSTGRES_USER')
+            )
+        env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
+        app.config.update(env.make_flask_config(env.env_flask_vars))
+        return self._handle_sql_alchemy_setup(app)
+
+
+    def _handle_sqlite_setup(self, app: Flask) -> SQLAlchemy:
+        url = sqlalchemy.URL.create(
+            'sqlite',
+            database=env.get_var('SQLITE_DATABASE_NAME')
+        )
+        env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
+        app.config.update(env.make_flask_config(env.env_flask_vars))
+        return self._handle_sql_alchemy_setup(app)
+
+            
+    def _match_database_type(self, type: DatabaseType, app: Flask) -> Union[SQLAlchemy, None]:
+        if type == DatabaseType.POSTGRES:
+            return self._handle_postgres_setup(app)
+        elif type == DatabaseType.SQL_LITE:
+            return self._handle_sqlite_setup(app)
+        raise ValueError(f'unimplemented: {type}')
+ 
+
+
+            
 
 
 

@@ -16,6 +16,8 @@ services:
     environment:
       - PGDATA=${POSTGRESQL_DIRECTORY}/data
     image: "postgres:16.3"
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT}:5432"
     networks:
       - local
     volumes:

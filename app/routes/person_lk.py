@@ -11,7 +11,7 @@ def person_cabinet():
     # ПРИМЕР СОЗДАНИЯ ОБЪЕКТА В БД
     
     user = User(name="test")
-    db.session.add(user)
-    db.session.commit()
+    env.db.impl().session.add(user)
+    env.db.impl().session.commit()
     """Личный кабинет пользователя"""
     return render_template('main/person_lk_page.html')

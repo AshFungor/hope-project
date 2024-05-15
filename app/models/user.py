@@ -1,7 +1,13 @@
 from app.env import env
 
-db = env.db.impl()
+import sqlalchemy
+import sqlalchemy.orm
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
+import app.modules.database.handlers
+
+
+class User(app.modules.database.handlers.ModelBase):
+    __tablename__ = 'user'
+
+    id: sqlalchemy.orm.Mapped[int] = sqlalchemy.orm.mapped_column(primary_key=True)
+    name: sqlalchemy.orm.Mapped[str] = sqlalchemy.orm.mapped_column(sqlalchemy.String(50))

@@ -20,9 +20,9 @@ import flask
 def env_args_matcher(*args) -> Union[object, None]:
     # some vars currently supported
     matching = {
-        'SQLALCHEMY_DATABASE_URI': 'some_uri',
-        'SERVER_USE_MOCKED_DATABASE': True,
-        'SERVER_LOGGING_LEVEL': 'debug'
+        'SERVER_DATABASE_TYPE': 'some_type',
+        'SERVER_LOGGING_LOCATION': 'some_location',
+        'FLASK_DEBUG': True
     }
     if len(args) == 1:
         return matching.get(args[0], None)
@@ -35,7 +35,7 @@ def env_args_matcher(*args) -> Union[object, None]:
 # test case for basic env parsing (ensure it handles .env, env vars + logging)
 class EnvironmentHandlingTest(unittest.TestCase):
 
-    testing_vars = ['SQLALCHEMY_DATABASE_URI', 'SERVER_USE_MOCKED_DATABASE', 'SERVER_LOGGING_LEVEL']
+    testing_vars = ['SERVER_DATABASE_TYPE', 'SERVER_LOGGING_LOCATION', 'FLASK_DEBUG']
 
     # mocks
     mocked_flask_config_class = MagicMock(flask.Config, name='mocked_flask_config_class')

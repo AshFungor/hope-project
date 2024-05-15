@@ -20,21 +20,28 @@ class Env:
     env_value_placeholder = None
     # PLEASE ADD NEW VARS TO THE END AND DO NOT REMOVE THESE!!!
     env_vars = [
-        'SQLALCHEMY_DATABASE_URI', 
-        'SERVER_USE_MOCKED_DATABASE',
+        'SERVER_DATABASE_TYPE', 
         'SERVER_LOGGING_LEVEL',
         'FLASK_ENV',
-        'FLASK_DEBUG'
+        'FLASK_DEBUG',
+        'SERVER_LOGGING_STORAGE_TYPE',
+        'SERVER_LOGGING_LOCATION',
+        'POSTGRES_USER',
+        'POSTGRES_PASSWORD',
+        'POSTGRESQL_HOSTNAME',
+        'POSTGRESQL_PORT',
+        'SQLITE_DATABASE_NAME'
     ]
     env_flask_vars = [
         'SQLALCHEMY_DATABASE_URI'
     ]
     env_defaults = {
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///DataBase.db',
-        'SERVER_USE_MOCKED_DATABASE': False,
+        'SERVER_DATABASE_TYPE': 'sqlite',
         'SERVER_LOGGING_LEVEL': 'debug',
         'FLASK_ENV': 'development',
-        'FLASK_DEBUG': True
+        'FLASK_DEBUG': True,
+        'SERVER_LOGGING_STORAGE_TYPE': 'local',
+        'SERVER_LOGGING_LOCATION': './log/'
     }
     env_logging_levels = {
         'debug': logging.DEBUG, 
@@ -43,6 +50,10 @@ class Env:
         'error': logging.ERROR, 
         'critical': logging.CRITICAL
     }
+    env_logging_storages = [
+        'system',
+        'local'
+    ]
     # add some json config later
 
 
@@ -91,7 +102,17 @@ class Env:
         if level not in Env.env_logging_levels:
             return logging.DEBUG
         return Env.env_logging_levels[level]
-        
+    
+
+    # match logging file locations
+    def _match_logging_location(self, logging_storage_type: str) -> str:
+        if logging_storage_type in Env.env_logging_storages:
+            if logging_storage_type == 'system':
+                # fetch path to system log
+                return self.server_logging_location
+            elif logging_storage_type == 'local':
+                return './'
+
     
     def _init_logging(self) -> None:
         # check if configs were parsed and valid
@@ -99,7 +120,11 @@ class Env:
             raise ValueError('Environment must be initialized before logging')
         # loggers are essentially endpoints that receive logged() messages
         # and route them in whatever way (to file, to standard output or error streams - terminal)
-        file_log_sink = logging.handlers.RotatingFileHandler('server.log', maxBytes=4096, backupCount=2)
+        file_log_sink = logging.handlers.RotatingFileHandler(
+            self._match_logging_location(self.server_logging_storage_type) + 'server.log', 
+            maxBytes=4096, 
+            backupCount=2
+        )
         std_out_sink = logging.StreamHandler(sys.stdout)
         # std_err_sink = logging.StreamHandler(sys.stderr)
         # we also need to sync file rotation, because it dies on windows
@@ -133,10 +158,16 @@ class Env:
 
     # sets new global, also performs some simple checks
     def assign_new(self, object: object, field_name: str) -> None:
-        if hasattr(self, field_name):
+        if hasattr(self, field_name.lower()):
             raise ValueError('global scope already has this variable')
         # maybe more checks?
-        setattr(self, field_name, object)
+        setattr(self, field_name.lower(), object)
+
+    # gets value from current env, essentially patched getattr
+    def get_var(self, name: str) -> object:
+        if not hasattr(self, name.lower()):
+            raise ValueError(f'requested {name.upper()} variable is not present in env')
+        return getattr(self, name.lower())
 
 
 # create singleton to hold all global data

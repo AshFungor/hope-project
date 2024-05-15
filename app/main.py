@@ -14,6 +14,17 @@ import tracemalloc
 # local
 from app.modules.database.handlers import Database
 from app.modules.database.handlers import MockStorage
+from app.modules.database.handlers import DatabaseType
+
+from app.routes.main import main
+from app.routes.person_lk import person_lk
+from app.routes.company_lk import company_lk
+from app.routes.city_lk import city_lk
+from app.routes.prefecture_lk import prefecture_lk
+from app.routes.city_hall_lk import city_hall_lk
+from app.routes.master_lk import master_lk
+from app.routes.admin_lk import admin_lk
+from app.routes.login import login
 
 
 # close running threads, connections etc.
@@ -27,34 +38,12 @@ def create_app():
     signal.signal(signal.SIGINT, cleanup)
 
     logging.info("initializing Flask app")
-    app = Flask(__name__)
-
-    # merge received through Env config with default one that app has 
-    app.config.update(env.make_flask_config(env.env_flask_vars))
+    app = Flask(__name__)    
 
     logging.info("handling Database creation")
-    env.assign_new(None, 'db')
-    if env.server_use_mocked_database:
-        mockedHandle = MockStorage(app)
-        env.db = Database(mockedHandle)
-    else:
-        handle = SQLAlchemy()
-        handle.init_app(app)
-        with app.app_context():
-            handle.create_all()
-        env.db = Database(handle)
+    env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
 
     logging.info("handling routes")
-
-    from app.routes.main import main
-    from app.routes.person_lk import person_lk
-    from app.routes.company_lk import company_lk
-    from app.routes.city_lk import city_lk
-    from app.routes.prefecture_lk import prefecture_lk
-    from app.routes.city_hall_lk import city_hall_lk
-    from app.routes.master_lk import master_lk
-    from app.routes.admin_lk import admin_lk
-    from app.routes.login import login
 
     app.register_blueprint(main)
     app.register_blueprint(person_lk)
