@@ -24,4 +24,5 @@ RUN $PYTHON app/tests/env_test.py
 # handle SSL certs
 
 ENV FLASK /hope-project/venv/bin/flask
+ENV APP /hope-project/app/main
 CMD $FLASK --app $APP run --host 0.0.0.0 --port 5000
