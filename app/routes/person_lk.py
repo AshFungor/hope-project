@@ -3,7 +3,7 @@ from app.env import env
 from app.models.user import User
 
 person_lk = Blueprint('person_lk', __name__)
-db = env.db.impl()
+
 @person_lk.route('/person_lk')
 def person_cabinet():
 
