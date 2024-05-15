@@ -1,2 +1,43 @@
+services:
+  webapp:
+    build: .
+    ports:
+      - "5000:5000"
+    networks:
+      - local
+    volumes:
+      - logs:/var/log:w
+    # we have hook for this
+    stop_signal: SIGINT
+  database:
+    env_file:
+    - path: .env
+      required: false
+    environment:
+      - PGDATA=${POSTGRESQL_DIRECTORY}/data
+    image: "postgres:16.3"
+    networks:
+      - local
+    volumes:
+      - db-data:${POSTGRESQL_DIRECTORY}/data:rw
+    restart: always
 
-      
+networks:
+  # network for all containers to talk to each other
+  local:
+    name: hope-internal-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.1.1.0/24
+          ip_range: 172.1.1.0/24
+          aux_addresses:
+            webapp: 172.1.1.3
+            database: 172.1.1.4
+
+volumes:
+  db-data:
+    driver: local
+  logs:
+    driver: local
