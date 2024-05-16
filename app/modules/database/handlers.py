@@ -5,6 +5,9 @@ from flask import Flask
 import sqlalchemy
 import sqlalchemy.orm
 
+# typing extensions
+import typing_extensions
+
 # local
 from app.env import env
 
@@ -12,6 +15,7 @@ from app.env import env
 from abc import abstractmethod
 from typing import Union
 
+import datetime
 import urllib.parse
 import logging
 import enum
@@ -108,6 +112,69 @@ class DatabaseType(enum.IntEnum):
             'mock': DatabaseType.MOCK
         }
         return mappings.get(string, None)
+
+
+# annotated types for usage with Mapped[]
+# auto-incrementing type, useful for generating IDs
+serial = typing_extensions.Annotated[
+    int, 
+    sqlalchemy.Sequence(start=0, increment=1, name='Sequence'), 
+    sqlalchemy.orm.mapped_column(sqlalchemy.BIGINT, primary_key=True)
+]
+
+# longest 8 byte signed integer
+long_int = typing_extensions.Annotated[
+    int, 
+    sqlalchemy.orm.mapped_column(sqlalchemy.BIGINT, nullable=False)
+]
+
+# 2 byte int
+small_int = typing_extensions.Annotated[
+    int,
+    sqlalchemy.orm.mapped_column(sqlalchemy.SMALLINT, nullable=False)
+]
+
+# 4 byte int
+mid_int = typing_extensions.Annotated[
+    int,
+    sqlalchemy.orm.mapped_column(sqlalchemy.INTEGER, nullable=False)
+]
+
+# fixed string types
+fixed_strings = dict([
+    (size, typing_extensions.Annotated[str, sqlalchemy.orm.mapped_column(sqlalchemy.CHAR(size), nullable=False)])
+    for size in [16, 32, 64, 128, 256]
+])
+
+# string types
+variable_strings = dict([
+    (size, typing_extensions.Annotated[str, sqlalchemy.orm.mapped_column(sqlalchemy.VARCHAR(size), nullable=False)])
+    for size in [16, 32, 64, 128, 256]
+])
+
+# 15 digits precision floating point number
+c_double = typing_extensions.Annotated[
+    float, 
+    sqlalchemy.orm.mapped_column(sqlalchemy.DOUBLE, nullable=False)
+]
+
+# 7 digits precision floating point number
+c_float = typing_extensions.Annotated[
+    float, 
+    sqlalchemy.orm.mapped_column(sqlalchemy.FLOAT, nullable=False)
+]
+
+# date + time
+c_datetime = typing_extensions.Annotated[
+    datetime.datetime,
+    sqlalchemy.orm.mapped_column(sqlalchemy.TIMESTAMP, nullable=False, default=sqlalchemy.func.current_timestamp())
+]
+
+# date
+c_date = typing_extensions.Annotated[
+    datetime.date,
+    sqlalchemy.orm.mapped_column(sqlalchemy.DATE, nullable=False)
+]
     
 
 class ModelBase(sqlalchemy.orm.DeclarativeBase):
@@ -126,7 +193,9 @@ class Database:
         return self.engine
 
 
-    def _handle_sql_alchemy_setup(self, app: Flask) -> SQLAlchemy:
+    def _handle_sql_alchemy_setup(self, app: Flask, url: sqlalchemy.URL) -> SQLAlchemy:
+        env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
+        app.config.update(env.make_flask_config(env.env_flask_vars))
         handle = SQLAlchemy(model_class=ModelBase)
         handle.init_app(app)
         with app.app_context():
@@ -146,10 +215,8 @@ class Database:
                 host=env.get_var('POSTGRESQL_HOSTNAME'),
                 port=env.get_var('POSTGRESQL_PORT'),
                 database=env.get_var('POSTGRES_USER')
-            )
-        env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
-        app.config.update(env.make_flask_config(env.env_flask_vars))
-        return self._handle_sql_alchemy_setup(app)
+        )
+        return self._handle_sql_alchemy_setup(app, url)
 
 
     def _handle_sqlite_setup(self, app: Flask) -> SQLAlchemy:
@@ -157,9 +224,7 @@ class Database:
             'sqlite',
             database=env.get_var('SQLITE_DATABASE_NAME')
         )
-        env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
-        app.config.update(env.make_flask_config(env.env_flask_vars))
-        return self._handle_sql_alchemy_setup(app)
+        return self._handle_sql_alchemy_setup(app, url)
 
             
     def _match_database_type(self, type: DatabaseType, app: Flask) -> Union[SQLAlchemy, None]:

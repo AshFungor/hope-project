@@ -12,6 +12,8 @@ import signal
 import tracemalloc
 
 # local
+import models
+
 from app.modules.database.handlers import Database
 from app.modules.database.handlers import MockStorage
 from app.modules.database.handlers import DatabaseType
