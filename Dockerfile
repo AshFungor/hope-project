@@ -16,7 +16,7 @@ ENV PYTHON /hope-project/venv/bin/python
 ENV PIP /hope-project/venv/bin/pip
 ENV PYTHONPATH ${PYTHONPATH}:/hope-project/app/
 
-RUN $PIP install --break-system-packages -r requirements.txt
+RUN $PIP install -r requirements.txt
 
 # testing stage
 RUN $PYTHON app/tests/env_test.py
