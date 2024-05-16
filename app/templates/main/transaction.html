@@ -1,0 +1,19 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Перевод{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transaction.css') }}">
+
+    <block class="transaction_form_container">
+        <form class="transaction_form" method="POST">
+            {{ form.bank_account.label }} {{ form.bank_account }}
+            {{ form.amount.label }} {{ form.amount }}
+            {{ form.comment.label }} {{ form.comment }}
+            <a>
+                {{ form.submit }}
+            </a>
+        </form>
+    </block>
+{% endblock %}

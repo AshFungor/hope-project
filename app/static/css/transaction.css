@@ -1,0 +1,9 @@
+.transaction_form_container {
+    display: flex;
+     justify-content: center;
+}
+
+.transaction_form {
+    display: grid;
+    width: 400 px;
+}

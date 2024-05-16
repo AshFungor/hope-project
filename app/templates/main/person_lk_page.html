@@ -1,3 +1,21 @@
 {% extends 'main/base.html' %}
 
 {% block title %}Личный кабинет{% endblock %}
+
+# стили сделаны для того, чтобы хоть что-то было
+
+{% block content %}
+<block style="display: flex; justify-content: center">
+    <a href="{{ url_for('transaction.transaction_page', _external=True) }}" style="
+        background-color: #1E90FF;
+        border: none;
+        border-radius: 5px ;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        font-size: 16px;
+        cursor: pointer;">
+        Перевод
+    </a>
+</block>
+{% endblock %}

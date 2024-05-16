@@ -25,6 +25,7 @@ from app.routes.city_hall_lk import city_hall_lk
 from app.routes.master_lk import master_lk
 from app.routes.admin_lk import admin_lk
 from app.routes.login import login
+from app.routes.transaction import transaction
 
 
 # close running threads, connections etc.
@@ -38,7 +39,7 @@ def create_app():
     signal.signal(signal.SIGINT, cleanup)
 
     logging.info("initializing Flask app")
-    app = Flask(__name__)    
+    app = Flask(__name__)
 
     logging.info("handling Database creation")
     env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
@@ -54,5 +55,6 @@ def create_app():
     app.register_blueprint(master_lk)
     app.register_blueprint(admin_lk)
     app.register_blueprint(login)
+    app.register_blueprint(transaction)
 
     return app
