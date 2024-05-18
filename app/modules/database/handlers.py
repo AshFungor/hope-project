@@ -196,7 +196,12 @@ class Database:
     def _handle_sql_alchemy_setup(self, app: Flask, url: sqlalchemy.URL) -> SQLAlchemy:
         env.assign_new(url, 'SQLALCHEMY_DATABASE_URI')
         app.config.update(env.make_flask_config(env.env_flask_vars))
-        handle = SQLAlchemy(model_class=ModelBase)
+        handle = SQLAlchemy(
+            model_class=ModelBase,
+            engine_options={
+                'client_encoding': 'utf8'
+            }
+        )
         handle.init_app(app)
         with app.app_context():
             handle.create_all()
