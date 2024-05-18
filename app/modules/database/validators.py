@@ -57,15 +57,15 @@ class StringValidator:
     def validate(self, string: str, max_size: int, fixed: bool = False) -> str:
         validated = ''.join(filter(lambda char: char in self.allowed_chars, string))
         if self.policy == ValidationPolicy.IGNORE:
-            if self._validate_size(len(validated), len(string), max_size, fixed):
+            if not self._validate_size(len(validated), len(string), max_size, fixed):
                 logging.warn(f'string validator: {repr(self)}; string <{string}> did not pass validation, proposed: {validated}; IGNORING')
             return string
         if self.policy == ValidationPolicy.DISCARD:
-            if self._validate_size(len(validated), len(string), max_size, fixed):
+            if not self._validate_size(len(validated), len(string), max_size, fixed):
                 logging.warn(f'string validator: {repr(self)}; string <{string}> did not pass validation, proposed: {validated}; DISCARDING')
             return validated
         if self.policy == ValidationPolicy.ABORT:
-            if self._validate_size(len(validated), len(string), max_size, fixed):
+            if not self._validate_size(len(validated), len(string), max_size, fixed):
                 raise ValueError(f'error validating string: <{string}> did not pass validation, proposed: {validated}; ABORTING')
             return string
             
@@ -133,7 +133,7 @@ class EnumerationValidator:
             logging.warn(f'enum validator: {repr(self)}; ' + error_string + '; IGNORING')
             return unmatched_value
         if self.policy == ValidationPolicy.DISCARD:
-            logging.warn(f'enum validator: {repr(self)}; ' + error_string + '; DISCARDED')
+            logging.warn(f'enum validator: {repr(self)}; ' + error_string + '; DISCARDING')
             return default
         if self.policy == ValidationPolicy.ABORT:
             raise ValueError(f'error validating enum value: <{unmatched_value}>;' + error_string + '; ABORTING')
