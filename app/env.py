@@ -28,8 +28,8 @@ class Env:
         'SERVER_LOGGING_LOCATION',
         'POSTGRES_USER',
         'POSTGRES_PASSWORD',
-        'POSTGRESQL_HOSTNAME',
-        'POSTGRESQL_PORT',
+        'SERVER_POSTGRES_HOSTNAME',
+        'SERVER_POSTGRES_PORT',
         'SQLITE_DATABASE_NAME'
     ]
     env_flask_vars = [

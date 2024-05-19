@@ -26,16 +26,17 @@ def person_cabinet():
     city.name = 'Lol and kek'
     city.prefecture_id = prefecture.id
     # finally, user...
+    time = datetime.datetime.now(CurrentTimezone)
     user = models.User(
         accounts[-1].id,
         city.id,
-        'Kek person',
-        'still kek',
+        'Кек',
+        'Лол',
         'kek_login',
         '##yo__^_^__cool',
         'other',
         0,
-        datetime.datetime.now(CurrentTimezone)
+        time
     )
 
     for account in accounts:

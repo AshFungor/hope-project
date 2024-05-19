@@ -2,48 +2,43 @@ services:
   webapp:
     build: .
     ports:
-      - "5000:5000"
-    networks:
-      - local
+      - 5000:5000
     volumes:
       - logs:/var/log:w
-    # we have hook for this
-    stop_signal: SIGINT
+    restart: always
     depends_on:
       database:
         condition: service_healthy
   database:
+    image: postgres:16.3
     env_file:
     - path: .env
       required: false
     environment:
-      - PGDATA=${POSTGRESQL_DIRECTORY}/data
+      - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
       - PGUSER=${POSTGRES_USER}
-    image: "postgres:16.3"
-    networks:
-      - local
     volumes:
-      - db-data:${POSTGRESQL_DIRECTORY}/data:rw
+      - db-data:${SERVER_POSTGRES_DIRECTORY}/data:rw
+    ports:
+      ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
     restart: always
     healthcheck:
       test: pg_isready
       interval: 5s
       timeout: 5s
       retries: 5
+  reverse-proxy:
+    image: nginx:mainline
+    # volumes:
+    ports:
+      - 80:80
+      - 443:443
 
-networks:
-  # network for all containers to talk to each other
-  local:
-    name: hope-internal-network
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.1.0.0/16
-          ip_range: 172.1.1.0/24
 
 volumes:
   db-data:
+    name: "database data"
     driver: local
   logs:
+    name: "server logs"
     driver: local
