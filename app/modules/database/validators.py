@@ -153,6 +153,7 @@ class DatetimeValidator:
         validated = max(lower, min(upper, target))
         if validated != target:
             return self._fallback(f'datetime <{target}> out of bounds: from {lower} tp {upper}', target, validated)
+        return target
 
     def _fallback(self, error_string: str, initial_target: datetime.datetime, validated_target: datetime.datetime) -> datetime.datetime:
         if self.policy == ValidationPolicy.IGNORE:
