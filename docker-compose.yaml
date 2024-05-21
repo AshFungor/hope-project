@@ -1,8 +1,6 @@
 services:
   webapp:
     build: .
-    ports:
-      - 5000:5000
     volumes:
       - logs:/var/log:w
     restart: always
@@ -12,15 +10,15 @@ services:
   database:
     image: postgres:16.3
     env_file:
-    - path: .env
-      required: false
+      - path: .env
+        required: false
     environment:
       - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
       - PGUSER=${POSTGRES_USER}
     volumes:
       - db-data:${SERVER_POSTGRES_DIRECTORY}/data:rw
     ports:
-      ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
+      - ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
     restart: always
     healthcheck:
       test: pg_isready
@@ -29,16 +27,24 @@ services:
       retries: 5
   reverse-proxy:
     image: nginx:mainline
-    # volumes:
+    volumes:
+      - ./app/static:/static:ro
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-logs:/var/log:rw
     ports:
       - 80:80
       - 443:443
+    depends_on:
+      - webapp
 
 
 volumes:
   db-data:
-    name: "database data"
+    name: "database_data"
     driver: local
   logs:
-    name: "server logs"
+    name: "server_logs"
+    driver: local
+  nginx-logs:
+    name: "nginx_logs"
     driver: local

@@ -4,9 +4,10 @@ FROM python:3.11-slim AS build_env
 COPY . /hope-project/
 WORKDIR /hope-project/
 
-ENV PYTHONPATH ${PYTHONPATH}:/hope-project/app/
-ENV APP /hope-project/app/main
 RUN pip3 install --no-cache-dir -r requirements.txt
+
+# setting unprivileged user to run server & gunicorn from
+RUN groupadd runner && useradd -g runner runner
 
 # testing stage
 FROM build_env as testing_env
@@ -20,4 +21,6 @@ FROM build_env AS deployment_env
 WORKDIR /hope-project/
 RUN for entity in ./*; do test "$entity" != "./app" && rm -r $entity; done
 
-CMD flask --app $APP run --host 0.0.0.0 --port 5000
+ENV PYTHONPATH ${PYTHONPATH}:/hope-project/app/
+CMD su runner && \
+    gunicorn --workers=4 --bind=webapp:5000 'app.main:create_app()'

@@ -121,7 +121,7 @@ class Env:
         # loggers are essentially endpoints that receive logged() messages
         # and route them in whatever way (to file, to standard output or error streams - terminal)
         file_log_sink = logging.handlers.RotatingFileHandler(
-            self._match_logging_location(self.server_logging_storage_type) + 'server.log', 
+            self._match_logging_location(self.server_logging_storage_type) + f'server-{os.getpid()}.log', 
             maxBytes=4096, 
             backupCount=2
         )
