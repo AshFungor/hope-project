@@ -30,6 +30,7 @@ class Prefecture(database.ModelBase):
     __tablename__ = 'prefecture'
 
     id: sqlalchemy.orm.Mapped[database.serial]
+    name: sqlalchemy.orm.Mapped[database.variable_strings[64]] = sqlalchemy.orm.mapped_column(nullable=True)
     bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
     prefect_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
     economic_assistant_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)

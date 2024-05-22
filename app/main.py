@@ -28,6 +28,7 @@ from app.routes.master_lk import master_lk
 from app.routes.admin_lk import admin_lk
 from app.routes.login import login
 from app.routes.transaction import transaction
+from app.routes.upload_csv import upload_csv
 
 
 # close running threads, connections etc.
@@ -58,5 +59,6 @@ def create_app():
     app.register_blueprint(admin_lk)
     app.register_blueprint(login)
     app.register_blueprint(transaction)
+    app.register_blueprint(upload_csv)
 
     return app
