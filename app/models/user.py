@@ -41,7 +41,7 @@ class User(database.ModelBase):
         password: str,                  # password for login
         sex: Sex,                       # some adult content
         bonus: int,                     # god knows
-        birthday: datetime.datetime     # ...
+        birthday: datetime.date         # ...
     ) -> None:
         # TODO: generate bank account in case none
         self.bank_account_id = bank_account_id

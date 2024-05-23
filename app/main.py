@@ -12,10 +12,7 @@ import signal
 import tracemalloc
 
 # local
-import models
-
 from app.modules.database.handlers import Database
-from app.modules.database.handlers import MockStorage
 from app.modules.database.handlers import DatabaseType
 
 from app.routes.main import main
@@ -28,7 +25,7 @@ from app.routes.master_lk import master_lk
 from app.routes.admin_lk import admin_lk
 from app.routes.login import login
 from app.routes.transaction import transaction
-from app.routes.upload_csv import upload_csv
+from app.routes.upload_csv import csv
 
 
 # close running threads, connections etc.
@@ -37,7 +34,7 @@ def cleanup(signum: int, stacktrace: tracemalloc.Frame) -> None:
     sys.exit(signum)
 
 
-def create_app():
+def create_app() -> Flask:
 
     signal.signal(signal.SIGINT, cleanup)
 
@@ -59,6 +56,6 @@ def create_app():
     app.register_blueprint(admin_lk)
     app.register_blueprint(login)
     app.register_blueprint(transaction)
-    app.register_blueprint(upload_csv)
+    app.register_blueprint(csv)
 
     return app

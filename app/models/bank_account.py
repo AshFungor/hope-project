@@ -1,3 +1,6 @@
+import hashlib
+import uuid
+
 import sqlalchemy
 import sqlalchemy.orm
 
@@ -9,6 +12,60 @@ class BankAccount(database.ModelBase):
 
     id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(primary_key=True)
 
+    def __init__(self, id: int | None = None, generator : callable = None, **kwargs: dict[str, object]) -> None:
+        if id is None:
+            if generator is None:
+                generator = BankAccount._generator
+            self.id = generator(**kwargs)
+        else:
+            self.id = id
+
+    @staticmethod
+    def make_spec(
+        type: str | None = None,
+        object: object | None = None
+    ) -> dict[str, object]:
+        return {
+            'type': type,
+            'spec': object
+        }
+
+    @staticmethod
+    def _generator(**kwargs: dict[str, object]) -> int:
+        # first digit is type
+        resulting = ''
+        if 'type' in kwargs:
+            supported = {
+                'user': 1, 'prefecture': 2, 'company': 3,
+                'city-hall': 4
+            }
+            resulting += str(supported.get('type', 0))
+        # 11 allowed digits
+        if 'spec' in kwargs:
+            return int(resulting + BankAccount._hash_and_squash({'main': kwargs['spec'], 'salt': uuid.uuid4()}, 8))
+        raise ValueError(f'no spec given in kwargs: {kwargs}')
+
+    @staticmethod
+    def _hash_and_squash(obj: object, l: int) -> str:
+        hexed = str(int(hashlib.sha3_256(repr(obj).encode()).hexdigest(), base=16))
+
+        # squash to size l
+        if len(hexed) > l:
+            diff = len(hexed) - l
+            cut, hexed = hexed[l:], hexed[:l]
+            # ensure difference is divisible of 8
+            while len(cut) % 8 != 0:
+                cut += '0'
+            # xor each excessive block with the rest
+            hexed = int(hexed)
+            for curr in range(8, len(cut), 8):
+                block = cut[curr - 8:curr]
+                for i in range(l // 8):
+                    hexed = hexed ^ (int(block) << (i * 8))
+            # ensure still have l digits
+            hexed = '0' * max(l - len(str(hexed)), 0) + str(hexed)
+        return hexed
+        
 
 class Product2BankAccount(database.ModelBase):
     __tablename__ = 'product_to_bank_account'

@@ -10,9 +10,6 @@ import models
 import os, csv, dateutil
 
 
-from app.modules.database.create_tables import TbCreator
-
-
 person_lk = Blueprint('person_lk', __name__)
 
 @person_lk.route('/person_lk')
