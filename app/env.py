@@ -69,6 +69,8 @@ class Env:
                     # if we have default, set it
                     value = Env.env_defaults[var]
                     debugStr += f'env: var {var} was not fetched, setting it to default: {value}; '
+                elif hasattr(self, var.lower()):
+                    value = getattr(self, var.lower())
                 else:
                     # else just put None
                     value = Env.env_value_placeholder

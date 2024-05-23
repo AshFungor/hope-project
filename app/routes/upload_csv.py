@@ -1,29 +1,56 @@
-from app.utils.csv_parser import parse_csv
+import flask
+import json
+import io
 
-from flask import Blueprint, render_template, url_for, request, redirect
+import pandas as pd
 
-from app.modules.database.create_tables import TbCreator
+from app.env import env
+from app.modules.database.static import StaticTablesHandler
+
+csv = flask.Blueprint('csv', __name__)
 
 
-upload_csv = Blueprint('upload_csv', __name__)
+def parse(payload: json, field: str) -> pd.DataFrame | flask.Response:
+    frame = pd.read_csv(io.StringIO(payload[field]), sep=';')
+    if any(frame.isna()):
+        return flask.Response(status=443)
+    return frame
 
 
-@upload_csv.route('/upload_csv', methods=['POST', 'GET'])
-def add_csv():
-    if request.method == 'POST':
-        csv_prefectures = request.files['prefectures']
-        table_prefectures = parse_csv(csv_prefectures)
-        csv_cities = request.files['cities']
-        table_cities = parse_csv(csv_cities)
-        csv_users = request.files['users']
-        table_users = parse_csv(csv_users)
+@csv.route('/upload/csv/users', methods=['POST'])
+def parse_users():
+    result = parse(json.loads(flask.request.json), 'Users')
+    if isinstance(result, flask.Response):
+        return result
+    added = StaticTablesHandler.prepare_users(result)
+    if added < result.rows:
+        env.db.impl().session.rollback()
+        return flask.Response(status=443)
+    env.db.impl().session.commit()
+    return flask.Response(status=200)
 
-        if csv_prefectures and csv_cities and csv_users:
-            TbCreator.create_all_start_tables(
-                prefectures=table_prefectures,
-                cities=table_cities,
-                users=table_users
-            )
-        return redirect(url_for('person_lk.person_cabinet'))
-    """страничка для загрузки csv"""
-    return render_template('main/upload_csv.html')
+
+@csv.route('/upload/csv/prefectures', methods=['POST'])
+def parse_prefectures():
+    result = parse(json.loads(flask.request.json), 'Prefectures')
+    if isinstance(result, flask.Response):
+        return result
+    added = StaticTablesHandler.prepare_prefectures(result)
+    if added < result.rows:
+        env.db.impl().session.rollback()
+        return flask.Response(status=443)
+    env.db.impl().session.commit()
+    return flask.Response(status=200)
+
+
+@csv.route('/upload/csv/cities', methods=['POST'])
+def parse_cities():
+    result = parse(json.loads(flask.request.json), 'Cities')
+    if isinstance(result, flask.Response):
+        return result
+    added = StaticTablesHandler.prepare_cities(result)
+    if added < result.rows:
+        env.db.impl().session.rollback()
+        return flask.Response(status=443)
+    env.db.impl().session.commit()
+    return flask.Response(status=200)
