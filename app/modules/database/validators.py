@@ -84,7 +84,7 @@ class IntegerValidator:
     def __init__(self, policy: ValidationPolicy = ValidationPolicy.IGNORE) -> None:
         self.policy = policy
 
-    def validate(self, integer: int, size: int, signed: bool = True) -> int:
+    def validate(self, integer: int, size: int, signed: bool = True) -> int: 
         lower = upper = 0
         if signed:
             upper = (1 << (size - 1)) - 1
@@ -146,10 +146,12 @@ class DatetimeValidator:
 
     def validate(
         self, 
-        target: datetime.datetime, 
+        target: datetime.datetime | datetime.date, 
         lower: datetime.datetime = datetime.datetime.now(CurrentTimezone) - MaxDecline, 
         upper: datetime.datetime = datetime.datetime.now(CurrentTimezone)
     ) -> datetime.datetime:
+        if isinstance(target, datetime.date):
+            lower, upper = lower.date(), upper.date()
         validated = max(lower, min(upper, target))
         if validated != target:
             return self._fallback(f'datetime <{target}> out of bounds: from {lower} tp {upper}', target, validated)

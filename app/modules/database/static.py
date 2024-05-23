@@ -1,6 +1,7 @@
 # required library
 import datetime
 import logging
+import uuid
 
 import pandas as pd
 import app.models as models
@@ -12,8 +13,8 @@ from app.modules.database.validators import CurrentTimezone
 class StaticTablesHandler:
 
     @staticmethod
-    def prepare_bank_account():
-        bank_account = models.BankAccount()
+    def prepare_bank_account(**kwargs: dict[str, object]) -> int:
+        bank_account = models.BankAccount(**kwargs)
         env.db.impl().session.add(bank_account)
         return bank_account.id
 
@@ -22,16 +23,22 @@ class StaticTablesHandler:
         count = 0
         try:
             for index, prefecture in prefectures.iterrows():
-                prefecture_model = models.Prefecture()
-                prefecture_model.bank_account_id = StaticTablesHandler.prepare_bank_account()
-                prefecture_model.name = prefecture['Name']
+                prefecture_model = models.Prefecture(
+                    prefecture['Name'],
+                    StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
+                        'prefecture', prefecture
+                    )),
+                    None,
+                    None,
+                    None
+                )
                 env.db.impl().session.add(prefecture_model)
                 count += 1
-            logging.debug(f'receiving new prefectures objects: {len(prefectures)} added')
+            logging.debug(f'receiving new prefectures objects: {count} added')
         except ValueError as value_error:
             logging.warn(f'error parsing prefectures: {value_error}')
         except Exception as unknown_error:
-            logging.warn(f'unknown error: {value_error}')
+            logging.warn(f'unknown error: {unknown_error}')
         finally:
             return count
 
@@ -40,19 +47,23 @@ class StaticTablesHandler:
         count = 0
         try:
             for index, city in cities.iterrows():
-                city_model = models.City()
-                city_model.name = city['Name']
-                query = env.db.impl().session.query(models.Prefecture).filter(
-                    models.Prefecture.name == city['Prefecture']).first()
-                city_model.prefecture_id = query.id
-                city_model.bank_account_id = StaticTablesHandler.prepare_bank_account()
-                city_model.location = int(city['Location'])
+                city_model = models.City(
+                    city['Name'],
+                    None,
+                    env.db.impl().session.query(models.Prefecture).filter(
+                        models.Prefecture.name == city['Prefecture']).first().id,
+                    StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
+                        'city', city
+                    )),
+                    city['Location']
+                )
                 env.db.impl().session.add(city_model)
-            logging.debug(f'receiving new cities objects: {len(cities)} added')
+                count += 1
+            logging.debug(f'receiving new cities objects: {count} added')
         except ValueError as value_error:
-            logging.warn(f'error parsing cities: {value_error}')
+            logging.warning(f'error parsing cities: {value_error}')
         except Exception as unknown_error:
-            logging.warn(f'unknown error: {value_error}')
+            logging.warning(f'unknown error: {unknown_error}')
         finally:
             return count
 
@@ -61,9 +72,11 @@ class StaticTablesHandler:
         count = 0
         try:
             for index, user in users.iterrows():
-                birthday = datetime.date(map(int, user['Birthday'].split('.')), tzinfo=CurrentTimezone)
+                birthday = datetime.date(*reversed(list(map(int, user['Birthday'].split('.')))))
                 user_model = models.User(
-                    StaticTablesHandler.create_bank_account(),
+                    StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
+                        'user', user
+                    )),
                     env.db.impl().session.query(models.City).filter(
                         models.City.name == user['City']).first().id,
                     user['Name'],
@@ -75,11 +88,12 @@ class StaticTablesHandler:
                     birthday
                 )
                 env.db.impl().session.add(user_model)
-            logging.debug(f'receiving new user objects: {len(user)} added')
+                count += 1
+            logging.debug(f'receiving new user objects: {count} added')
         except ValueError as value_error:
-            logging.warn(f'error parsing users: {value_error}')
+            logging.warning(f'error parsing users: {value_error}')
         except Exception as unknown_error:
-            logging.warn(f'unknown error: {value_error}')
+            logging.warning(f'unknown error: {unknown_error}')
         finally:
             return count
 

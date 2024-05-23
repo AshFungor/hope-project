@@ -1,7 +1,8 @@
 import logging
-import flask
+import unittest
 
 from abc import abstractmethod
+import unittest.mock
 
 
 # Session handle represents endpoint for mock session calls
@@ -21,9 +22,26 @@ class MockStorage(ISessionHandle):
 
     class MockSession:
 
+        class MockQuery:
+
+            def __init__(self, model, *args):
+                pass
+            
+            def first(self, *args):
+                return unittest.mock.MagicMock()
+
+            def filter(self, *args):
+                return self
+
         def __init__(self, handle: ISessionHandle) -> None:
             self.objects = []
             self.handle = handle
+
+        def rollback(self):
+            pass
+
+        def query(self, model, *args):
+            return MockStorage.MockSession.MockQuery(model, args)
         
         def add(self, instance: object, _warn: bool = True) -> None:
             logging.debug(f'adding object: {repr(object)}')
@@ -43,7 +61,7 @@ class MockStorage(ISessionHandle):
             for i in range(len(self.objects)):
                 payload[str(i)] = repr(self.objects[i])
 
-    def handle_transaction(**args: dict[str, str]) -> int:
+    def handle_transaction(self, **args: dict[str, str]) -> int:
         logging.debug('received transaction')
     
     def __init__(self) -> None:

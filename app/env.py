@@ -122,8 +122,10 @@ class Env:
             raise ValueError('Environment must be initialized before logging')
         # loggers are essentially endpoints that receive logged() messages
         # and route them in whatever way (to file, to standard output or error streams - terminal)
+        self.server_logging_file = self._match_logging_location(
+            self.server_logging_storage_type) + f'server-{os.getpid()}.log'
         file_log_sink = logging.handlers.RotatingFileHandler(
-            self._match_logging_location(self.server_logging_storage_type) + f'server-{os.getpid()}.log', 
+            self.server_logging_file, 
             maxBytes=4096, 
             backupCount=2
         )
@@ -161,7 +163,7 @@ class Env:
     # sets new global, also performs some simple checks
     def assign_new(self, object: object, field_name: str) -> None:
         if hasattr(self, field_name.lower()):
-            raise ValueError('global scope already has this variable')
+            raise ValueError(f'global scope already has this variable: {field_name.lower()}')
         # maybe more checks?
         setattr(self, field_name.lower(), object)
 
