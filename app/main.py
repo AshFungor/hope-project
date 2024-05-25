@@ -1,8 +1,11 @@
 # env import must be always first (!!!)
+import os
+
 from app.env import env
 
 # flask
 from flask import Flask
+from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 
 # base
@@ -40,6 +43,13 @@ def create_app() -> Flask:
 
     logging.info("initializing Flask app")
     app = Flask(__name__)
+
+    logging.info('set a secret key')
+    env.assign_new('9e496eeb2bdcb0f0058cc5f6', 'SECRET_KEY')
+    app.secret_key = env.get_var('SECRET_KEY')
+
+    logging.info("initializing csrf protect")
+    csrf = CSRFProtect(app)
 
     logging.info("handling Database creation")
     env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
