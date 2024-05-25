@@ -1,4 +1,5 @@
 # env import must be always first (!!!)
+
 from app.env import env
 
 # flask
