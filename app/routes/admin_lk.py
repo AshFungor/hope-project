@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, session
 
 admin_lk = Blueprint('admin_lk', __name__)
 
@@ -6,4 +6,4 @@ admin_lk = Blueprint('admin_lk', __name__)
 @admin_lk.route('/admin_lk')
 def admin_cabinet():
     """Личный кабинет admin"""
-    return render_template('main/admin_lk.html')
+    return render_template('main/admin_lk.html', session=session)
