@@ -8,12 +8,12 @@
 
     <block class="transaction_form_container">
         <form class="transaction_form" method="POST">
+            {{ form.csrf_token }}
             {{ form.bank_account.label }} {{ form.bank_account }}
             {{ form.amount.label }} {{ form.amount }}
             {{ form.comment.label }} {{ form.comment }}
-            <a>
-                {{ form.submit }}
-            </a>
+            <p></p>
+            {{ form.submit }}
         </form>
     </block>
 {% endblock %}

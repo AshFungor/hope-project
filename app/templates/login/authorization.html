@@ -3,14 +3,29 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
+
+<block class="message_container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes" style="">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+</block>
+
+
     <form method="POST">
         <div class="container">
             <label for="Login"><b>Логин</b></label>
-
             <input type="text" placeholder="" name="Login" required>
             <label for="Password"><b>Пароль</b></label>
             <input type="password" placeholder="" name="Password" required>
             <button type="submit">Войти</button>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </div>
     </form>
 
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/auth.css') }}">
