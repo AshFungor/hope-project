@@ -10,6 +10,7 @@ import dateutil
 CurrentTimezone = zoneinfo.ZoneInfo('Europe/Moscow')
 # max human age confirmed, guess we will not see someone older
 MaxDecline = dateutil.relativedelta.relativedelta(years=117)
+TimeWindow = dateutil.relativedelta.relativedelta(seconds=2)
 
 
 class ValidationPolicy(enum.IntEnum):
@@ -147,10 +148,14 @@ class DatetimeValidator:
     def validate(
         self, 
         target: datetime.datetime | datetime.date, 
-        lower: datetime.datetime = datetime.datetime.now(CurrentTimezone) - MaxDecline, 
-        upper: datetime.datetime = datetime.datetime.now(CurrentTimezone)
+        lower: datetime.datetime | None = None, 
+        upper: datetime.datetime | None = None
     ) -> datetime.datetime:
-        if isinstance(target, datetime.date):
+        if lower is None:
+            lower = datetime.datetime.now(CurrentTimezone) - MaxDecline
+        if upper is None:
+            upper = datetime.datetime.now(CurrentTimezone) + TimeWindow
+        if isinstance(target, datetime.date) and not isinstance(target, datetime.datetime):
             lower, upper = lower.date(), upper.date()
         validated = max(lower, min(upper, target))
         if validated != target:
