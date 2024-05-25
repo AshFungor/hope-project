@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, request, render_template, url_for
+from flask import Blueprint, redirect, request, render_template, url_for, session
 
 import app.routes.transaction
 from app.forms.transaction import TransactionForm
@@ -17,4 +17,4 @@ def transaction_page():
         else:
             pass
         return redirect(url_for('transaction.transaction_page'))
-    return render_template('main/transaction.html', form=form)
+    return render_template('main/transaction.html', form=form, session=session)

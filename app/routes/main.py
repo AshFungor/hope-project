@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, session
 
 
 main = Blueprint('main', __name__)
@@ -8,4 +8,4 @@ main = Blueprint('main', __name__)
 @main.route('/index')
 def index():
 
-    return render_template('main/index.html')
+    return render_template('main/index.html', session=session)
