@@ -42,7 +42,7 @@ class BankAccount(database.ModelBase):
                 'prefecture': 2, 
                 'city-hall': 1
             }
-            resulting += str(supported.get('type', 0))
+            resulting += str(supported.get(kwargs['type'], 0))
         # 11 allowed digits
         if 'spec' in kwargs:
             return int(resulting + BankAccount._hash_and_squash({'main': kwargs['spec'], 'salt': uuid.uuid4()}, 4))

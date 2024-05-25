@@ -17,7 +17,7 @@ class Sex(enum.StrEnum):
 
 
 class User(database.ModelBase):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     id: sqlalchemy.orm.Mapped[database.serial]
     bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
