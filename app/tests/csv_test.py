@@ -60,10 +60,13 @@ class CsvApiTest(unittest.TestCase):
         return payload.to_csv(sep=',')
 
     def test_requests(self) -> None:
+        print(f'users: \n{CsvApiTest.make_user_payload()}')
         response = self.client.post('/upload/csv/users', data=CsvApiTest.make_user_payload())
         self.assertEqual(response.status_code, 200)
+        print(f'cities: \n{CsvApiTest.make_cities_payload()}')
         response = self.client.post('/upload/csv/cities', data=CsvApiTest.make_cities_payload())
         self.assertEqual(response.status_code, 200)
+        print(f'prefectures: \n{CsvApiTest.make_prefectures_payload()}')
         response = self.client.post('/upload/csv/prefectures', data=CsvApiTest.make_prefectures_payload())
         self.assertEqual(response.status_code, 200)
 
