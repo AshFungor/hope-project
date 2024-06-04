@@ -80,4 +80,5 @@ def create_app() -> Flask:
     app.register_blueprint(user_suggestions)
     app.register_blueprint(suggestion)
 
+
     return app
