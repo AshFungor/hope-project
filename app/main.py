@@ -1,4 +1,5 @@
 # env import must be always first (!!!)
+import datetime
 import os
 
 from app.env import env
@@ -7,6 +8,10 @@ from app.env import env
 from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
+
+
+from app.routes.main import login_manager
+
 
 # base
 import sys
@@ -29,6 +34,8 @@ from app.routes.admin_lk import admin_lk
 from app.routes.login import login
 from app.routes.transaction import transaction
 from app.routes.upload_csv import csv
+from app.routes.user_suggestions import user_suggestions
+from app.routes.suggestion import suggestion
 
 
 # close running threads, connections etc.
@@ -47,6 +54,9 @@ def create_app() -> Flask:
     logging.info('set a secret key')
     env.assign_new('9e496eeb2bdcb0f0058cc5f6', 'SECRET_KEY')
     app.secret_key = env.get_var('SECRET_KEY')
+
+    login_manager.init_app(app)
+    app.permanent_session_lifetime = datetime.timedelta(minutes=30)
 
     logging.info("initializing csrf protect")
     csrf = CSRFProtect(app)
@@ -67,5 +77,7 @@ def create_app() -> Flask:
     app.register_blueprint(login)
     app.register_blueprint(transaction)
     app.register_blueprint(csv)
+    app.register_blueprint(user_suggestions)
+    app.register_blueprint(suggestion)
 
     return app
