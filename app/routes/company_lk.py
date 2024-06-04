@@ -1,5 +1,4 @@
-from flask import Blueprint, render_template, url_for
-from flask_login import login_required
+from flask import Blueprint, render_template, url_for, session
 
 # local
 import app.modules.database.static as static
@@ -10,4 +9,4 @@ import app.routes.blueprints as blueprints
 @login_required
 def company_cabinet():
     """Личный кабинет компании"""
-    return render_template('main/company.html')
+    return render_template('main/company.html', session=session)
