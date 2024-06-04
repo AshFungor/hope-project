@@ -6,12 +6,24 @@
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transaction.css') }}">
 
+
+
     <block class="transaction_form_container">
         <form class="transaction_form" method="POST">
+
+            {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <ul class="flashes" style="">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
             {{ form.csrf_token }}
             {{ form.bank_account.label }} {{ form.bank_account }}
             {{ form.amount.label }} {{ form.amount }}
-            {{ form.comment.label }} {{ form.comment }}
             <p></p>
             {{ form.submit }}
         </form>
