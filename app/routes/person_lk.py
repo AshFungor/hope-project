@@ -6,7 +6,7 @@ from app.modules.database.validators import CurrentTimezone
 from app.env import env
 
 # models and parsing
-import models
+import app.models as models
 import os, csv, dateutil
 
 

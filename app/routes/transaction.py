@@ -1,7 +1,7 @@
 import datetime
 import logging
-
 import flask
+
 from flask import Blueprint, redirect, request, render_template, url_for
 from flask_login import login_required, current_user
 

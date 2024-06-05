@@ -1,7 +1,9 @@
+import datetime
+
 from flask import Blueprint, render_template, url_for
+
 from app.env import env
 from app import models
-import datetime
 from app.modules.database.static import CurrentTimezone
 from app.modules.database.static import StaticTablesHandler
 

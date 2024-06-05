@@ -1,4 +1,5 @@
 import flask
+
 from flask import Blueprint, render_template, url_for, session, request, redirect, message_flashed
 from flask_login import login_user
 
