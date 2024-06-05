@@ -1,6 +1,6 @@
 import logging
-
 import flask
+
 from flask import Blueprint, redirect, request, render_template, url_for, session
 from flask_login import current_user
 from app.forms.suggestion import SuggestionForm
