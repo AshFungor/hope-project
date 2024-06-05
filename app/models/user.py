@@ -1,6 +1,11 @@
 import enum
 import datetime
 
+from flask_login import UserMixin
+from app.routes.main import login_manager
+
+from app.env import env
+
 import sqlalchemy
 import sqlalchemy.orm
 
@@ -10,13 +15,18 @@ import app.modules.database.validators as validators
 import dateutil
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return env.db.impl().session.query(User).get(user_id)
+
+
 class Sex(enum.StrEnum):
     FEMALE = 'female'
     MALE = 'male'
     OTHER = 'other'
 
 
-class User(database.ModelBase):
+class User(database.ModelBase, UserMixin):
     __tablename__ = 'users'
 
     id: sqlalchemy.orm.Mapped[database.serial]

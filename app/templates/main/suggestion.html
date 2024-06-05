@@ -1,11 +1,10 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Перевод{% endblock %}
+{% block title %}Предложения{% endblock %}
 
 {% block content %}
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/transaction.css') }}">
-
 
 
     <block class="transaction_form_container">
@@ -23,6 +22,8 @@
 
             {{ form.csrf_token }}
             {{ form.bank_account.label }} {{ form.bank_account }}
+            {{ form.product.label }} {{ form.product }}
+            {{ form.count.label }} {{ form.count}}
             {{ form.amount.label }} {{ form.amount }}
             <p></p>
             {{ form.submit }}

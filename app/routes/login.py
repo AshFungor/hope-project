@@ -1,5 +1,7 @@
 import flask
+
 from flask import Blueprint, render_template, url_for, session, request, redirect, message_flashed
+from flask_login import login_user
 
 from app.env import env
 import app.models as models
@@ -18,7 +20,7 @@ def authorization():
         if not user:
             flask.flash('Пользователя с таким логином не существует')
         elif user.password == request.form['Password']:
-            session['username'] = user.name
+            login_user(user)
             return redirect(url_for('main.index'))
         else:
             flask.flash('Неверный пароль')

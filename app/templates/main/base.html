@@ -52,7 +52,7 @@
                     </form>
         
                     <div class="text-end">
-                        {% if not session['username'] %}
+                        {% if not current_user.is_authenticated %}
                         <button type="button" class="btn btn-light text-dark me-2" onclick="window.location.href='{{ url_for( 'login.authorization' ) }}';"><ya-tr-span data-index="26-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Login" data-translation="Вход" data-ch="0" data-type="trSpan" style="visibility: initial !important;">Вход</ya-tr-span></button>
                         {% else %}
                         <button type="button" class="btn btn-light text-dark me-2" onclick="window.location.href='{{ url_for( 'login.logout' ) }}';"><ya-tr-span data-index="26-1" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value="Logout" data-translation="Выход" data-ch="0" data-type="trSpan" style="visibility: initial !important;">Выход</ya-tr-span></button>
