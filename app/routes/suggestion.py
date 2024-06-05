@@ -32,17 +32,19 @@ def sug():
                 models.Product2BankAccount.product_id == product.id if product else None,
                 models.Product2BankAccount.product_id == 1,
             )
-        ))
+        )).order_by(models.Product2BankAccount.product_id).all()
+        expected_num_of_rows = 2
 
         # check it
         if product and \
            customer_bank_account and \
            (customer_bank_account_id != current_user.bank_account_id) and \
-           len(list(seller_wallet_products)) == 2:
-            if seller_wallet_products[1].count < count:
+           len(seller_wallet_products) == expected_num_of_rows:
+            seller_wallet, seller_products = seller_wallet_products
+            if seller_products.count < count:
                 flask.flash('У вас недостаточно продуктов для данного предложения', 'warning')
                 logging.info('transaction was not created')
-            elif seller_wallet_products[0].count < amount:
+            elif seller_wallet.count < amount:
                 logging.info('transaction was not created')
                 flask.flash('У вас недостаточно надиков для данного предложения', 'warning')
             else:

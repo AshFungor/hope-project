@@ -9,9 +9,7 @@ from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
 
-
 from app.routes.main import login_manager
-
 
 # base
 import sys
@@ -79,6 +77,5 @@ def create_app() -> Flask:
     app.register_blueprint(csv)
     app.register_blueprint(user_suggestions)
     app.register_blueprint(suggestion)
-
 
     return app

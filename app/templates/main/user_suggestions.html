@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<block class="message_container" style="align: center">
+<block class="message_container">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul class="flashes" style="">
@@ -16,12 +16,11 @@
     {% endif %}
 {% endwith %}
 </block>
-<block class="main_container" style="display: grid;" >
-    {% for suggestion in user_suggestions.items %}
-        <div class="main_container">
-            <div class="big_container" >
+<div class="main_container">
+    <div class="big_container" >
+        {% for suggestion in user_suggestions.items %}
                 <div class="form_container">
-                    <form action="{{ url_for('user_suggestions.user_sugs', _external=True) }}" method="POST">
+                    <form action="{{ url_for('user_suggestions.get_user_suggestions', _external=True) }}" method="POST">
                         <div class="sender">
                             От: {{ suggestion.name }} ({{ suggestion.bank_account_id }})
                         </div>
@@ -37,10 +36,9 @@
                         <input class="form_button_left" type="submit" name="action" value="Отклонить">
                     </form>
                 </div>
-            </div>
-        </div>
-    {% endfor %}
-</block>
+        {% endfor %}
+    </div>
+</div>
     {% if user_suggestions.has_prev %}
         <a href="{{ url_for('user_suggestions.user_sugs', _external=True, page = user_suggestions.prev_num) }}">Older posts >></a>
     {% endif %}
