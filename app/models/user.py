@@ -2,7 +2,6 @@ import enum
 import datetime
 
 from flask_login import UserMixin
-from app.routes.main import login_manager
 
 from app.env import env
 
@@ -13,11 +12,6 @@ import app.modules.database.handlers as database
 import app.modules.database.validators as validators
 
 import dateutil
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return env.db.impl().session.query(User).get(user_id)
 
 
 class Sex(enum.StrEnum):
