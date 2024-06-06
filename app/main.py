@@ -1,25 +1,23 @@
 # env import must be always first (!!!)
-import datetime
-import os
-
 from app.env import env
 
 # flask
 from flask import Flask
 from flask_wtf import CSRFProtect
-from flask_sqlalchemy import SQLAlchemy
-
-from app.routes.main import login_manager
+from flask_login import LoginManager
 
 # base
 import sys
-import logging
 import signal
+import logging
+import datetime
 import tracemalloc
 
 # local
 from app.modules.database.handlers import Database
 from app.modules.database.handlers import DatabaseType
+
+import app.models as models
 
 from app.routes.main import main
 from app.routes.person_lk import person_lk
@@ -34,6 +32,14 @@ from app.routes.transaction import transaction
 from app.routes.upload_csv import csv
 from app.routes.user_suggestions import user_suggestions
 from app.routes.suggestion import suggestion
+
+
+login_manager = LoginManager()
+login_manager.login_view = 'login.authorization'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return env.db.impl().session.query(models.User).get(user_id)
 
 
 # close running threads, connections etc.
@@ -77,5 +83,7 @@ def create_app() -> Flask:
     app.register_blueprint(csv)
     app.register_blueprint(user_suggestions)
     app.register_blueprint(suggestion)
+
+    csrf.exempt(csv)
 
     return app
