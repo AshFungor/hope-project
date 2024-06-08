@@ -5,46 +5,22 @@
 # стили сделаны для того, чтобы хоть что-то было
 
 {% block content %}
-    <div class="col-6 text-center">
-        {% if current_user.is_authenticated %}
-            <h2>Добрый день {{ current_user.name }}</h2>
-        {% endif %}
-    </div>
+<div class="col-6 text-center">
+    {% if current_user.is_authenticated %}
+        <h2 d-flex flex-wrap justify-content-center>Добрый день, {{ current_user.name }}!</h2>
+    {% endif %}
+</div>
 <block style="display: flex; justify-content: center; text-align: center">
     <block style="display: grid">
-        <a href="{{ url_for('transaction.transaction_page', _external=True) }}" style="
-            background-color: #1E90FF;
-            border: none;
-            border-radius: 5px ;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;">
+        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('transaction.transaction_page', _external=True) }}">
             Перевод
         </a>
         <p></p>
-        <a href="{{ url_for('suggestion.proposal', _external=True) }}" style="
-            background-color: #1E90FF;
-            border: none;
-            border-radius: 5px ;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;">
+        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('suggestion.proposal', _external=True) }}">
             Сделать предложение
         </a>
         <p></p>
-        <a href="{{ url_for('user_suggestions.get_user_suggestions', _external=True) }}" style="
-            background-color: #1E90FF;
-            border: none;
-            border-radius: 5px ;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            font-size: 16px;
-            cursor: pointer;">
+        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('user_suggestions.get_user_suggestions', _external=True) }}">
             Входящие предложения
         </a>
     </block>
