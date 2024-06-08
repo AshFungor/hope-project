@@ -3,7 +3,8 @@ services:
     build: .
     volumes:
       - logs:/var/log:w
-    restart: always
+      - ./app:/hope-project/app:rw
+    restart: always      
     depends_on:
       database:
         condition: service_healthy
