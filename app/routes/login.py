@@ -30,4 +30,4 @@ def authorization():
 @login.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('login.authorization'))
