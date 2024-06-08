@@ -14,6 +14,7 @@ user_suggestions = Blueprint('user_suggestions', __name__)
 
 @user_suggestions.route('/user_suggestions', methods=['GET', 'POST'])
 @user_suggestions.route('/user_suggestions/<int:page>', methods=['GET', 'POST'])
+@login_required
 def get_user_suggestions(page=1):
 
     #  try completed transaction
