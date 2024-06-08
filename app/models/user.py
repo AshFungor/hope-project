@@ -5,10 +5,10 @@ from flask_login import UserMixin
 
 from app.env import env
 
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy import ForeignKey
+from  sqlalchemy.orm import Mapped, mapped_column
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import long_int, ModelBase, serial, variable_strings, c_date, small_int, c_datetime
 import app.modules.database.validators as validators
 
 import dateutil
@@ -20,19 +20,20 @@ class Sex(enum.StrEnum):
     OTHER = 'other'
 
 
-class User(database.ModelBase, UserMixin):
+class User(ModelBase, UserMixin):
     __tablename__ = 'users'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    city_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('city.id'), nullable=True) 
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    last_name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    login: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    password: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    sex: sqlalchemy.orm.Mapped[database.variable_strings[16]] = sqlalchemy.orm.mapped_column(nullable=False)
-    bonus: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(default=0)
-    birthday: sqlalchemy.orm.Mapped[database.c_date]
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    city_id: Mapped[long_int] = mapped_column(ForeignKey('city.id'), nullable=True)
+    name: Mapped[variable_strings[64]]
+    last_name: Mapped[variable_strings[64]]
+    login: Mapped[variable_strings[64]]
+    password: Mapped[variable_strings[64]]
+    sex: Mapped[variable_strings[16]] = mapped_column(nullable=False)
+    bonus: Mapped[long_int] = mapped_column(default=0)
+    birthday: Mapped[c_date]
+    is_admin: Mapped[bool] = mapped_column(default=False)
 
 
     def __init__(
@@ -45,7 +46,8 @@ class User(database.ModelBase, UserMixin):
         password: str,                  # password for login
         sex: Sex,                       # some adult content
         bonus: int,                     # god knows
-        birthday: datetime.date         # ...
+        birthday: datetime.date,         # ...
+        is_admin: bool = False
     ) -> None:
         # TODO: generate bank account in case none
         self.bank_account_id = bank_account_id
@@ -57,19 +59,21 @@ class User(database.ModelBase, UserMixin):
         self.sex = validators.EnumValidator.validate(str(sex), Sex, str(Sex.OTHER))
         self.bonus = validators.IntValidator.validate(bonus, 64, True)
         self.birthday = validators.DtValidator.validate(birthday)
+        self.is_admin = is_admin
+
 
     def __repr__(self) -> str:
         return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__]) + '>'
 
 
-class Goal(database.ModelBase):
+class Goal(ModelBase):
     __tablename__ = 'goal'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    created_at: sqlalchemy.orm.Mapped[database.c_datetime]
-    rate: sqlalchemy.orm.Mapped[database.small_int]
-    complete: sqlalchemy.orm.Mapped[bool] = sqlalchemy.orm.mapped_column(default=False)
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    created_at: Mapped[c_datetime]
+    rate: Mapped[small_int]
+    complete: Mapped[bool] = mapped_column(default=False)
 
     def __init__(
         self,

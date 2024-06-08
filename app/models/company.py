@@ -2,10 +2,10 @@ from app.env import env
 
 import enum
 
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import ModelBase, serial, long_int, variable_strings, small_int, c_datetime
 
 
 class Role(enum.StrEnum):
@@ -17,24 +17,22 @@ class Role(enum.StrEnum):
     PRODUCTION_MANAGER = 'production_manager'
 
 
-class Company(database.ModelBase):
+class Company(ModelBase):
     __tablename__ = 'company'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    prefecture_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('prefecture.id'))
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    about: sqlalchemy.orm.Mapped[database.variable_strings[256]]
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'))
+    name: Mapped[variable_strings[64]]
+    about: Mapped[variable_strings[256]]
 
 
-class User2Company(database.ModelBase):
+class User2Company(ModelBase):
     __tablename__ = 'user_to_company'
 
-    user_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    company_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    role: sqlalchemy.orm.Mapped[database.variable_strings[32]]
-    ratio: sqlalchemy.orm.Mapped[database.small_int]
-    fired_at: sqlalchemy.orm.Mapped[database.c_datetime] = sqlalchemy.orm.mapped_column(nullable=True)
-    employed_at: sqlalchemy.orm.Mapped[database.c_datetime]
-
-    
+    user_id: Mapped[serial] = mapped_column(ForeignKey('bank_account.id'))
+    company_id: Mapped[serial] = mapped_column(ForeignKey('product.id'))
+    role: Mapped[variable_strings[32]]
+    ratio: Mapped[small_int]
+    fired_at: Mapped[c_datetime] = mapped_column(nullable=True)
+    employed_at: Mapped[c_datetime]

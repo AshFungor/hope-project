@@ -3,14 +3,17 @@ import uuid
 
 import sqlalchemy
 import sqlalchemy.orm
+from sqlalchemy.orm import Mapped, mapped_column
+from app.modules.database.handlers import serial, long_int, ModelBase
+from sqlalchemy import ForeignKey
 
 import app.modules.database.handlers as database
 
 
-class BankAccount(database.ModelBase):
+class BankAccount(ModelBase):
     __tablename__ = 'bank_account'
 
-    id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(primary_key=True)
+    id: Mapped[long_int] = mapped_column(primary_key=True)
 
     def __init__(self, id: int | None = None, generator: callable = None, **kwargs: dict[str, object]) -> None:
         if id is None:
@@ -70,9 +73,9 @@ class BankAccount(database.ModelBase):
         return hexed
         
 
-class Product2BankAccount(database.ModelBase):
+class Product2BankAccount(ModelBase):
     __tablename__ = 'product_to_bank_account'
 
-    bank_account_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    product_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    count: sqlalchemy.orm.Mapped[database.long_int]
+    bank_account_id: Mapped[serial] = mapped_column(ForeignKey('bank_account.id'))
+    product_id: Mapped[serial] = mapped_column(ForeignKey('product.id'))
+    count: Mapped[long_int]

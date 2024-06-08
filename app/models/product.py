@@ -1,24 +1,24 @@
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import long_int, small_int, variable_strings, serial, ModelBase, c_datetime
 
 
-class Product(database.ModelBase):
+class Product(ModelBase):
     __tablename__ = 'product'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    category: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    level: sqlalchemy.orm.Mapped[database.small_int]
+    id: Mapped[serial]
+    category: Mapped[variable_strings[64]]
+    name: Mapped[variable_strings[64]]
+    level: Mapped[small_int]
 
 
-class Consumption(database.ModelBase):
+class Consumption(ModelBase):
     __tablename__ = 'consumption'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    product_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    count: sqlalchemy.orm.Mapped[database.long_int]
-    consumed_at: sqlalchemy.orm.Mapped[database.c_datetime]
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    product_id: Mapped[long_int] = mapped_column(ForeignKey('product.id'))
+    count: Mapped[long_int]
+    consumed_at: Mapped[c_datetime]
 

@@ -136,7 +136,7 @@ class Database:
                 password=urllib.parse.quote_plus(env.get_var('POSTGRES_PASSWORD')),
                 host=env.get_var('SERVER_POSTGRES_HOSTNAME'),
                 port=env.get_var('SERVER_POSTGRES_PORT'),
-                database=env.get_var('POSTGRES_USER')
+                database=env.get_var('POSTGRES_DATABASE')
         )
         return self._handle_sql_alchemy_setup(app, url)
 
