@@ -1,9 +1,9 @@
 import enum
 
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import ModelBase, serial, long_int, c_datetime, variable_strings
 
 
 class Status(enum.StrEnum):
@@ -12,17 +12,16 @@ class Status(enum.StrEnum):
     REJECTED = 'rejected'
 
 
-class Transaction(database.ModelBase):
+class Transaction(ModelBase):
     __tablename__ = 'transaction'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    product_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    customer_bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    seller_bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    count: sqlalchemy.orm.Mapped[database.long_int]
-    amount: sqlalchemy.orm.Mapped[database.long_int]
-    status: sqlalchemy.orm.Mapped[database.variable_strings[32]]
-    created_at: sqlalchemy.orm.Mapped[database.c_datetime]
-    updated_at: sqlalchemy.orm.Mapped[database.c_datetime] = sqlalchemy.orm.mapped_column(nullable=True)
-    comment: sqlalchemy.orm.Mapped[database.variable_strings[256]] = sqlalchemy.orm.mapped_column(nullable=True)
-
+    id: Mapped[serial]
+    product_id: Mapped[long_int] = mapped_column(ForeignKey('product.id'))
+    customer_bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    seller_bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    count: Mapped[long_int]
+    amount: Mapped[long_int]
+    status: Mapped[variable_strings[32]]
+    created_at: Mapped[c_datetime]
+    updated_at: Mapped[c_datetime] = mapped_column(nullable=True)
+    comment: Mapped[variable_strings[256]] = mapped_column(nullable=True)
