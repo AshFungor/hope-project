@@ -62,7 +62,7 @@ def transaction_page():
                 flask.flash('Перевод успешно выполнен', 'info')
             else:
                 logging.info('transaction was not created')
-                flask.flash('Данного бансковского счета не существует', 'warning')
+                flask.flash('Данного банковского счета не существует', 'warning')
         else:
             logging.info('transaction was not created')
             flask.flash('Вы неверно заполнили форму', 'warning')
