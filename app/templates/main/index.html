@@ -4,6 +4,10 @@
 
 {% block content %}
 
+<!-- Здесь можно указать объявление; раскоментируйте при надобности -->
+<!-- <div class="warning_ text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-4">
+    <h4>ОБЪЯВЛЕНИЕ! ОБЕД ЧЕРЕЗ ЧАС!</h4>
+</div> -->
 
 <div class="d-grid gap-2 d-mb-block mb-4">
     <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'person_lk.person_cabinet' ) }}';">Личный кабинет</button>
@@ -18,9 +22,8 @@
 
     <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master_lk.master_cabinet' ) }}';">Мастер игры</button>
 
-    <!-- <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'admin_lk.admin_cabinet' ) }}';">Администратор</button> -->
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'admin_lk.admin_cabinet' ) }}';">Администратор</button>
 
-    <!-- <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'login.authorization' ) }}';">Логинка</button> -->
 </div>
 
 <div class="row gy px-2 mb-4 d-flex flex-wrap justify-content-center">

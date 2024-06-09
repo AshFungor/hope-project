@@ -3,3 +3,9 @@
     height: 160px;
     width: 109.5px;
 }
+
+.warning_ {
+    height: 100px;
+    width: 100%;
+    background-color: #65ac77;
+}
