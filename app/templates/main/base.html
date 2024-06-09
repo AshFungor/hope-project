@@ -50,6 +50,8 @@
 
         
         {% block content %}{% endblock %}
+        <div style="height:128px; width:100%">
+        </div>
         <div class="d-grid gap-2 d-mb-block mb-4">
             <button type="button" class="btn btn-outline-dark btn-lg" onclick="window.location.href='{{ url_for( 'login.logout' ) }}';">Выход</button>
         </div>
