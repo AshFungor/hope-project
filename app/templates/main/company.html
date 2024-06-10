@@ -44,6 +44,7 @@
     <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'city_lk.city_cabinet' ) }}';">Перевод средств</button>
 </div>
 
+<!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
     <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'prefecture_lk.prefecture_cabinet' ) }}';">Просмотр операций по счёту</button>
 
@@ -51,9 +52,32 @@
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master_lk.master_cabinet' ) }}';">Сотрудники</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#staff" aria-expanded="false" aria-controls="collapseExample">Сотрудники</button>
+    <div class="collapse" id="staff">
+        <div class="card card-body">
+            <ul>
+                <li>1st nn</li>
+                <li>2nd nn</li>
+                <li>3rd nn</li>
+                <li>4th nn</li>
+                <li>5th nn</li>
+            </ul>
+        </div>
+    </div>
 
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'admin_lk.admin_cabinet' ) }}';">Офисы (магазины)</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="collapseExample">Офисы (магазины)</button>
+    <div class="collapse" id="offices">
+        <div class="card card-body">
+            <ul>
+                <li>1st office</li>
+                <li>2nd office</li>
+                <li>3rd office</li>
+                <li>4th office</li>
+                <li>5th office</li>
+            </ul>
+        </div>
+    </div>
 </div>
 
+<script src="static/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
