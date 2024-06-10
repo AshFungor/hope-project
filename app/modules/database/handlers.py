@@ -124,8 +124,11 @@ class Database:
             }
         )
         handle.init_app(app)
-        with app.app_context():
-            handle.create_all()
+        try:
+            with app.app_context():
+                handle.create_all()
+        except:
+            ...
         return handle
 
 

@@ -58,7 +58,7 @@ def query_request_data(product_name: str, id: str) -> None | typing.Tuple[models
 
 def add_proposal(
     id: bytes, 
-    product : models.Product, 
+    product: models.Product,
     seller_wallet: models.Product2BankAccount, 
     seller_products: models.Product2BankAccount,
     count: int,
