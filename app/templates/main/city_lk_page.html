@@ -20,14 +20,12 @@
     <p class="mb-1"><strong>Адрес:</strong> корпус N, комната K</p>
 </div>
 
-<div class="text-wrap text-start mb-4">
+<div class="text-wrap text-start mb-5">
     <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#population" aria-expanded="false" aria-controls="population">
-        Жители
-    </button>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#population" aria-expanded="false" aria-controls="collapseExample">Жители</button>
     <div class="collapse" id="population">
         <div class="card card-body">
             <ul>
@@ -40,7 +38,7 @@
         </div>
     </div>
 
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы фирм</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="collapseExample">Офисы фирм</button>
     <div class="collapse" id="offices">
         <div class="card card-body">
             <ul>
@@ -53,7 +51,7 @@
         </div>
     </div>
 
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#products" aria-expanded="false" aria-controls="products">Список товаров</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#products" aria-expanded="false" aria-controls="collapseExample">Список товаров</button>
     <div class="collapse" id="products">
         <div class="card card-body">
             <ul>
@@ -66,5 +64,7 @@
         </div>
     </div>
 </div>
+
+<script src="static/js/bootstrap.bundle.min.js"></script>
 
 {% endblock %}
