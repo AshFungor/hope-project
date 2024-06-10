@@ -21,6 +21,14 @@ def authorization():
             flask.flash('Пользователя с таким логином не существует')
         elif user.password == request.form['Password']:
             login_user(user)
+            prefecture = env.db.impl().session.query(models.Prefecture).join(
+                models.City, models.Prefecture.id == models.City.prefecture_id).filter(
+                models.City.id == user.city_id
+            ).first()
+            # prefecture_name = env.db.impl().session.query(models.Prefecture.name).filter_by(
+            #     id=env.db.impl().session.query(models.City.prefecture_id).filter_by(id=user.city_id).first()
+            # ).first()
+            session["prefecture_name"] = prefecture.name
             return redirect(url_for('main.index'))
         else:
             flask.flash('Неверный пароль')
