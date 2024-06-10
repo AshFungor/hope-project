@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     volumes:
-      - logs:/var/log:w
+      - ./data/app_logs:/var/log:w
       - ./app:/hope-project/app:rw
     restart: always      
     depends_on:
@@ -21,7 +21,7 @@ services:
       - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
       - PGUSER=${POSTGRES_USER}
     volumes:
-      - db-data:${SERVER_POSTGRES_DIRECTORY}/data:rw
+      - ./data/database_data:${SERVER_POSTGRES_DIRECTORY}/data:rw
     ports:
       - ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
     restart: always
@@ -36,22 +36,10 @@ services:
     volumes:
       - ./app/static:/static:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - nginx-logs:/var/log:rw
+      - ./data/nginx-logs:/var/log:rw
     ports:
       - 80:80
       - 443:443
     restart: always
     depends_on:
       - webapp
-
-
-volumes:
-  db-data:
-    name: "database_data"
-    driver: local
-  logs:
-    name: "server_logs"
-    driver: local
-  nginx-logs:
-    name: "nginx_logs"
-    driver: local
