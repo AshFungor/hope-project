@@ -15,9 +15,8 @@
     {% elif session.get("prefecture_name") == "Префектура 4" %}
       <script defer src="static/js/blue.js"></script>
     {% else %}
-      <script defer src="static/js/admin(dark).js"></script>
+      <script defer src="static/js/green.js"></script>
     {% endif %}
-
     <title>{% block title %}{% endblock %}</title>
 </head>
 
@@ -32,15 +31,23 @@
                         <a href="{{ url_for( 'main.index' ) }}" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
                             <img class="head_img" src="{{ url_for('static', filename='images/logo.png') }}" alt="">
                         </a>
+        
+                        <!-- <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                        <li>
+                            <a href="{{ url_for( 'main.index' ) }}" class="nav-link text-secondary">
+                                <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#home"></use></svg><ya-tr-span data-index="21-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" Home " data-translation=" Главная " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Главная  </ya-tr-span></a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for( 'person_lk.person_cabinet' ) }}" class="nav-link text-white">
+                                <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#speedometer2"></use></svg><ya-tr-span data-index="22-0" data-translated="true" data-source-lang="en" data-target-lang="ru" data-value=" us_lk " data-translation=" Личный кабинет " data-ch="0" data-type="trSpan" style="visibility: initial !important;">  Личный кабинет  </ya-tr-span></a>
+                        </li>
+                        </ul> -->
                     </div>
                 </div>
             </div>
         </header>
 
         {% block content %}{% endblock %}
-
-        <script src="static/js/bootstrap.bundle.min.js"></script>
-
         <div style="height:128px; width:100%">
         </div>
         <div class="d-grid gap-2 d-mb-block mb-4">
