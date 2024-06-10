@@ -4,27 +4,80 @@
 
 {% block content %}
 
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
-    </div>
-    <div class="col-6 text-center">
-        <h2>Личный кабинет фирмы</h2>
-    </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
-    </div>
+<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
+    <h3><strong>Фирма "name"</strong></h3>
 </div>
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
-    </div>
-    <div class="col-6">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequuntur itaque quod cumque commodi, saepe quam officiis dignissimos blanditiis ex, nihil porro. Consequatur excepturi culpa nobis, commodi id quod alias repellendus?
-    </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Описание фирмы:</strong> Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis qui ipsum quas blanditiis, vel atque sequi magnam eos veniam esse.</p>
+</div>
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Ген. директор:</strong> Lorem, ipsum dolor.</p>
+</div>
+
+<div class="text-wrap text-start mb-4">
+    <p class="mb-1"><strong>Регистрация:</strong> префектура Lorem, ipsum.</p>
+</div>
+
+<div class="text-wrap text-start mb-2">
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
+</div>
+
+<div class="text-wrap text-start mb-5">
+    <p class="mb-1"><strong>Цель на сегодня:</strong> <b>n</b> надиков, выполнено:</p>
+    <div class="progress">
+        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="width: 33%">33%</div>
     </div>
 </div>
 
+<div class="text-wrap text-start mb-5">
+    <p class="h3"><strong>Текущий баланс:</strong> <b>n</b> надиков.</p>
+</div>
+
+<!-- ссылки рандомные, нуждаются в корректировке! -->
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'person_lk.person_cabinet' ) }}';">Выставить счёт</button>
+    
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'company_lk.company_cabinet' ) }}';">Входящие счета</button>
+    
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'city_lk.city_cabinet' ) }}';">Перевод средств</button>
+</div>
+
+<!-- ссылки рандомные, нуждаются в корректировке! -->
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'prefecture_lk.prefecture_cabinet' ) }}';">Просмотр операций по счёту</button>
+
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'city_hall_lk.city_hall_cabinet' ) }}';">Статистика производства</button>
+</div>
+
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#staff" aria-expanded="false" aria-controls="collapseExample">Сотрудники</button>
+    <div class="collapse" id="staff">
+        <div class="card card-body">
+            <ul>
+                <li>1st nn</li>
+                <li>2nd nn</li>
+                <li>3rd nn</li>
+                <li>4th nn</li>
+                <li>5th nn</li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="collapseExample">Офисы (магазины)</button>
+    <div class="collapse" id="offices">
+        <div class="card card-body">
+            <ul>
+                <li>1st office</li>
+                <li>2nd office</li>
+                <li>3rd office</li>
+                <li>4th office</li>
+                <li>5th office</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="static/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
