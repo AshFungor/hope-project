@@ -30,8 +30,8 @@ class Company(ModelBase):
 class User2Company(ModelBase):
     __tablename__ = 'user_to_company'
 
-    user_id: Mapped[serial] = mapped_column(ForeignKey('bank_account.id'))
-    company_id: Mapped[serial] = mapped_column(ForeignKey('product.id'))
+    user_id: Mapped[serial] = mapped_column(ForeignKey('user.id'))
+    company_id: Mapped[serial] = mapped_column(ForeignKey('company.id'))
     role: Mapped[variable_strings[32]]
     ratio: Mapped[small_int]
     fired_at: Mapped[c_datetime] = mapped_column(nullable=True)
