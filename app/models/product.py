@@ -1,7 +1,13 @@
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
 
-from app.modules.database.handlers import long_int, small_int, variable_strings, serial, ModelBase, c_datetime
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import small_int
+from app.modules.database.handlers import ModelBase
 
 
 class Product(ModelBase):

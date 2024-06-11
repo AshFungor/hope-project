@@ -1,3 +1,5 @@
+#!/bin/python3
+
 # Use this to upload data to server
 import requests
 import pandas

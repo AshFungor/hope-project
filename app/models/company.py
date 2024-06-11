@@ -2,10 +2,16 @@ from app.env import env
 
 import enum
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
 
-from app.modules.database.handlers import ModelBase, serial, long_int, variable_strings, small_int, c_datetime
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import small_int
+from app.modules.database.handlers import ModelBase
 
 
 class Role(enum.StrEnum):

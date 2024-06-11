@@ -1,13 +1,15 @@
 import hashlib
 import uuid
 
-import sqlalchemy
-import sqlalchemy.orm
-from sqlalchemy.orm import Mapped, mapped_column
-from app.modules.database.handlers import serial, long_int, ModelBase
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import ModelBase
+
+import app.modules.database.validators as validators
 
 
 class BankAccount(ModelBase):
@@ -79,3 +81,8 @@ class Product2BankAccount(ModelBase):
     bank_account_id: Mapped[serial] = mapped_column(ForeignKey('bank_account.id'))
     product_id: Mapped[serial] = mapped_column(ForeignKey('product.id'))
     count: Mapped[long_int]
+
+    def __init__(self, bank_account_id: int, product_id: int, count: int) -> None:
+        self.bank_account_id = validators.IntValidator.validate(bank_account_id, 64, True)
+        self.product_id = validators.IntValidator.validate(product_id, 64, False)
+        self.count = validators.IntValidator.validate(count, 64, True)

@@ -1,6 +1,7 @@
 # required library
 import datetime
 import logging
+import typing
 import uuid
 
 import pandas as pd
@@ -24,7 +25,7 @@ class StaticTablesHandler:
     def prepare_prefectures(prefectures: pd.DataFrame) -> int:
         count = 0
         try:
-            for index, prefecture in prefectures.iterrows():
+            for _, prefecture in prefectures.iterrows():
                 prefecture_model = models.Prefecture(
                     prefecture['Name'],
                     StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
@@ -48,7 +49,7 @@ class StaticTablesHandler:
     def prepare_cities(cities: pd.DataFrame) -> None:
         count = 0
         try:
-            for index, city in cities.iterrows():
+            for _, city in cities.iterrows():
                 city_model = models.City(
                     city['Name'],
                     None,
@@ -73,7 +74,7 @@ class StaticTablesHandler:
     def prepare_users(users: pd.DataFrame) -> None:
         count = 0
         try:
-            for index, user in users.iterrows():
+            for _, user in users.iterrows():
                 birthday = datetime.date(*reversed(list(map(int, user['Birthday'].split('.')))))
                 user_model = models.User(
                     StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
@@ -126,75 +127,15 @@ class StaticTablesHandler:
         return product.id
 
     @staticmethod
-    def complete_transaction(transaction_id: int, with_status: str) -> (bool, str):
-        completed = False
-        message = ''
+    def complete_transaction(transaction_id: int, with_status: str) -> typing.Tuple[str, bool]:
         transaction = env.db.impl().session.get(models.Transaction, transaction_id)
-        if transaction:
-            if transaction.status != 'created':
-                message = 'Данное предложение уже неактивно'
-            elif with_status == 'approved':
+        if not transaction:
+            return 'could not find transaction', False
+        
+        message, status = transaction.process(with_status == 'approved')
+        if not status:
+            logging.warning(f'transaction {transaction_id}; error {message}')
 
-                # - money from customer
-                customer_wallet_products = env.db.impl().session.query(models.Product2BankAccount).filter(and_(
-                    models.Product2BankAccount.bank_account_id == transaction.customer_bank_account_id,
-                    or_(
-                        models.Product2BankAccount.product_id == 1,  # or money's id
-                        models.Product2BankAccount.product_id == transaction.product_id
-                    )
-                )).order_by(models.Product2BankAccount.product_id).all()
-                expected_num_of_rows = 2
-                customer_wallet, customer_products = customer_wallet_products if \
-                    len(customer_wallet_products) == expected_num_of_rows else (customer_wallet_products[0], None)
-                customer_wallet.count -= transaction.amount
+        return message, status
 
-                # - product from seller
-                seller_wallet, seller_products = env.db.impl().session.query(models.Product2BankAccount).filter(and_(
-                    models.Product2BankAccount.bank_account_id == transaction.seller_bank_account_id,
-                    or_(
-                        models.Product2BankAccount.product_id == transaction.product_id,
-                        models.Product2BankAccount.product_id == 1
-                    )
-
-                )).order_by(models.Product2BankAccount.product_id).all()
-                seller_products.count -= transaction.count
-
-                # check customer wallet and seller products
-                if customer_wallet.count < 0 or seller_products.count < 0:
-                    logging.warning('transaction was not accepted')
-                    message = 'Ошибка транзакции. Либо у вас недостаточно денег на счету, либо у продовца кончился товар'
-                    # rollback
-                    env.db.impl().session.expire(customer_wallet)
-                    env.db.impl().session.expire(seller_products)
-                    return completed, message
-
-                # + product to customer
-                if customer_products:
-                    customer_products.count += transaction.count
-                # if customer does not have products table
-                else:
-                    customer_products = models.Product2BankAccount()
-                    customer_products.bank_account_id = transaction.customer_bank_account_id
-                    customer_products.product_id = transaction.product_id
-                    customer_products.count = transaction.count
-                    env.db.impl().session.add(customer_products)
-
-                # + money to seller
-                seller_wallet.count += transaction.amount
-                transaction.status = with_status
-                transaction.updated_at = datetime.datetime.now(tz=CurrentTimezone)
-                completed = True
-                message = 'Предложение успешно приято'
-
-            elif with_status == 'rejected':
-                completed = True
-                message = 'Предложение успешно отклонено'
-                transaction.status = with_status
-            else:
-                message = 'Мы не нашли данное предложение'
-                logging.warning('unknown transaction status')
-        else:
-            message = 'Ма не нашли данное предложение'
-            logging.warning('transaction not found')
-        return completed, message
 

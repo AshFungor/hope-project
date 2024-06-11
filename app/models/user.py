@@ -1,17 +1,24 @@
 import enum
+import dateutil
 import datetime
 
-from flask_login import UserMixin
+import flask_login
 
 from app.env import env
 
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
-from  sqlalchemy.orm import Mapped, mapped_column
 
-from app.modules.database.handlers import long_int, ModelBase, serial, variable_strings, c_date, small_int, c_datetime
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import small_int
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import ModelBase
+
 import app.modules.database.validators as validators
 
-import dateutil
 
 
 class Sex(enum.StrEnum):
@@ -20,7 +27,7 @@ class Sex(enum.StrEnum):
     OTHER = 'other'
 
 
-class User(ModelBase, UserMixin):
+class User(ModelBase, flask_login.UserMixin):
     __tablename__ = 'users'
 
     id: Mapped[serial]
@@ -46,8 +53,8 @@ class User(ModelBase, UserMixin):
         password: str,                  # password for login
         sex: Sex,                       # some adult content
         bonus: int,                     # god knows
-        birthday: datetime.date,         # ...
-        is_admin: bool = False
+        birthday: datetime.date,        # ...
+        is_admin: bool = False          # kek, implementing roles
     ) -> None:
         # TODO: generate bank account in case none
         self.bank_account_id = bank_account_id
