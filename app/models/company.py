@@ -36,7 +36,7 @@ class Company(ModelBase):
     about: Mapped[variable_strings[256]]
 
     def __init__(
-        self, 
+        self,
         bank_account_id: int,
         prefecture_id: int,
         name: str,
