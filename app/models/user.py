@@ -17,7 +17,6 @@ import dateutil
 class Sex(enum.StrEnum):
     FEMALE = 'female'
     MALE = 'male'
-    OTHER = 'other'
 
 
 class User(ModelBase, UserMixin):
@@ -28,6 +27,7 @@ class User(ModelBase, UserMixin):
     city_id: Mapped[long_int] = mapped_column(ForeignKey('city.id'), nullable=True)
     name: Mapped[variable_strings[64]]
     last_name: Mapped[variable_strings[64]]
+    patronymic: Mapped[variable_strings[64]]
     login: Mapped[variable_strings[64]]
     password: Mapped[variable_strings[64]]
     sex: Mapped[variable_strings[16]] = mapped_column(nullable=False)
@@ -42,6 +42,7 @@ class User(ModelBase, UserMixin):
         city_id : int,                  # city, where user belongs
         name: str,                      # name of user
         last_name: str,                 # last name of user
+        patronymic: str,                # patronymic of user
         login: str,                     # nickname for user
         password: str,                  # password for login
         sex: Sex,                       # some adult content
@@ -54,16 +55,17 @@ class User(ModelBase, UserMixin):
         self.city_id = city_id
         self.name = validators.PureRussianTextValidator.validate(name, 64)
         self.last_name = validators.PureRussianTextValidator.validate(last_name, 64)
+        self.patronymic = validators.PureRussianTextValidator.validate(patronymic, 64)
         self.login = validators.NoWhitespaceGenericTextValidator.validate(login, 64)
         self.password = validators.NoWhitespaceGenericTextValidator.validate(password, 64)
-        self.sex = validators.EnumValidator.validate(str(sex), Sex, str(Sex.OTHER))
+        self.sex = validators.EnumValidator.validate(str(sex), Sex, str(Sex.MALE))
         self.bonus = validators.IntValidator.validate(bonus, 64, True)
         self.birthday = validators.DtValidator.validate(birthday)
         self.is_admin = is_admin
 
 
     def __repr__(self) -> str:
-        return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__]) + '>'
+        return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
 
 class Goal(ModelBase):
