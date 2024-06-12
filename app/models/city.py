@@ -42,7 +42,7 @@ class Office(ModelBase):
 
     id: Mapped[serial]
     city_id: Mapped[long_int] = mapped_column(ForeignKey('city.id'))
-    company_id: Mapped[long_int] = mapped_column(ForeignKey('product.id'))
+    company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
     founded_at: Mapped[c_datetime]
     dismissed_at: Mapped[c_datetime] = mapped_column(nullable=True)
 

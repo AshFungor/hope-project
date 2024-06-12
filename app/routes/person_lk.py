@@ -21,6 +21,7 @@ def person_cabinet():
         'а',
         'a',
         'a',
+        'a',
         'female',
         0,
         datetime.datetime.now(CurrentTimezone)
