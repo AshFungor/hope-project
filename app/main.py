@@ -32,6 +32,7 @@ from app.routes.transaction import transaction
 from app.routes.upload_csv import csv
 from app.routes.user_suggestions import user_suggestions
 from app.routes.suggestion import suggestion
+from app.routes.goal_select import goal_select
 
 
 login_manager = LoginManager()
@@ -83,6 +84,7 @@ def create_app() -> Flask:
     app.register_blueprint(csv)
     app.register_blueprint(user_suggestions)
     app.register_blueprint(suggestion)
+    app.register_blueprint(goal_select)
 
     csrf.exempt(csv)
 

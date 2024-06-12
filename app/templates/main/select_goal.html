@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Цель на день{% endblock %}
+
+{% block content %}
+
+    <block class="goal_form_container">
+        <form class="goal_form" method="POST">
+            {{ form.csrf_token }}
+            {{ form.today_goal.label }} {{ form.today_goal }}
+            <p></p>
+            {{ form.submit }}
+        </form>
+    </block>
+{% endblock %}
