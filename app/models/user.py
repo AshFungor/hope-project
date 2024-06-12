@@ -11,6 +11,7 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
 
 from app.modules.database.handlers import serial
+from app.modules.database.handlers import c_date
 from app.modules.database.handlers import long_int
 from app.modules.database.handlers import small_int
 from app.modules.database.handlers import c_datetime

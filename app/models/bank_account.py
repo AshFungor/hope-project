@@ -1,5 +1,6 @@
-import hashlib
 import uuid
+import math
+import hashlib
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -62,14 +63,13 @@ class BankAccount(ModelBase):
             diff = len(hexed) - l
             cut, hexed = hexed[l:], hexed[:l]
             # ensure difference is divisible of 8
-            while len(cut) % 4 != 0:
+            while len(cut) % l != 0:
                 cut += '0'
             # xor each excessive block with the rest
             hexed = int(hexed)
-            for curr in range(4, len(cut), 4):
-                block = cut[curr - 4:curr]
-                for i in range(l // 4):
-                    hexed = hexed ^ (int(block) << (i * 8))
+            for curr in range(l, len(cut), l):
+                block = cut[curr - l:curr]
+                hexed = (hexed ^ int(block)) % int(math.pow(10, l))
             # ensure still have l digits
             hexed = '0' * max(l - len(str(hexed)), 0) + str(hexed)
         return hexed

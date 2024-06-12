@@ -14,8 +14,8 @@ from app.modules.database.handlers import c_datetime
 from app.modules.database.handlers import variable_strings
 from app.modules.database.handlers import ModelBase
 
-import app.models as models
-import sqlalchemy.orm as orm
+import sqlalchemy as orm
+import app.models.bank_account as bank_account
 import app.modules.database.validators as validators
 
 
@@ -58,24 +58,24 @@ class Transaction(ModelBase):
         self.status = validators.EnumValidator.validate(status, Status, 'rejected')
         self.created_at = validators.DtValidator.validate(created_at)
         self.updated_at = validators.DtValidator.validate(updated_at)
-        self.comment = validators.GenericTextValidator.validate(Transaction._generate_comment(comment), 256, False) 
+        self.comment = validators.GenericTextValidator.validate(self._generate_comment(comment), 256, False) 
 
     def _generate_comment(self, additional_message: str | None) -> None:
         if additional_message is None:
             return ''
         return f'transaction comment {additional_message}'
     
-    def _get_products_for(self, account: int) -> typing.Tuple[models.Product2BankAccount, models.Product2BankAccount]:
-        query = env.db.impl().session.query(models.Product2BankAccount).filter(
+    def _get_products_for(self, account: int) -> typing.Tuple[bank_account.Product2BankAccount, bank_account.Product2BankAccount]:
+        query = env.db.impl().session.query(bank_account.Product2BankAccount).filter(
             orm.and_(
-                models.Product2BankAccount.bank_account_id == account,
+                bank_account.Product2BankAccount.bank_account_id == account,
                 orm.or_(
-                    models.Product2BankAccount.product_id == 1, # money
-                    models.Product2BankAccount.product_id == self.product_id
+                    bank_account.Product2BankAccount.product_id == 1, # money
+                    bank_account.Product2BankAccount.product_id == self.product_id
                 )
             )
-        )                                                       \
-        .order_by(models.Product2BankAccount.product_id)        \
+        )                                                               \
+        .order_by(bank_account.Product2BankAccount.product_id)          \
         .all()
 
         return list(query) + [None for _ in range(max(0, 2 - len(query)))]
@@ -93,7 +93,7 @@ class Transaction(ModelBase):
 
         if customer_products is None:
             # create customer's relation if does not exist
-            customer_products = models.Product2BankAccount(self.customer_bank_account_id, self.product_id, 0)
+            customer_products = bank_account.Product2BankAccount(self.customer_bank_account_id, self.product_id, 0)
             env.db.impl().session.add(customer_products)
 
         if customer_wallet.count < self.amount:

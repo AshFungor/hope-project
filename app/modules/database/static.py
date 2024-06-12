@@ -4,13 +4,13 @@ import logging
 import typing
 import uuid
 
+import sqlalchemy
+
 import pandas as pd
 import app.models as models
 
 from app.env import env
 from app.modules.database.validators import CurrentTimezone
-
-from sqlalchemy import and_, or_
 
 
 class StaticTablesHandler:
@@ -46,7 +46,7 @@ class StaticTablesHandler:
             return count
 
     @staticmethod
-    def prepare_cities(cities: pd.DataFrame) -> None:
+    def prepare_cities(cities: pd.DataFrame) -> int:
         count = 0
         try:
             for _, city in cities.iterrows():
@@ -71,7 +71,7 @@ class StaticTablesHandler:
             return count
 
     @staticmethod
-    def prepare_users(users: pd.DataFrame) -> None:
+    def prepare_users(users: pd.DataFrame) -> int:
         count = 0
         try:
             for _, user in users.iterrows():
@@ -113,18 +113,24 @@ class StaticTablesHandler:
         env.db.impl().session.add(product_to_bank_account)
 
     @staticmethod
-    def prepare_product(
-        category: str, 
-        name: str, 
-        level: int
-    ) -> int:
-        product = models.Product()
-        product.category = category
-        product.name = name
-        product.level = level
-
-        env.db.impl().session.add(product)
-        return product.id
+    def prepare_products(products: pd.DataFrame) -> int:
+        count = 0
+        try:
+            for _, product in products.iterrows():
+                product_model = models.Product(
+                    product['Category'],
+                    product['Name'],
+                    product['Level']
+                )
+                env.db.impl().session.add(product_model)
+                count += 1
+            logging.debug(f'receiving new products objects: {count} added')
+        except ValueError as value_error:
+            logging.warning(f'error parsing users: {value_error}')
+        except Exception as unknown_error:
+            logging.warning(f'unknown error: {unknown_error}')
+        finally:
+            return count
 
     @staticmethod
     def complete_transaction(transaction_id: int, with_status: str) -> typing.Tuple[str, bool]:
