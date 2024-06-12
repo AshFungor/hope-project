@@ -23,16 +23,16 @@ class Company(ModelBase):
     id: Mapped[serial]
     bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
     prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'))
-    name: Mapped[variable_strings[64]]
+    name: Mapped[variable_strings[64]] = mapped_column(unique=True)
     about: Mapped[variable_strings[256]]
 
 
 class User2Company(ModelBase):
     __tablename__ = 'user_to_company'
 
-    user_id: Mapped[serial] = mapped_column(ForeignKey('user.id'))
+    user_id: Mapped[serial] = mapped_column(ForeignKey('users.id'))
     company_id: Mapped[serial] = mapped_column(ForeignKey('company.id'))
     role: Mapped[variable_strings[32]]
     ratio: Mapped[small_int]
-    fired_at: Mapped[c_datetime] = mapped_column(nullable=True)
+    fired_at: Mapped[c_datetime] = mapped_column(default=None, nullable=True)
     employed_at: Mapped[c_datetime]
