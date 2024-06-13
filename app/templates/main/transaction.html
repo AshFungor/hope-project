@@ -4,28 +4,27 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/transaction.css') }}">
+<div class="mb-3">
+    <p class="mb-1"><strong>Ваш счёт:</strong> 1234567</p>
+</div>
 
+<div class="mb-3">
+    <input class="form-control text-center" type="text" placeholder="Счёт получателя:">
+</div>
 
+<div class="mb-3 row">
+    <select class="form-select">
+        <option class="text-start" selected>Выбрать продукт</option>
+        <option class="text-start" value="1">Пирожки с капустой</option>
+        <option class="text-start" value="2">Пирожки с мясом</option>
+        <option class="text-start" value="3">Пирожки с картошкой</option>
+    </select>
+</div>
 
-    <block class="transaction_form_container">
-        <form class="transaction_form" method="POST">
-
-            {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                <ul class="flashes" style="">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
-            {{ form.csrf_token }}
-            {{ form.bank_account.label }} {{ form.bank_account }}
-            {{ form.amount.label }} {{ form.amount }}
-            <p></p>
-            {{ form.submit }}
-        </form>
-    </block>
+<div class="mb-3">
+    <input class="form-control text-center" type="text" placeholder="Кол-во товара:">
+</div>
+<div class="d-grid gap-2 d-mb-block mb-4">
+    <button type="submit" class="btn btn-primary btn-lg mb-3">Подтверждаю</button>
+</div>
 {% endblock %}

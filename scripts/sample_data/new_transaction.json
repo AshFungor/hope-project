@@ -1,7 +1,12 @@
 {
+    // тот, кто продает
     "seller_account": 53153,
+    // тот, кому продает
     "customer_account": 52103,
+    // продукт
     "product": "Beer",
+    // кол-во продукта
     "product_count": 1,
+    // деньги
     "amount": 2
 }
