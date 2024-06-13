@@ -1,83 +1,93 @@
-import datetime
+import typing
 import logging
+import datetime
 
 import flask
+import flask_login
+
+import numpy as np
+
 from flask import Blueprint, render_template, request, url_for, redirect
 from flask_login import login_required, current_user
 
-from app import models
+import app.models as models
 from app.forms.new_company import NewCompanyForm
 from app.env import env
+
 from app.modules.database.validators import CurrentTimezone
+import app.routes.blueprints as blueprints
+import app.modules.database.static as static
 
 
-new_company = Blueprint('new_company', __name__)
-
-
-def add_company(name: str, about: str, founders: tuple, prefecture_name: str) -> (bool, str):
-    current_user_id = current_user.id
-    prefecture_id = env.db.impl().session.query(models.Prefecture.id).filter_by(name=prefecture_name).first()[0]
+def make_company(name: str, about: str, prefecture_name: str, user_id: int) -> models.Company | None:
+    prefecture_id = env.db.impl().session.query(models.Prefecture).filter_by(name=prefecture_name).first()
     if not prefecture_id:
-        logging.warning(f"user: {current_user_id} Create company failed: prefecture {prefecture_name} not found")
-        return False, "Указанной префектуры не существует"
-    bank_account = models.BankAccount(**models.BankAccount.make_spec('company', None))
-    company = models.Company(
-        bank_account_id=bank_account.id,
-        prefecture_id=prefecture_id,
-        name=name,
-        about=about
-    )
-    ratio = 0
-    founders_qty = len(founders)
-    founders_id = []
-    if founders_qty != len(set(founders)):
-        logging.warning(f"user: {current_user_id} Create company failed: not unique founders")
-        return False, "Указаны не уникальные учредители"
-    for founder_bank_account in founders:
-        founder_id = env.db.impl().session.query(models.User.id).filter_by(
-            bank_account_id=founder_bank_account).first()
-        if not founder_id:
-            logging.warning(f"user: {current_user_id} Founder {founder_bank_account} not found during create company")
-            return False, "Указанного учредителя не существует " + str(founder_bank_account)
-        # пока все учредители имеют равные доли в компании (в идеале - не так)
-        if ratio == 0:
-            ratio = 100 - 100 // founders_qty * (founders_qty - 1)
-        else:
-            ratio = 100 // founders_qty
-        founders_id.append((founder_id[0], ratio))
+        logging.warning(f'user: {user_id}; Create company failed: prefecture {prefecture_name} not found')
+        return
+    
+    bank_account = static.StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec('company', {
+        'name': name, 'about': about, 'prefecture_name': prefecture_name
+    }))
+
     try:
-        env.db.impl().session.add(bank_account)
-        env.db.impl().session.add(company)
-        env.db.impl().session.commit()
-    except Exception as error:
-        logging.warning(f"user: {current_user_id} Create company failed.")
-        return False, "Попытка создания компании не удалась"
-    for founder_id, ratio in founders_id:
-        user2company = models.User2Company(
-            user_id=founder_id,
-            company_id=company.id,
-            role='founder',
-            ratio=ratio,
-            employed_at=datetime.datetime.now(tz=CurrentTimezone),
-            fired_at=None
+        return models.Company(
+            bank_account,
+            prefecture_id,
+            name,
+            about
         )
-        env.db.impl().session.add(user2company)
+    except ValueError as value_error:
+        logging.warning(f'company params validation failed: {value_error}')
+        return
+
+
+def add_company(name: str, about: str, founders: list[int], prefecture_name: str) -> typing.Tuple[bool, str]:
+    current_user_id = flask_login.current_user.id
+    
+    company = make_company(name, about, prefecture_name, current_user)
+
+    if np.unique(founders).shape[0] != len(founders):
+        logging.warning(f'user: {current_user_id} Create company failed: not unique founders')
+        return False, 'Указаны не уникальные учредители'
+
+    ids = env.db.impl().session.query(models.User).filter_by(
+        models.User.bank_account_id in founders
+    ).all()
+    if len(ids) < len(founders):
+        logging.warning(f'user: {current_user_id} Failed to match user ids against database records')
+        return False, 'Указанного учредителя не существует '
+
+    ratios = np.ceil(np.ones(len(founders)) * (1 / len(founders)) * 100)
+    for founder, ratio in zip(ids, ratios):
+        env.db.impl().session.add(models.User2Company(
+            founder,
+            company.id,
+            'founder',
+            ratio,
+            None,
+            datetime.datetime.now(tz=CurrentTimezone)
+        ))
+    
+    env.db.impl().session.add(company)
     env.db.impl().session.commit()
+
     return True, "Фирма успешно создана"
 
 
-@new_company.route('/new_company', methods=['GET', 'POST'])
+@blueprints.accounts_blueprint.route('/new_company', methods=['GET', 'POST'])
 @login_required
 def create_company():
     """Создание новой фирмы"""
     form = NewCompanyForm()
     form.set_choices_prefectures()
+
     if request.method == 'POST' and form.validate_on_submit():
         name = form.company_name.data
         description = form.about.data
         founders = tuple(map(int, form.founders.data.strip().split()))  # founders - это список расчётных счетов учредителей фирмы
         prefecture_name = form.prefecture.data
         created, message = add_company(name, description, founders, prefecture_name)
+
         if created:
             flask.flash(message, category="info")
             return redirect(url_for("new_company.create_company"))

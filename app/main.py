@@ -20,21 +20,11 @@ from app.modules.database.handlers import DatabaseType
 
 import app.models as models
 
-from app.routes.main import main
-from app.routes.person_lk import person_lk
-from app.routes.company_lk import company_lk
-from app.routes.city_lk import city_lk
-from app.routes.prefecture_lk import prefecture_lk
-from app.routes.city_hall_lk import city_hall_lk
-from app.routes.master_lk import master_lk
-from app.routes.admin_lk import admin_lk
-from app.routes.login import login
-from app.routes.blueprints import csv, transaction
-from app.routes.new_company import new_company
-from app.routes.user_products import user_products
+import app.routes.blueprints as blueprints 
+
 
 login_manager = LoginManager()
-login_manager.login_view = 'login.authorization'
+login_manager.login_view = 'session.authorization'
 toolbar = DebugToolbarExtension()
 
 @login_manager.user_loader
@@ -74,22 +64,14 @@ def create_app() -> Flask:
 
     logging.info("handling routes")
 
-    app.register_blueprint(main)
-    app.register_blueprint(person_lk)
-    app.register_blueprint(company_lk)
-    app.register_blueprint(city_lk)
-    app.register_blueprint(prefecture_lk)
-    app.register_blueprint(city_hall_lk)
-    app.register_blueprint(master_lk)
-    app.register_blueprint(admin_lk)
-    app.register_blueprint(login)
-    app.register_blueprint(transaction)
-    app.register_blueprint(csv)
-    app.register_blueprint(new_company)
-    app.register_blueprint(user_products)
+    app.register_blueprint(blueprints.accounts_blueprint)
+    app.register_blueprint(blueprints.session_blueprint)
+    app.register_blueprint(blueprints.csv_blueprint)
+    app.register_blueprint(blueprints.transaction_blueprint)
+    app.register_blueprint(blueprints.main)
 
-    csrf.exempt(csv)
-    csrf.exempt(transaction)
+    csrf.exempt(blueprints.csv_blueprint)
+    csrf.exempt(blueprints.transaction_blueprint)
 
 
     return app
