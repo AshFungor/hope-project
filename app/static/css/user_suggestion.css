@@ -11,10 +11,10 @@ div.main_container {
 @media screen and (min-width: 200px) {
     .sender {
         text-align: left;
-        width: 600px;
+        width: 400px;
         position: absolute;
         margin: 1% 0 0 4%;
-        font-size: 30px;
+        font-size: 17px;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
@@ -22,12 +22,12 @@ div.main_container {
     }
 
     .product {
-        width: 350px;
+        width: 200px;
         position: absolute;
         left: 0;
         text-align: left;
-        margin: 8% 0 0 5%;
-        font-size: 45px;
+        margin: 10% 0 0 5%;
+        font-size: 20px;
         font-weight: 700;
         white-space: nowrap;
         overflow: hidden;
@@ -37,14 +37,14 @@ div.main_container {
     .amount {
         position: absolute;
         right: 0;
-        margin: 8% 5% 0 0;
-        font-size: 45px;
+        margin: 10% 5% 0 0;
+        font-size: 20px;
         font-weight: 700;
     }
 
     .form_container {
         font-family: Sans-serif;
-        height: 270px;
+        height: 130px;
         border-radius: 20px;
         margin: 0 20px 20px 20px;
         background: #F3F4F5;
@@ -63,12 +63,12 @@ div.main_container {
         position: absolute;
         bottom: 0;
         right: 0;
-        width: 50%;
+        width: 51%;
         height: 45%;
         border-bottom-right-radius: 20px;
         border: 2px solid #F3F4F5;
         background: #0D6EFD;
-        font-size: 240%;
+        font-size: 120%;
         color: #F3F4F5;
         font-weight: 600;
     }
@@ -82,7 +82,7 @@ div.main_container {
         border: 2px solid #F3F4F5;
         border-bottom-left-radius: 20px;
         background: #0D6EFD;
-        font-size: 240%;
+        font-size: 120%;
         color: #F3F4F5;
         font-weight: 600;
     }

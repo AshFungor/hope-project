@@ -5,23 +5,30 @@
 {% block content %}
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-    <h3><strong>Город "name"</strong></h3>
+    <h3><strong>Город {{ city.name }}</strong></h3>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Глава города:</strong> Lorem, ipsum dolor.</p>
+    <p class="mb-1"><strong>Глава города:
+        {% if mayor %}
+            {{ mayor.last_name }} {{ mayor.name }}
+        {% else %}
+            У этого города пока нет главы.
+        {% endif %}
+    </strong></p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Регистрация:</strong> префектура Lorem, ipsum.</p>
+    <p class="mb-1"><strong>Регистрация:</strong>
+        louem.
+    </p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Адрес:</strong> корпус N, комната K</p>
+    <p class="mb-1"><strong>Адрес:</strong> корпус N, комната №{{ city.location }}</p>
 </div>
-
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ city.bank_account }}</b></p>
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
@@ -31,11 +38,9 @@
     <div class="collapse" id="population">
         <div class="card card-body">
             <ul>
-                <li>1st nn</li>
-                <li>2nd nn</li>
-                <li>3rd nn</li>
-                <li>4th nn</li>
-                <li>5th nn</li>
+                {% for resident in residents %}
+                    <li>{{ resident.name }} {{ resident.last_name }} ({{ resident.bank_account_id }})</li>
+                {% endfor %}
             </ul>
         </div>
     </div>
@@ -44,11 +49,9 @@
     <div class="collapse" id="offices">
         <div class="card card-body">
             <ul>
-                <li>1st office</li>
-                <li>2nd office</li>
-                <li>3rd office</li>
-                <li>4th office</li>
-                <li>5th office</li>
+                {% for company in companies %}
+                    {{ company.name }}
+                {% endfor %}
             </ul>
         </div>
     </div>
@@ -57,11 +60,9 @@
     <div class="collapse" id="products">
         <div class="card card-body">
             <ul>
-                <li>1st product</li>
-                <li>2nd product</li>
-                <li>3rd product</li>
-                <li>4th product</li>
-                <li>5th product</li>
+                {% for product in products %}
+                    <li>{{ product.name }} {{ product.count }} шт.</li>
+                {% endfor %}
             </ul>
         </div>
     </div>

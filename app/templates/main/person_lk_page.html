@@ -17,11 +17,15 @@
         </a>
         <p></p>
         <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('suggestion.proposal', _external=True) }}">
-            Сделать предложение
+            Выставить счет
         </a>
         <p></p>
         <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('user_suggestions.get_user_suggestions', _external=True) }}">
-            Входящие предложения
+            Неоплаченные счета
+        </a>
+        <p></p>
+        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('user_products.get_user_products', _external=True) }}">
+            Продукты
         </a>
     </block>
 </block>

@@ -63,7 +63,7 @@ class User(ModelBase, flask_login.UserMixin):
         self.city_id = city_id
         self.name = validators.PureRussianTextValidator.validate(name, 64)
         self.last_name = validators.PureRussianTextValidator.validate(last_name, 64)
-        self.patronymic = validators.PureRussianTextValidator.validate(patronymic, 64)
+        self.patronymic = patronymic.strip()
         self.login = validators.NoWhitespaceGenericTextValidator.validate(login, 64)
         self.password = validators.NoWhitespaceGenericTextValidator.validate(password, 64)
         self.sex = validators.EnumValidator.validate(str(sex), Sex, str(Sex.MALE))
