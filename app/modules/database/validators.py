@@ -177,7 +177,7 @@ GenericTextValidator = StringValidator(
     ValidationPolicy.ABORT, 
     allow_numbers=True,
     allow_punctuation=True,
-    allow_whitespaces=False,
+    allow_whitespaces=True,
     allow_latin_letters_lowercase=True,
     allow_latin_letters_uppercase=True,
     allow_russian_letters_lowercase=True,

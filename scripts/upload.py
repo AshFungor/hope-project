@@ -1,3 +1,5 @@
+#!/bin/python3
+
 # Use this to upload data to server
 import requests
 import pandas
@@ -15,14 +17,15 @@ def upload(url: str, filepath: str, is_header_preset: bool = True):
 
 
 if __name__ == '__main__':
-    filepath = input('enter filepath to csb data: ')
+    filepath = input('enter filepath to csv data: ')
     header = input('is header on top line? (Y/n): ')
-    handle = int(input('where do you want to upload? (1 - users, 2 - cities, 3 - prefectures): '))
+    handle = int(input('where do you want to upload? (1 - users, 2 - cities, 3 - prefectures, 4 - products): '))
     host = input('enter host name: ')
     urls = {
         1: '/upload/csv/users',
         2: '/upload/csv/cities',
-        3: '/upload/csv/prefectures'
+        3: '/upload/csv/prefectures',
+        4: '/upload/csv/products'
     }
     if handle not in urls:
         print('you entered wring option for handle.')

@@ -1,7 +1,13 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
 
-from app.modules.database.handlers import serial, long_int, variable_strings, c_datetime, ModelBase
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import ModelBase
+
 import app.modules.database.validators as validators
 
 

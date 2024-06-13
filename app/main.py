@@ -5,6 +5,7 @@ from app.env import env
 from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
+from flask_debugtoolbar import DebugToolbarExtension
 
 # base
 import sys
@@ -28,15 +29,13 @@ from app.routes.city_hall_lk import city_hall_lk
 from app.routes.master_lk import master_lk
 from app.routes.admin_lk import admin_lk
 from app.routes.login import login
-from app.routes.transaction import transaction
-from app.routes.upload_csv import csv
-from app.routes.user_suggestions import user_suggestions
-from app.routes.suggestion import suggestion
+from app.routes.blueprints import csv, transaction
 from app.routes.new_company import new_company
 from app.routes.user_products import user_products
 
 login_manager = LoginManager()
 login_manager.login_view = 'login.authorization'
+toolbar = DebugToolbarExtension()
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -69,6 +68,10 @@ def create_app() -> Flask:
     logging.info("handling Database creation")
     env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
 
+    if bool(env.debug):
+        app.debug = True
+        toolbar.init_app(app)
+
     logging.info("handling routes")
 
     app.register_blueprint(main)
@@ -82,11 +85,11 @@ def create_app() -> Flask:
     app.register_blueprint(login)
     app.register_blueprint(transaction)
     app.register_blueprint(csv)
-    app.register_blueprint(user_suggestions)
-    app.register_blueprint(suggestion)
     app.register_blueprint(new_company)
     app.register_blueprint(user_products)
 
     csrf.exempt(csv)
+    csrf.exempt(transaction)
+
 
     return app
