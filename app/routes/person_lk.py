@@ -1,32 +1,16 @@
 import datetime
 
-from flask import Blueprint, render_template, url_for
+import flask
 
-from app.modules.database.validators import CurrentTimezone
 from app.env import env
 
-# models and parsing
-import app.models as models
-import os, csv, dateutil
+# local
+import app.modules.database.static as static
+import app.routes.blueprints as blueprints
 
 
-person_lk = Blueprint('person_lk', __name__)
-
-@person_lk.route('/person_lk')
+@blueprints.accounts_blueprint.route('/person_lk')
 def person_cabinet():
-    models.User(
-        None,
-        0,
-        'а',
-        'а',
-        'a',
-        'a',
-        'a',
-        'female',
-        0,
-        datetime.datetime.now(CurrentTimezone)
-    )
-    """Личный кабинет пользователя"""
-    return render_template('main/person_lk_page.html')
+    return flask.render_template('main/person_lk_page.html')
 
 

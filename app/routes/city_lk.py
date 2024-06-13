@@ -7,10 +7,12 @@ from flask_login import login_required, current_user
 from app.env import env
 import app.models as models
 
-city_lk = Blueprint('city_lk', __name__)
+# local
+import app.modules.database.static as static
+import app.routes.blueprints as blueprints
 
 
-@city_lk.route('/city_lk')
+@blueprints.accounts_blueprint.route('/city_lk')
 @login_required
 def city_cabinet():
     """Личный кабинет города!!"""

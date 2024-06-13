@@ -84,6 +84,7 @@ class StaticTablesHandler:
                         models.City.name == user['City']).first().id,
                     user['Name'],
                     user['Surname'],
+                    user['Patronymic'],
                     user['Login'],
                     user['Password'],
                     user['Sex'],
@@ -106,10 +107,11 @@ class StaticTablesHandler:
         product_id: int,
         count: int
     ) -> None:
-        product_to_bank_account = models.Product2BankAccount()
-        product_to_bank_account.bank_account_id = bank_account_id
-        product_to_bank_account.product_id = product_id
-        product_to_bank_account.count = count
+        product_to_bank_account = models.Product2BankAccount(
+            bank_account_id,
+            product_id,
+            count
+        )
         env.db.impl().session.add(product_to_bank_account)
 
     @staticmethod

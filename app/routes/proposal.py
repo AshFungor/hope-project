@@ -19,7 +19,7 @@ import app.routes.blueprints as blueprints
 import app.modules.database.static as static
 
 
-@blueprints.transaction.route('/transaction/create', methods=['POST'])
+@blueprints.transaction_blueprint.route('/transaction/create', methods=['POST'])
 def new_proposal() -> flask.Response:
     payload, data = flask.request.json, []
     # parse payload
@@ -54,7 +54,7 @@ def new_proposal() -> flask.Response:
     return flask.Response('successful', status=200)
 
 
-@blueprints.transaction.route('/transaction/view', methods=['POST'])
+@blueprints.transaction_blueprint.route('/transaction/view', methods=['POST'])
 def view_proposal():
     payload = flask.request.json
     if 'user' not in payload:
@@ -88,7 +88,7 @@ def view_proposal():
     return flask.Response(json.dumps(response, indent=4, sort_keys=True), status=200)
 
 
-@blueprints.transaction.route('/transaction/decide', methods=['POST'])
+@blueprints.transaction_blueprint.route('/transaction/decide', methods=['POST'])
 def decide_on_proposal():
     payload = flask.request.json
     if 'status' not in payload:

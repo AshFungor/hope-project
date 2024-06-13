@@ -1,10 +1,12 @@
 from flask import Blueprint, render_template, url_for
 from flask_login import login_required
 
-admin_lk = Blueprint('admin_lk', __name__)
+# local
+import app.modules.database.static as static
+import app.routes.blueprints as blueprints
 
 
-@admin_lk.route('/admin_lk')
+@blueprints.accounts_blueprint.route('/admin_lk')
 @login_required
 def admin_cabinet():
     """Личный кабинет admin"""
