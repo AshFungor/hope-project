@@ -58,6 +58,8 @@ def add_company(name: str, about: str, founders: list[int], prefecture_name: str
         return False, 'Указанного учредителя не существует '
 
     ratios = np.ceil(np.ones(len(founders)) * (1 / len(founders)) * 100)
+    ratios[-1] += 100 - np.sum(ratios)
+    
     for founder, ratio in zip(ids, ratios):
         env.db.impl().session.add(models.User2Company(
             founder,
