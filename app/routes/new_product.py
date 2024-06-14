@@ -47,7 +47,7 @@ def create_product():
 
         if created:
             flask.flash(message, category="info")
-            return redirect(url_for("new_product.create_product"))
+            return redirect(url_for("accounts.create_product"))
         else:
             flask.flash(message, category="warning")
     return render_template('main/new_product.html', form=form)
