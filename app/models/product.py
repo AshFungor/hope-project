@@ -17,6 +17,7 @@ class Product(ModelBase):
 
     id: Mapped[serial]
     category: Mapped[variable_strings[64]]
+    # категории: FOOD, TECHNIC, CLOTHES (товары), MINERALS (ресурсы), ENERGY (энергия)
     name: Mapped[variable_strings[64]]
     level: Mapped[small_int]
 

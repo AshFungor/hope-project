@@ -10,3 +10,5 @@ from . import prefecture_lk
 from . import proposal
 from . import transaction
 from . import upload_csv
+from . import new_company
+from . import new_product

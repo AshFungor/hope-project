@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Создание наименования продукта{% endblock %}
+
+{% block content %}
+
+        <form class="new_product" style="display: grid;" method="POST">
+
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <ul class="flashes" style="">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {{ form.csrf_token }}
+            {{ form.product_name.label }} {{ form.product_name }}
+            {{ form.category.label }} {{ form.category }}
+            {{ form.level.label }} {{ form.level }}
+
+            <p></p>
+            {{ form.submit }}
+        </form>
+
+{% endblock %}
