@@ -15,7 +15,7 @@ import app.routes.blueprints as blueprints
 from app.forms.new_product import NewProductForm
 
 
-def add_product(name: str, category: str, level: int) -> typing.Tuple[bool, str]:
+def add_product(name: str, level: int, category: str) -> typing.Tuple[bool, str]:
     # current_user_id = flask_login.current_user.id
     try:
         product = models.Product(
@@ -40,8 +40,8 @@ def create_product():
     form = NewProductForm()
 
     if request.method == 'POST' and form.validate_on_submit():
-        name = form.name.data
-        level = form.level.data
+        name = form.product_name.data
+        level = int(form.level.data)
         category = form.category.data
         created, message = add_product(name, level, category)
 
