@@ -4,33 +4,41 @@
 
 {% block content %}
 
-<div class="mb-3">
-    <p class="mb-1" id="custiomer-account"><strong> Ваш счёт: </strong> {{ user_bank_account }} </p>
-</div>
 
-<div class="mb-3">
-    <input class="form-control text-center" id="seller-account" type="text" placeholder="Счёт получателя:">
-</div>
+<form action="" role="form">
 
-<div class="mb-3 row">
-    <select class="form-select" id="product-selector">
-        {% for product in products %}
-            {% if product.number == 0 %}
-                <option class="text-start" selected> Выбрать продукт </option>
-            {% else %}
-                <option class="text-start" value="{{ product.number }}"> {{ product.name }} </option>
-            {% endif %}
-        {% endfor %}
-    </select>
-</div>
+    <div class="mb-4">
+        <p class="mb-1" id="custiomer-account"><strong> Ваш счёт:</strong> {{ user_bank_account }} </p>
+    </div>
 
-<div class="mb-3">
-    <input class="form-control text-center" id="count" type="text" placeholder="Кол-во товара:">
-</div>
+    <div class="mb-4">
+        <label for="seller-account" class="form-label"><strong>Счёт получателя:</strong></label>
+        <input class="form-control text-center" id="seller-account" type="number" placeholder="Введите счёт получателя">
+    </div>
 
-<div class="d-grid gap-2 d-mb-block mb-4">
-    <button type="submit" if="send-button" class="btn btn-primary btn-lg mb-3"> Подтверждаю </button>
-</div>
+    <div class="mb-4">
+        <select class="form-select">
+            {% for product in products %}
+                {% if product.number == 0 %}
+                    <option class="text-start" selected> Выбрать продукт </option>
+                {% else %}
+                    <option class="text-start" value="{{ product.number }}"> {{ product.name }} </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="mb-4">
+        <label for="count" class="form-label"><strong>Кол-во товара:</strong></label>
+        <input class="form-control text-center" id="count" type="number" placeholder="Введите кол-во товара">
+    </div>
+
+    <div class="d-grid gap-2 d-mb-block mb-4">
+        <button type="submit" if="send-button" class="btn btn-success btn-lg mb-3"> Подтверждаю </button>
+    </div>
+
+</form>
+
 
 <script>
     function sendRequest() {
