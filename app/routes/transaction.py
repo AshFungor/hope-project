@@ -22,7 +22,7 @@ def view_transaction():
     }
     # make post to local address and get all data for transactions
     response = requests.post('http://nginx/transaction/view', json=payload).json()
-    return flask.render_template('main/view_transaction_view.html', transactions=response)
+    return flask.render_template('main/view_transaction.html', transactions=response)
 
 
 @blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
