@@ -20,7 +20,7 @@ from app.modules.database.handlers import DatabaseType
 
 import app.models as models
 
-import app.routes.blueprints as blueprints 
+import app.routes.blueprints as blueprints
 
 
 login_manager = LoginManager()
@@ -69,6 +69,7 @@ def create_app() -> Flask:
     app.register_blueprint(blueprints.csv_blueprint)
     app.register_blueprint(blueprints.transaction_blueprint)
     app.register_blueprint(blueprints.main)
+    app.register_blueprint(blueprints.proposal_blueprint)
 
     csrf.exempt(blueprints.csv_blueprint)
     csrf.exempt(blueprints.transaction_blueprint)

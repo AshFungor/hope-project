@@ -56,6 +56,7 @@ def parse_cities():
     env.db.impl().session.commit()
     return flask.Response(status=200)
 
+
 @blueprints.csv_blueprint.route('/upload/csv/products', methods=['POST'])
 def parse_products():
     result = parse(flask.request.data)

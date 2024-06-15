@@ -1,28 +1,42 @@
-import datetime
-import logging
+# base
+import requests
+
+# flask
 import flask
+import flask_login
 
-from flask import Blueprint, redirect, request, render_template, url_for
-from flask_login import login_required, current_user
-
-from sqlalchemy import and_
-
-from app import models
+# local
 from app.env import env
-from app.forms.transaction import TransactionForm
-from app.modules.database.static import CurrentTimezone
 
+import app.models as models
 import app.routes.blueprints as blueprints
 
-@blueprints.accounts_blueprint.route('/transactiona')
-@login_required
-def transactiona():
-    
-    return render_template('main/transaction.html')
+
+@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
+@flask_login.login_required
+def view_transaction():
+    # get user bank account id & make payload from it
+    user_id = flask_login.current_user.bank_account_id
+    payload = {
+        'user': user_id
+    }
+    # make post to local address and get all data for transactions
+    response = requests.post('http://nginx/transaction/view', json=payload).json()
+    return flask.render_template('main/view_transaction_view.html', transactions=response)
 
 
-@blueprints.accounts_blueprint.route('/transactiona_view')
-@login_required
-def transactiona_view():
-    
-    return render_template('main/transaction_view.html')
+@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
+@flask_login.login_required
+def new_transaction():
+    # get all products
+    products = env.db.impl().session.query(models.Product).all()
+    env.db.impl().session.commit()
+
+    data = []
+    for number, product in zip(range(len(products)), products):
+        data.append(
+            { 'name': product.name, 'number': number }
+        )
+
+    user_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)

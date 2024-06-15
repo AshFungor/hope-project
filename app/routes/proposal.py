@@ -2,11 +2,8 @@
 import json
 import logging
 import datetime
-import dateutil
 
 # flask
-import dateutil.relativedelta
-import dateutil.utils
 import flask
 import sqlalchemy
 
