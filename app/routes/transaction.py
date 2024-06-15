@@ -1,28 +1,19 @@
-import datetime
-import logging
+import requests
+
 import flask
-
-from flask import Blueprint, redirect, request, render_template, url_for
-from flask_login import login_required, current_user
-
-from sqlalchemy import and_
-
-from app import models
-from app.env import env
-from app.forms.transaction import TransactionForm
-from app.modules.database.static import CurrentTimezone
+import flask_login
 
 import app.routes.blueprints as blueprints
 
-@blueprints.accounts_blueprint.route('/transactiona')
-@login_required
-def transactiona():
-    
-    return render_template('main/transaction.html')
 
-
-@blueprints.accounts_blueprint.route('/transactiona_view')
-@login_required
-def transactiona_view():
-    
-    return render_template('main/transaction_view.html')
+blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
+flask_login.login_required
+def new_transaction() -> flask.Response:
+    # get user bank account id & make payload from it
+    user_id = flask_login.current_user.bank_account_id
+    payload = {
+        'user': user_id
+    }
+    # make post to local address and get all data for transactions
+    response = requests.post('http://localhost/transaction/view', json=payload).json()
+    return flask.render_template('main/transaction_view.html', transactions=response)

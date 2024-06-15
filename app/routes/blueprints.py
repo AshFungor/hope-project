@@ -11,3 +11,5 @@ accounts_blueprint = flask.Blueprint('accounts', __name__)
 session_blueprint = flask.Blueprint('session', __name__)
 # главная страница
 main = flask.Blueprint('main', __name__)
+# транзакции
+proposal_blueprint = flask.Blueprint('proposal', __name__)
