@@ -71,6 +71,7 @@ def create_app() -> Flask:
     app.register_blueprint(blueprints.transaction_blueprint)
     app.register_blueprint(blueprints.main)
     app.register_blueprint(blueprints.proposal_blueprint)
+    app.register_blueprint(blueprints.goal)
 
     csrf.exempt(blueprints.csv_blueprint)
     csrf.exempt(blueprints.transaction_blueprint)
