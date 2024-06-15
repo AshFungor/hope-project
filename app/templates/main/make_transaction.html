@@ -1,0 +1,71 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Перевод{% endblock %}
+
+{% block content %}
+
+<div class="mb-3">
+    <p class="mb-1" id="custiomer-account"><strong> Ваш счёт: </strong> {{ user_bank_account }} </p>
+</div>
+
+<div class="mb-3">
+    <input class="form-control text-center" id="seller-account" type="text" placeholder="Счёт получателя:">
+</div>
+
+<div class="mb-3 row">
+    <select class="form-select" id="product-selector">
+        {% for product in products %}
+            {% if product.number == 0 %}
+                <option class="text-start" selected> Выбрать продукт </option>
+            {% else %}
+                <option class="text-start" value="{{ product.number }}"> {{ product.name }} </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+
+<div class="mb-3">
+    <input class="form-control text-center" id="count" type="text" placeholder="Кол-во товара:">
+</div>
+
+<div class="d-grid gap-2 d-mb-block mb-4">
+    <button type="submit" if="send-button" class="btn btn-primary btn-lg mb-3"> Подтверждаю </button>
+</div>
+
+<script>
+    function sendRequest() {
+        var product_name = document.getElementById('product-selector').value;
+        var count = document.getElementById('count').value;
+        var customer_bank_account = document.getElementById('customer-account').value;
+        var seller_bank_account = document.getElementById('seller-account').value;
+
+        var data = {
+            seller_account: seller_bank_account,
+            customer_account: customer_bank_account,
+            product: product_name,
+            product_count: count,
+            amount: 0
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://localhost/transaction/create', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var responseData = JSON.parse(xhr.responseText);
+                    console.log('Success:', responseData);
+                } else {
+                    console.error('Error:', xhr.status, xhr.statusText);
+                }
+                console.log('Request complete');
+            }
+        };
+        xhr.send(JSON.stringify(data));
+    }
+
+    document.getElementById('send-button').addEventListener('click', sendRequest);
+</script>
+
+{% endblock %}
