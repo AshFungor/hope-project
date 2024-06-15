@@ -1,14 +1,14 @@
 import datetime
 
-from flask import Blueprint, abort, redirect, request
+from flask import abort, redirect, request
 from flask_login import login_required
 
 from app.env import env
 from app.models.helpers import get_last_goal_by_bank_account
 from app.models.user import Goal
+from app.routes.blueprints import goal
 
 logger = env.logger.getChild(__name__)
-goal = Blueprint('goal', __name__)
 
 
 @goal.route('/goal/<int:id>', methods=['GET'])

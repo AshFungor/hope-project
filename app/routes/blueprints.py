@@ -13,3 +13,4 @@ session_blueprint = flask.Blueprint('session', __name__)
 main = flask.Blueprint('main', __name__)
 # транзакции
 proposal_blueprint = flask.Blueprint('proposal', __name__)
+goal = flask.Blueprint('goal', __name__)

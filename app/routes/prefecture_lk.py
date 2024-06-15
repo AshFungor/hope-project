@@ -1,17 +1,12 @@
-from flask import Blueprint, abort, render_template
+from flask import abort, render_template
 from flask_login import current_user, login_required
-import datetime
 
-import flask
-
+import app.routes.blueprints as blueprints
 from app.env import env
 from app.models import Goal
 from app.models.helpers import get_bank_account_size, get_goal_on_current_day
 
 logger = env.logger.getChild(__name__)
-prefecture_lk = Blueprint('prefecture_lk', __name__)
-import app.modules.database.static as static
-import app.routes.blueprints as blueprints
 
 
 @login_required
