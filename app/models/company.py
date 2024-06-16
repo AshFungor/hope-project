@@ -1,11 +1,20 @@
 from app.env import env
 
 import enum
+import datetime
 
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import small_int
+from app.modules.database.handlers import ModelBase
+
+import app.modules.database.validators as validators
 
 
 class Role(enum.StrEnum):
@@ -17,24 +26,58 @@ class Role(enum.StrEnum):
     PRODUCTION_MANAGER = 'production_manager'
 
 
-class Company(database.ModelBase):
+class Company(ModelBase):
     __tablename__ = 'company'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    prefecture_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('prefecture.id'))
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    about: sqlalchemy.orm.Mapped[database.variable_strings[256]]
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'))
+    name: Mapped[variable_strings[64]] = mapped_column(unique=True)
+    about: Mapped[variable_strings[256]]
+
+    def __init__(
+        self, 
+        bank_account_id: int,
+        prefecture_id: int,
+        name: str,
+        about: str
+    ) -> None:
+        self.bank_account_id = validators.IntValidator.validate(bank_account_id, 64, False)
+        self.prefecture_id = validators.IntValidator.validate(prefecture_id, 64, False)
+        self.name = validators.GenericTextValidator.validate(name, 64, False)
+        self.about = validators.GenericTextValidator.validate(about, 256, False)
+
+    def __repr__(self) -> str:
+        return '<Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
 
-class User2Company(database.ModelBase):
+class User2Company(ModelBase):
     __tablename__ = 'user_to_company'
 
-    user_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    company_id: sqlalchemy.orm.Mapped[database.serial] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    role: sqlalchemy.orm.Mapped[database.variable_strings[32]]
-    ratio: sqlalchemy.orm.Mapped[database.small_int]
-    fired_at: sqlalchemy.orm.Mapped[database.c_datetime] = sqlalchemy.orm.mapped_column(nullable=True)
-    employed_at: sqlalchemy.orm.Mapped[database.c_datetime]
+    id: Mapped[serial]
+    user_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'))
+    company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
+    role: Mapped[variable_strings[32]]
+    ratio: Mapped[small_int]
+    fired_at: Mapped[c_datetime] = mapped_column(default=None, nullable=True)
+    employed_at: Mapped[c_datetime]
 
-    
+    def __init__(
+        self,
+        user_id: int,
+        company_id: int,
+        role: str,
+        ratio: int,
+        fired_at: datetime.datetime | None,
+        employed_at: datetime.datetime
+    ) -> None:
+        self.user_id = validators.IntValidator.validate(user_id, 64, False)
+        self.company_id = validators.IntValidator.validate(company_id, 64, False)
+        self.role = validators.GenericTextValidator.validate(role, 32, False)
+        self.ratio = validators.IntValidator.validate(ratio, 16, True)
+        if fired_at:
+            self.fired_at = validators.DtValidator.validate(fired_at)
+        self.employed_at = validators.DtValidator.validate(employed_at)
+
+    def __repr__(self) -> str:
+        return '<User2Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'

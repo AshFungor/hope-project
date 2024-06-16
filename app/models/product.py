@@ -1,24 +1,43 @@
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import small_int
+from app.modules.database.handlers import ModelBase
+
+import app.modules.database.validators as validators
 
 
-class Product(database.ModelBase):
+class Product(ModelBase):
     __tablename__ = 'product'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    category: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    level: sqlalchemy.orm.Mapped[database.small_int]
+    id: Mapped[serial]
+    category: Mapped[variable_strings[64]]
+    # категории: FOOD, TECHNIC, CLOTHES (товары), MINERALS (ресурсы), ENERGY (энергия)
+    name: Mapped[variable_strings[64]]
+    level: Mapped[small_int]
+
+    def __init__(
+        self,
+        category: str,
+        name: str,
+        level: int
+    ) -> None:
+        self.category = validators.GenericTextValidator.validate(category, 64, False)
+        self.name = validators.GenericTextValidator.validate(name, 64, False)
+        self.level = validators.IntValidator.validate(level, 16, True)
 
 
-class Consumption(database.ModelBase):
+class Consumption(ModelBase):
     __tablename__ = 'consumption'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    product_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    count: sqlalchemy.orm.Mapped[database.long_int]
-    consumed_at: sqlalchemy.orm.Mapped[database.c_datetime]
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    product_id: Mapped[long_int] = mapped_column(ForeignKey('product.id'))
+    count: Mapped[long_int]
+    consumed_at: Mapped[c_datetime]
 

@@ -4,27 +4,136 @@
 
 {% block content %}
 
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
-    </div>
-    <div class="col-6 text-center">
-        <h2>Личный кабинет префектуры</h2>
-    </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
-    </div>
+<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
+    <h3><strong>Префектура "name"</strong></h3>
 </div>
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Префект:</strong> Lorem, ipsum.</p>
+</div>
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> Lorem, ipsum.</p>
+</div>
+
+<div class="text-wrap text-start mb-4">
+    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> Lorem, ipsum.</p>
+</div>
+
+<div class="text-wrap text-start mb-2">
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
+</div>
+
+
+<div class="text-wrap text-start mb-5">
+    <form>
+        <div class="mb-1">
+            <input class="form-control text-center" type="text" placeholder="Введите цель на сегодня (в надиках):">
+        </div>
+        <div class="d-grid gap-2 d-mb-block mb-4">
+            <button type="submit" class="btn btn-success btn-sm mb-3">Подтверждаю</button>
+        </div>
+    </form>
+</div>
+
+
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
+        Население
+    </button>
+    
+    <div class="collapse" id="cities">
+        <div class="card card-body">
+            <ul>
+                <li>
+                    <p class="mb-1">1st city</p>
+                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#1st_city" aria-expanded="false" aria-controls="1st_city">
+                        Жители 1st города
+                    </button>
+                    <div class="collapse" id="1st_city">
+                        <div class="card card-body">
+                            <ul>
+                                <li>Вася Пупкин</li>
+                                <li>Маша Мирная</li>
+                                <li>3rd jitel</li>
+                                <li>4th jitel</li>
+                                <li>5th jitel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <p class="mb-1">2nd city</p>
+                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#2nd_city" aria-expanded="false" aria-controls="2nd_city">
+                        Жители 2nd города
+                    </button>
+                    <div class="collapse" id="2nd_city">
+                        <div class="card card-body">
+                            <ul>
+                                <li>Вася Пупкин 2.0</li>
+                                <li>Маша Мирная 2.0</li>
+                                <li>3rd jitel</li>
+                                <li>4th jitel</li>
+                                <li>5th jitel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <p class="mb-1">3rd city</p>
+                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#3rd_city" aria-expanded="false" aria-controls="3rd_city">
+                        Жители 3rd города
+                    </button>
+                    <div class="collapse" id="3rd_city">
+                        <div class="card card-body">
+                            <ul>
+                                <li>Вася Пупкин 3.0</li>
+                                <li>Маша Мирная 3.0</li>
+                                <li>3rd jitel</li>
+                                <li>4th jitel</li>
+                                <li>5th jitel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <p class="mb-1">4th city</p>
+                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#4th_city" aria-expanded="false" aria-controls="4th_city">
+                        Жители 4th города
+                    </button>
+                    <div class="collapse" id="4th_city">
+                        <div class="card card-body">
+                            <ul>
+                                <li>Вася Пупкин 4.0</li>
+                                <li>Маша Мирная 4.0</li>
+                                <li>3rd jitel</li>
+                                <li>4th jitel</li>
+                                <li>5th jitel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <p class="mb-1">5th city</p>
+                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#5th_city" aria-expanded="false" aria-controls="5th_city">
+                        Жители 5th города
+                    </button>
+                    <div class="collapse" id="5th_city">
+                        <div class="card card-body">
+                            <ul>
+                                <li>Вася Пупкин 5.0</li>
+                                <li>Маша Мирная 5.0</li>
+                                <li>3rd jitel</li>
+                                <li>4th jitel</li>
+                                <li>5th jitel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
-    <div class="col-6">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequuntur itaque quod cumque commodi, saepe quam officiis dignissimos blanditiis ex, nihil porro. Consequatur excepturi culpa nobis, commodi id quod alias repellendus?
-    </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
-    </div>
+
 </div>
 
 {% endblock %}

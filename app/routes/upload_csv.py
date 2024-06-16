@@ -5,9 +5,9 @@ import io
 import pandas as pd
 
 from app.env import env
-from app.modules.database.static import StaticTablesHandler
 
-csv = flask.Blueprint('csv', __name__)
+import app.routes.blueprints as blueprints
+import app.modules.database.static as static
 
 
 def parse(payload: bytes) -> pd.DataFrame | flask.Response:
@@ -18,12 +18,12 @@ def parse(payload: bytes) -> pd.DataFrame | flask.Response:
     return frame
 
 
-@csv.route('/upload/csv/users', methods=['POST'])
+@blueprints.csv_blueprint.route('/upload/csv/users', methods=['POST'])
 def parse_users():
     result = parse(flask.request.data)
     if isinstance(result, flask.Response):
         return result
-    added = StaticTablesHandler.prepare_users(result)
+    added = static.StaticTablesHandler.prepare_users(result)
     if added < result.shape[0]:
         env.db.impl().session.rollback()
         return flask.Response(status=443)
@@ -31,12 +31,12 @@ def parse_users():
     return flask.Response(status=200)
 
 
-@csv.route('/upload/csv/prefectures', methods=['POST'])
+@blueprints.csv_blueprint.route('/upload/csv/prefectures', methods=['POST'])
 def parse_prefectures():
     result = parse(flask.request.data)
     if isinstance(result, flask.Response):
         return result
-    added = StaticTablesHandler.prepare_prefectures(result)
+    added = static.StaticTablesHandler.prepare_prefectures(result)
     if added < result.shape[0]:
         env.db.impl().session.rollback()
         return flask.Response(status=443)
@@ -44,12 +44,25 @@ def parse_prefectures():
     return flask.Response(status=200)
 
 
-@csv.route('/upload/csv/cities', methods=['POST'])
+@blueprints.csv_blueprint.route('/upload/csv/cities', methods=['POST'])
 def parse_cities():
     result = parse(flask.request.data)
     if isinstance(result, flask.Response):
         return result
-    added = StaticTablesHandler.prepare_cities(result)
+    added = static.StaticTablesHandler.prepare_cities(result)
+    if added < result.shape[0]:
+        env.db.impl().session.rollback()
+        return flask.Response(status=443)
+    env.db.impl().session.commit()
+    return flask.Response(status=200)
+
+
+@blueprints.csv_blueprint.route('/upload/csv/products', methods=['POST'])
+def parse_products():
+    result = parse(flask.request.data)
+    if isinstance(result, flask.Response):
+        return result
+    added = static.StaticTablesHandler.prepare_products(result)
     if added < result.shape[0]:
         env.db.impl().session.rollback()
         return flask.Response(status=443)

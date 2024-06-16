@@ -1,20 +1,42 @@
-from flask import Blueprint, redirect, request, render_template, url_for
+# base
+import requests
 
-import app.routes.transaction
-from app.forms.transaction import TransactionForm
+# flask
+import flask
+import flask_login
 
-transaction = Blueprint('transaction', __name__)
+# local
+from app.env import env
+
+import app.models as models
+import app.routes.blueprints as blueprints
 
 
-@transaction.route('/transaction', methods=['GET', 'POST'])
-def transaction_page():
-    form = TransactionForm(request.form, meta={'csrf': False})
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            bank_account = form.bank_account.data
-            amount = form.amount.data
-            comment = form.comment.data
-        else:
-            pass
-        return redirect(url_for('transaction.transaction_page'))
-    return render_template('main/transaction.html', form=form)
+@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
+@flask_login.login_required
+def view_transaction():
+    # get user bank account id & make payload from it
+    user_id = flask_login.current_user.bank_account_id
+    payload = {
+        'user': user_id
+    }
+    # make post to local address and get all data for transactions
+    response = requests.post('http://nginx/transaction/view', json=payload).json()
+    return flask.render_template('main/view_transaction.html', transactions=response)
+
+
+@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
+@flask_login.login_required
+def new_transaction():
+    # get all products
+    products = env.db.impl().session.query(models.Product).all()
+    env.db.impl().session.commit()
+
+    data = []
+    for number, product in zip(range(len(products)), products):
+        data.append(
+            { 'name': product.name, 'number': number }
+        )
+
+    user_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)

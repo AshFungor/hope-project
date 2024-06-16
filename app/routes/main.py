@@ -1,11 +1,13 @@
 from flask import Blueprint, render_template, url_for
 
 
-main = Blueprint('main', __name__)
+# local
+import app.modules.database.static as static
+import app.routes.blueprints as blueprints
 
 
-@main.route('/')
-@main.route('/index')
+@blueprints.main.route('/')
+@blueprints.main.route('/index')
 def index():
 
     return render_template('main/index.html')

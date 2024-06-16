@@ -1,9 +1,13 @@
-from flask import Blueprint, render_template, url_for
+import datetime
 
-prefecture_lk = Blueprint('prefecture_lk', __name__)
+import flask
+
+from app.env import env
+
+import app.modules.database.static as static
+import app.routes.blueprints as blueprints
 
 
-@prefecture_lk.route('/prefecture_lk')
+@blueprints.accounts_blueprint.route('/prefecture_lk')
 def prefecture_cabinet():
-    """Личный кабинет префектуры"""
-    return render_template('main/prefecture_lk_page.html')
+    return flask.render_template('main/prefecture_lk_page.html')
