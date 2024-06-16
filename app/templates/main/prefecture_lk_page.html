@@ -9,15 +9,15 @@
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.fio_string }}</p>
+    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.fio_string }}</p>
+    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.fio_string }}</p>
+    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-2">
@@ -38,7 +38,7 @@
         <input type="hidden" name="bank_account_id" value="{{ prefecture.bank_account_id }}"/>
         <input type="hidden" name="amount_on_setup" value="{{ prefecture_current_account_size }}"/>
         <div class="form-group mb-1">
-            <input class="form-control text-center" type="number" name="value" placeholder="Введите цель на сегодня (в надиках):">
+            <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
         </div>
         <div class="d-grid gap-2 d-mb-block mb-4">
             <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
@@ -56,15 +56,15 @@
 {% if prefecture.economic_assistant and prefecture.economic_assistant.id == user.id %}
     <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
         <block style="display: grid">
-            <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
                 Перевод
             </a>
             <p></p>
-            <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
                 Выставить счет
             </a>
             <p></p>
-            <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
                 Неоплаченные счета
             </a>
         </block>
@@ -72,7 +72,7 @@
 {% endif %}
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="{{ color_for_big_button }} btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
         Население
     </button>
     
@@ -89,7 +89,7 @@
                             <div class="card card-body">
                                 <ul>
                                 {% for user in city.users %}
-                                    <li>{{ user.fio_string }}</li>
+                                    <li>{{ user.full_name_string }}</li>
                                 {% endfor %}
                                 </ul>
                             </div>
@@ -103,7 +103,7 @@
 
 </div>
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="{{ color_for_big_button }} btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
         Инфраструктурные объекты
     </button>
     <div class="collapse" id="infrastructures">

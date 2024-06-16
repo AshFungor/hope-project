@@ -79,7 +79,7 @@ class User(ModelBase, flask_login.UserMixin):
         return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
     @cached_property
-    def fio_string(self):
+    def full_name_string(self):
         return f"{self.last_name} {self.name} {self.patronymic}"
 
 
@@ -104,7 +104,7 @@ class Goal(ModelBase):
         complete: bool | None = False
     ) -> None:
         self.bank_account_id = bank_account_id
-        self.value = value
+        self.value = validators.IntValidator.validate(value, 16, False)
         self.amount_on_setup = amount_on_setup
         self.amount_on_validate = amount_on_validate
         self.created_at = validators.DtValidator.validate(
