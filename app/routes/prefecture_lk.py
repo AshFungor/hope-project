@@ -11,6 +11,7 @@ logger = env.logger.getChild(__name__)
 
 @login_required
 @blueprints.accounts_blueprint.route('/prefecture_lk')
+@login_required
 def prefecture_cabinet():
     """Личный кабинет префектуры"""
     loginned_user_id = current_user.id
@@ -25,7 +26,7 @@ def prefecture_cabinet():
             % loginned_user_id,
         )
     prefecture_current_account_size = get_bank_account_size(prefecture.bank_account_id)
-    if not prefecture_current_account_size:
+    if prefecture_current_account_size is None:
         logger.error(
             'Something went wrong. Can not find size of prefecture bank account: %s',
             prefecture.bank_account_id,

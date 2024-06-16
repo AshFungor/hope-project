@@ -9,15 +9,15 @@
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.fio_string }}</p>
+    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.fio_string }}</p>
+    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.fio_string }}</p>
+    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-2">
@@ -38,7 +38,7 @@
         <input type="hidden" name="bank_account_id" value="{{ prefecture.bank_account_id }}"/>
         <input type="hidden" name="amount_on_setup" value="{{ prefecture_current_account_size }}"/>
         <div class="form-group mb-1">
-            <input class="form-control text-center" type="number" name="value" placeholder="Введите цель на сегодня (в надиках):">
+            <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
         </div>
         <div class="d-grid gap-2 d-mb-block mb-4">
             <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
@@ -89,7 +89,7 @@
                             <div class="card card-body">
                                 <ul>
                                 {% for user in city.users %}
-                                    <li>{{ user.fio_string }}</li>
+                                    <li>{{ user.full_name_string }}</li>
                                 {% endfor %}
                                 </ul>
                             </div>
