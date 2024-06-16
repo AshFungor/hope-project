@@ -139,7 +139,7 @@ class StaticTablesHandler:
         transaction = env.db.impl().session.get(models.Transaction, transaction_id)
         if not transaction:
             return 'could not find transaction', False
-        
+
         message, status = transaction.process(with_status == 'approved')
         if not status:
             logging.warning(f'transaction {transaction_id}; error {message}')

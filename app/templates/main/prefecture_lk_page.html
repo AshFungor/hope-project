@@ -5,37 +5,71 @@
 {% block content %}
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-    <h3><strong>Префектура "name"</strong></h3>
+    <h3><strong>Префектура {{ prefecture.name }}</strong></h3>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Префект:</strong> Lorem, ipsum.</p>
+    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> Lorem, ipsum.</p>
+    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> Lorem, ipsum.</p>
+    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.full_name_string }}</p>
 </div>
 
 <div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ prefecture.bank_account_id }}</b></p>
 </div>
 
+<div class="text-wrap text-start mb-2">
+    <p class="mb-1"><strong>Баланс счета:</strong> <b>{{ prefecture_current_account_size }} надиков</b></p>
+</div>
 
-<div class="text-wrap text-start mb-5">
-    <form>
-        <div class="mb-1">
-            <input class="form-control text-center" type="text" placeholder="Введите цель на сегодня (в надиках):">
+{% if not prefecture_goal %}
+    <div class="text-wrap text-start mb-5">
+        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>не установлена</b></p>
+    </div>
+    {% if prefecture.prefect and prefecture.prefect.id == user.id %}
+        <form role="form" action="{{ url_for( 'goal.create_goal' ) }}" method="POST" id="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="bank_account_id" value="{{ prefecture.bank_account_id }}"/>
+        <input type="hidden" name="amount_on_setup" value="{{ prefecture_current_account_size }}"/>
+        <div class="form-group mb-1">
+            <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
         </div>
         <div class="d-grid gap-2 d-mb-block mb-4">
-            <button type="submit" class="btn btn-success btn-sm mb-3">Подтверждаю</button>
+            <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
         </div>
     </form>
-</div>
-
+    {% endif %}
+{% else %}
+    <div class="text-wrap text-start mb-5">
+        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ prefecture_goal.value }}</b> надиков, выполнено:</p>
+        <div class="progress">
+            <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal_win_rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal_win_rate }}%">{{ goal_win_rate }}%</div>
+        </div>
+    </div>
+{% endif %}
+{% if prefecture.economic_assistant and prefecture.economic_assistant.id == user.id %}
+    <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
+        <block style="display: grid">
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+                Перевод
+            </a>
+            <p></p>
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+                Выставить счет
+            </a>
+            <p></p>
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+                Неоплаченные счета
+            </a>
+        </block>
+    </block>
+{% endif %}
 
 <div class="d-grid gap-2 d-mb-block mb-5">
     <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
@@ -45,95 +79,39 @@
     <div class="collapse" id="cities">
         <div class="card card-body">
             <ul>
-                <li>
-                    <p class="mb-1">1st city</p>
-                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#1st_city" aria-expanded="false" aria-controls="1st_city">
-                        Жители 1st города
-                    </button>
-                    <div class="collapse" id="1st_city">
-                        <div class="card card-body">
-                            <ul>
-                                <li>Вася Пупкин</li>
-                                <li>Маша Мирная</li>
-                                <li>3rd jitel</li>
-                                <li>4th jitel</li>
-                                <li>5th jitel</li>
-                            </ul>
+                {% for city in prefecture.cities %}
+                    <li>
+                        <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#{{ city.id }}" aria-expanded="false" aria-controls="{{ city.id }}">
+                            Жители города {{ city.name }}
+                        </button>
+                        <p></p>
+                        <div class="collapse" id="{{ city.id }}">
+                            <div class="card card-body">
+                                <ul>
+                                {% for user in city.users %}
+                                    <li>{{ user.full_name_string }}</li>
+                                {% endfor %}
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li>
-                    <p class="mb-1">2nd city</p>
-                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#2nd_city" aria-expanded="false" aria-controls="2nd_city">
-                        Жители 2nd города
-                    </button>
-                    <div class="collapse" id="2nd_city">
-                        <div class="card card-body">
-                            <ul>
-                                <li>Вася Пупкин 2.0</li>
-                                <li>Маша Мирная 2.0</li>
-                                <li>3rd jitel</li>
-                                <li>4th jitel</li>
-                                <li>5th jitel</li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <p class="mb-1">3rd city</p>
-                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#3rd_city" aria-expanded="false" aria-controls="3rd_city">
-                        Жители 3rd города
-                    </button>
-                    <div class="collapse" id="3rd_city">
-                        <div class="card card-body">
-                            <ul>
-                                <li>Вася Пупкин 3.0</li>
-                                <li>Маша Мирная 3.0</li>
-                                <li>3rd jitel</li>
-                                <li>4th jitel</li>
-                                <li>5th jitel</li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <p class="mb-1">4th city</p>
-                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#4th_city" aria-expanded="false" aria-controls="4th_city">
-                        Жители 4th города
-                    </button>
-                    <div class="collapse" id="4th_city">
-                        <div class="card card-body">
-                            <ul>
-                                <li>Вася Пупкин 4.0</li>
-                                <li>Маша Мирная 4.0</li>
-                                <li>3rd jitel</li>
-                                <li>4th jitel</li>
-                                <li>5th jitel</li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-                <li>
-                    <p class="mb-1">5th city</p>
-                    <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#5th_city" aria-expanded="false" aria-controls="5th_city">
-                        Жители 5th города
-                    </button>
-                    <div class="collapse" id="5th_city">
-                        <div class="card card-body">
-                            <ul>
-                                <li>Вася Пупкин 5.0</li>
-                                <li>Маша Мирная 5.0</li>
-                                <li>3rd jitel</li>
-                                <li>4th jitel</li>
-                                <li>5th jitel</li>
-                            </ul>
-                        </div>
-                    </div>
-                </li>
+                        <p></p>
+                    </li>
+                {% endfor %}
             </ul>
         </div>
     </div>
 
 </div>
-
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
+        Инфраструктурные объекты
+    </button>
+    <div class="collapse" id="infrastructures">
+            <div class="card card-body">
+                {% for infrastructure in prefecture.infrastructures %}
+                    <li>{{ infrastructure.name }}</li>
+                {% endfor %}
+            </div>
+    </div>
+</div>
 {% endblock %}
