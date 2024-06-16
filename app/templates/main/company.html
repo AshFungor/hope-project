@@ -5,23 +5,23 @@
 {% block content %}
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-    <h3><strong>Фирма "name"</strong></h3>
+    <h3><strong>Фирма "{{ company.name }}"</strong></h3>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Описание фирмы:</strong> Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis qui ipsum quas blanditiis, vel atque sequi magnam eos veniam esse.</p>
+    <p class="mb-1"><strong>Описание фирмы: </strong>{{ company.about }}</p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Ген. директор:</strong> Lorem, ipsum dolor.</p>
+    <p class="mb-1"><strong>Ген. директор: </strong>  {{ CEO.name }} {{ CEO.patronymic }} {{ CEO.last_name }}</p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Регистрация:</strong> префектура Lorem, ipsum.</p>
+    <p class="mb-1"><strong>Префектура: </strong> {{ company.prefecture.name }} </p>
 </div>
 
 <div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>Lorem.</b></p>
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ company.bank_account_id }}</b></p>
 </div>
 
 <div class="text-wrap text-start mb-5">
@@ -32,12 +32,12 @@
 </div>
 
 <div class="text-wrap text-start mb-5">
-    <p class="h3"><strong>Текущий баланс:</strong> <b>n</b> надиков.</p>
+    <p class="h3"><strong>Текущий баланс (в надиках):</strong> <b>{{ balance }}</b>.</p>
 </div>
 
 <!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Выставить счёт</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'proposal.new_transaction', bank_account_id=company.bank_account_id) }}';">Выставить счёт</button>
     
     <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Входящие счета</button>
     

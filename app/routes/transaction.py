@@ -38,5 +38,7 @@ def new_transaction():
             { 'name': product.name, 'number': number }
         )
 
-    user_id = flask_login.current_user.bank_account_id
-    return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
+    bank_account_id = flask.request.args.get("bank_account_id", None)
+    if not bank_account_id:
+        bank_account_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_transaction.html', user_bank_account=bank_account_id, products=data)

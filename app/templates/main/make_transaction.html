@@ -15,7 +15,7 @@
 <div class="mb-3 row">
     <select class="form-select" id="product-selector">
         {% for product in products %}
-            {% if product.number == 0 %}
+            {% if product.number == -1 %}
                 <option class="text-start" selected> Выбрать продукт </option>
             {% else %}
                 <option class="text-start" value="{{ product.number }}"> {{ product.name }} </option>
@@ -29,7 +29,7 @@
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-4">
-    <button type="submit" if="send-button" class="btn btn-primary btn-lg mb-3"> Подтверждаю </button>
+    <button type="submit" id="send-button" class="btn btn-primary btn-lg mb-3"> Подтверждаю </button>
 </div>
 
 <script>
