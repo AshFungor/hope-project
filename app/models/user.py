@@ -44,7 +44,7 @@ class User(ModelBase, flask_login.UserMixin):
     birthday: Mapped[c_date]
     is_admin: Mapped[bool] = mapped_column(default=False)
 
-    city = relationship('City', foreign_keys=city_id)
+    city = relationship('City', foreign_keys=city_id, back_populates='users')
 
 
     def __init__(

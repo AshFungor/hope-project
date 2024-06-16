@@ -24,8 +24,8 @@ class City(ModelBase):
     location: Mapped[variable_strings[64]]
 
     mayor = relationship('User', foreign_keys=mayor_id)
-    prefecture = relationship('Prefecture')
-    users = relationship('User', foreign_keys='User.city_id')
+    prefecture = relationship('Prefecture', back_populates='cities')
+    users = relationship('User', foreign_keys='User.city_id', back_populates='city')
 
     def __init__(
         self,
@@ -69,7 +69,7 @@ class Prefecture(ModelBase):
     prefect = relationship('User', foreign_keys=prefect_id)
     economic_assistant = relationship('User', foreign_keys=economic_assistant_id)
     social_assistant = relationship('User', foreign_keys=social_assistant_id)
-    cities = relationship('City')
+    cities = relationship('City', back_populates='prefecture')
     infrastructures = relationship('Infrastructure')
 
     def __init__(
