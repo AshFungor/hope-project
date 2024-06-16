@@ -29,7 +29,11 @@
 </div>
 
 {% if not prefecture_goal %}
-    <form role="form" action="{{ url_for( 'goal.create_goal' ) }}" method="POST" id="form">
+    <div class="text-wrap text-start mb-5">
+        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>не установлена</b></p>
+    </div>
+    {% if prefecture.prefect and prefecture.prefect.id == user.id %}
+        <form role="form" action="{{ url_for( 'goal.create_goal' ) }}" method="POST" id="form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <input type="hidden" name="bank_account_id" value="{{ prefecture.bank_account_id }}"/>
         <input type="hidden" name="amount_on_setup" value="{{ prefecture_current_account_size }}"/>
@@ -40,6 +44,7 @@
             <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
         </div>
     </form>
+    {% endif %}
 {% else %}
     <div class="text-wrap text-start mb-5">
         <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ prefecture_goal.value }}</b> надиков, выполнено:</p>
@@ -47,6 +52,23 @@
             <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal_win_rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal_win_rate }}%">{{ goal_win_rate }}%</div>
         </div>
     </div>
+{% endif %}
+{% if prefecture.economic_assistant and prefecture.economic_assistant.id == user.id %}
+    <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
+        <block style="display: grid">
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+                Перевод
+            </a>
+            <p></p>
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+                Выставить счет
+            </a>
+            <p></p>
+            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+                Неоплаченные счета
+            </a>
+        </block>
+    </block>
 {% endif %}
 
 <div class="d-grid gap-2 d-mb-block mb-5">
