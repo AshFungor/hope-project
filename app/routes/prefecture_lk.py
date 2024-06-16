@@ -43,6 +43,7 @@ def prefecture_cabinet():
         )
     return render_template(
         'main/prefecture_lk_page.html',
+        user=current_user,
         prefecture=prefecture,
         prefecture_goal=prefecture_goal,
         prefecture_current_account_size=prefecture_current_account_size,
