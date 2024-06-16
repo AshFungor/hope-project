@@ -1,20 +1,26 @@
-import sqlalchemy
-import sqlalchemy.orm
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey
 
-import app.modules.database.handlers as database
+from app.modules.database.handlers import serial
+from app.modules.database.handlers import long_int
+from app.modules.database.handlers import variable_strings
+from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import ModelBase
+
 import app.modules.database.validators as validators
 
 
-class City(database.ModelBase):
+class City(ModelBase):
     __tablename__ = 'city'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
+    id: Mapped[serial]
     # mayor could be null, since user depends on city, and city must be created first
-    mayor_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
-    prefecture_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('prefecture.id'), nullable=True)
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
-    location: sqlalchemy.orm.Mapped[database.variable_strings[64]]
+    mayor_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'), nullable=True)
+    prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'), nullable=True)
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    name:Mapped[variable_strings[64]]
+    location: Mapped[variable_strings[64]]
 
     def __init__(
         self,
@@ -31,25 +37,25 @@ class City(database.ModelBase):
         self.location = validators.GenericTextValidator.validate(location, 64)
 
 
-class Office(database.ModelBase):
+class Office(ModelBase):
     __tablename__ = 'office'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    city_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('city.id'))
-    company_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('product.id'))
-    founded_at: sqlalchemy.orm.Mapped[database.c_datetime]
-    dismissed_at: sqlalchemy.orm.Mapped[database.c_datetime] = sqlalchemy.orm.mapped_column(nullable=True)
+    id: Mapped[serial]
+    city_id: Mapped[long_int] = mapped_column(ForeignKey('city.id'))
+    company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
+    founded_at: Mapped[c_datetime]
+    dismissed_at: Mapped[c_datetime] = mapped_column(nullable=True)
 
 
-class Prefecture(database.ModelBase):
+class Prefecture(ModelBase):
     __tablename__ = 'prefecture'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]] = sqlalchemy.orm.mapped_column(nullable=True)
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    prefect_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
-    economic_assistant_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
-    social_assistant_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'), nullable=True)
+    id: Mapped[serial]
+    name: Mapped[variable_strings[64]] = mapped_column(nullable=True)
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    prefect_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'), nullable=True)
+    economic_assistant_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'), nullable=True)
+    social_assistant_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'), nullable=True)
 
     def __init__(
         self,
@@ -68,19 +74,19 @@ class Prefecture(database.ModelBase):
     def __repr__(self) -> str:
         return '<Prefecture object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__]) + '>'
 
-class CityHall(database.ModelBase):
+class CityHall(ModelBase):
     __tablename__ = 'city_hall'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    bank_account_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('bank_account.id'))
-    mayor_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'))
-    economic_assistant_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'))
-    social_assistant_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('user.id'))
+    id: Mapped[serial]
+    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
+    mayor_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'))
+    economic_assistant_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'))
+    social_assistant_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'))
 
 
-class Infrastructure(database.ModelBase):
+class Infrastructure(ModelBase):
     __tablename__ = 'infrastructure'
 
-    id: sqlalchemy.orm.Mapped[database.serial]
-    prefecture_id: sqlalchemy.orm.Mapped[database.long_int] = sqlalchemy.orm.mapped_column(sqlalchemy.ForeignKey('prefecture.id'))
-    name: sqlalchemy.orm.Mapped[database.variable_strings[64]]
+    id: Mapped[serial]
+    prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'))
+    name: Mapped[variable_strings[64]]

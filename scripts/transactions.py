@@ -13,7 +13,7 @@ def upload_with_json(url: str, filepath: str):
     print(f'sending to {url}')
     response = requests.post(url, json=payload)
     print(f'request completed, response status: {response.status_code}')
-    print(f'response body: {response.content.decode("UTF-8")}')
+    print(f'response body: {response.content.decode('UTF-8')}')
 
 
 if __name__ == '__main__':

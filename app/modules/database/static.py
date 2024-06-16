@@ -1,7 +1,10 @@
 # required library
 import datetime
 import logging
+import typing
 import uuid
+
+import sqlalchemy
 
 import pandas as pd
 import app.models as models
@@ -22,7 +25,7 @@ class StaticTablesHandler:
     def prepare_prefectures(prefectures: pd.DataFrame) -> int:
         count = 0
         try:
-            for index, prefecture in prefectures.iterrows():
+            for _, prefecture in prefectures.iterrows():
                 prefecture_model = models.Prefecture(
                     prefecture['Name'],
                     StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
@@ -43,10 +46,10 @@ class StaticTablesHandler:
             return count
 
     @staticmethod
-    def prepare_cities(cities: pd.DataFrame) -> None:
+    def prepare_cities(cities: pd.DataFrame) -> int:
         count = 0
         try:
-            for index, city in cities.iterrows():
+            for _, city in cities.iterrows():
                 city_model = models.City(
                     city['Name'],
                     None,
@@ -68,10 +71,10 @@ class StaticTablesHandler:
             return count
 
     @staticmethod
-    def prepare_users(users: pd.DataFrame) -> None:
+    def prepare_users(users: pd.DataFrame) -> int:
         count = 0
         try:
-            for index, user in users.iterrows():
+            for _, user in users.iterrows():
                 birthday = datetime.date(*reversed(list(map(int, user['Birthday'].split('.')))))
                 user_model = models.User(
                     StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
@@ -112,15 +115,35 @@ class StaticTablesHandler:
         env.db.impl().session.add(product_to_bank_account)
 
     @staticmethod
-    def prepare_product(
-        category: str, 
-        name: str, 
-        level: int
-    ) -> int:
-        product = models.Product()
-        product.category = category
-        product.name = name
-        product.level = level
+    def prepare_products(products: pd.DataFrame) -> int:
+        count = 0
+        try:
+            for _, product in products.iterrows():
+                product_model = models.Product(
+                    product['Category'],
+                    product['Name'],
+                    product['Level']
+                )
+                env.db.impl().session.add(product_model)
+                count += 1
+            logging.debug(f'receiving new products objects: {count} added')
+        except ValueError as value_error:
+            logging.warning(f'error parsing users: {value_error}')
+        except Exception as unknown_error:
+            logging.warning(f'unknown error: {unknown_error}')
+        finally:
+            return count
 
-        env.db.impl().session.add(product)
-        return product.id
+    @staticmethod
+    def complete_transaction(transaction_id: int, with_status: str) -> typing.Tuple[str, bool]:
+        transaction = env.db.impl().session.get(models.Transaction, transaction_id)
+        if not transaction:
+            return 'could not find transaction', False
+        
+        message, status = transaction.process(with_status == 'approved')
+        if not status:
+            logging.warning(f'transaction {transaction_id}; error {message}')
+
+        return message, status
+
+

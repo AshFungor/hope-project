@@ -85,13 +85,13 @@ c_float = typing_extensions.Annotated[
     sqlalchemy.orm.mapped_column(sqlalchemy.FLOAT, nullable=False)
 ]
 
-# date + time
+# date + time date - (6.5.2004) time - 20:18, datetime - 6.5.2004 20:18:20
 c_datetime = typing_extensions.Annotated[
     datetime.datetime,
     sqlalchemy.orm.mapped_column(sqlalchemy.TIMESTAMP, nullable=False, default=sqlalchemy.func.current_timestamp())
 ]
 
-# date
+# date (6.5.2004)
 c_date = typing_extensions.Annotated[
     datetime.date,
     sqlalchemy.orm.mapped_column(sqlalchemy.DATE, nullable=False)
@@ -124,8 +124,11 @@ class Database:
             }
         )
         handle.init_app(app)
-        with app.app_context():
-            handle.create_all()
+        try:
+            with app.app_context():
+                handle.create_all()
+        except:
+            ...
         return handle
 
 
@@ -136,7 +139,7 @@ class Database:
                 password=urllib.parse.quote_plus(env.get_var('POSTGRES_PASSWORD')),
                 host=env.get_var('SERVER_POSTGRES_HOSTNAME'),
                 port=env.get_var('SERVER_POSTGRES_PORT'),
-                database=env.get_var('POSTGRES_USER')
+                database=env.get_var('POSTGRES_DATABASE')
         )
         return self._handle_sql_alchemy_setup(app, url)
 

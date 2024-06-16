@@ -1,0 +1,181 @@
+div.main_container {
+    position: relative;
+}
+
+.form_container form {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+@media screen and (min-width: 200px) {
+    .sender {
+        text-align: left;
+        width: 400px;
+        position: absolute;
+        margin: 1% 0 0 4%;
+        font-size: 17px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product {
+        width: 200px;
+        position: absolute;
+        left: 0;
+        text-align: left;
+        margin: 10% 0 0 5%;
+        font-size: 20px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .amount {
+        position: absolute;
+        right: 0;
+        margin: 10% 5% 0 0;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .form_container {
+        font-family: Sans-serif;
+        height: 130px;
+        border-radius: 20px;
+        margin: 0 20px 20px 20px;
+        background: #F3F4F5;
+        font-weight: 200;
+    }
+
+    .form_button_left:hover {
+        background: #0C65E8
+    }
+
+    .form_button_right:hover {
+        background: #0C65E8;
+    }
+
+    .form_button_left {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 51%;
+        height: 45%;
+        border-bottom-right-radius: 20px;
+        border: 2px solid #F3F4F5;
+        background: #0D6EFD;
+        font-size: 120%;
+        color: #F3F4F5;
+        font-weight: 600;
+    }
+
+    .form_button_right {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50%;
+        height: 45%;
+        border: 2px solid #F3F4F5;
+        border-bottom-left-radius: 20px;
+        background: #0D6EFD;
+        font-size: 120%;
+        color: #F3F4F5;
+        font-weight: 600;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    div.big_container {
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 0px);
+        display: grid;
+        text-align: center;
+        align: center;
+    }
+
+    .sender {
+        text-align: left;
+        width: 300px;
+        position: absolute;
+        margin: 1% 0 0 4%;
+        font-size: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .product {
+        width: 150px;
+        position: absolute;
+        left: 0;
+        text-align: left;
+        margin: 9% 0 0 5%;
+        font-size: 15px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .amount {
+        position: absolute;
+        right: 0;
+        margin: 9% 5% 0 0;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .form_container {
+        left: 50%;
+        font-family: Sans-serif;
+        height: 100px;
+        width: 350px;
+        border-radius: 20px;
+        margin: 0 20px 20px 20px;
+        background: #F3F4F5;
+        font-weight: 200;
+    }
+
+    .form_button_left:hover {
+        background: #0C65E8
+    }
+
+    .form_button_right:hover {
+        background: #0C65E8;
+    }
+
+    .form_button_left {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 50%;
+        height: 45%;
+        border-bottom-right-radius: 20px;
+        border: 2px solid #F3F4F5;
+        background: #0D6EFD;
+        font-size: 100%;
+        color: #F3F4F5;
+        font-weight: 600;
+    }
+
+    .form_button_right {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50%;
+        height: 45%;
+        border: 2px solid #F3F4F5;
+        border-bottom-left-radius: 20px;
+        background: #0D6EFD;
+        font-size: 100%;
+        color: #F3F4F5;
+        font-weight: 600;
+    }
+}
+

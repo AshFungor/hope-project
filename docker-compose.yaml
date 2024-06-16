@@ -1,14 +1,19 @@
 services:
   webapp:
     build: .
+    container_name: backend
+    env_file:
+      - .env
     volumes:
-      - logs:/var/log:w
-    restart: always
+      - ./data/app_logs:/var/log:w
+      - ./app:/hope-project/app:rw
+    restart: always      
     depends_on:
       database:
         condition: service_healthy
   database:
     image: postgres:16.3
+    container_name: pg_db
     env_file:
       - path: .env
         required: false
@@ -16,7 +21,7 @@ services:
       - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
       - PGUSER=${POSTGRES_USER}
     volumes:
-      - db-data:${SERVER_POSTGRES_DIRECTORY}/data:rw
+      - ./data/database_data:${SERVER_POSTGRES_DIRECTORY}/data:rw
     ports:
       - ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
     restart: always
@@ -27,24 +32,14 @@ services:
       retries: 5
   reverse-proxy:
     image: nginx:mainline
+    container_name: nginx
     volumes:
       - ./app/static:/static:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - nginx-logs:/var/log:rw
+      - ./data/nginx-logs:/var/log:rw
     ports:
       - 80:80
       - 443:443
+    restart: always
     depends_on:
       - webapp
-
-
-volumes:
-  db-data:
-    name: "database_data"
-    driver: local
-  logs:
-    name: "server_logs"
-    driver: local
-  nginx-logs:
-    name: "nginx_logs"
-    driver: local

@@ -4,26 +4,67 @@
 
 {% block content %}
 
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
-    </div>
-    <div class="col-6 text-center">
-        <h2>Личный кабинет города</h2>
-    </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
-    </div>
+<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
+    <h3><strong>Город {{ city.name }}</strong></h3>
 </div>
-<div class="row gy px-3 mb-3">
-    <div class="col-3">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Provident autem vero pariatur rem repellat nisi, maxime deleniti, incidunt ullam magni fugiat mollitia, quos aut eius est beatae at ab expedita!
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Глава города:
+        {% if mayor %}
+            {{ mayor.last_name }} {{ mayor.name }}
+        {% else %}
+            У этого города пока нет главы.
+        {% endif %}
+    </strong></p>
+</div>
+
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1"><strong>Регистрация:</strong>
+        louem.
+    </p>
+</div>
+
+<div class="text-wrap text-start mb-4">
+    <p class="mb-1"><strong>Адрес:</strong> корпус N, комната №{{ city.location }}</p>
+</div>
+<div class="text-wrap text-start mb-4">
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ city.bank_account }}</b></p>
+</div>
+
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#population" aria-expanded="false" aria-controls="population">
+        Жители
+    </button>
+    <div class="collapse" id="population">
+        <div class="card card-body">
+            <ul>
+                {% for resident in residents %}
+                    <li>{{ resident.name }} {{ resident.last_name }} ({{ resident.bank_account_id }})</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="col-6">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequuntur itaque quod cumque commodi, saepe quam officiis dignissimos blanditiis ex, nihil porro. Consequatur excepturi culpa nobis, commodi id quod alias repellendus?
+
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы фирм</button>
+    <div class="collapse" id="offices">
+        <div class="card card-body">
+            <ul>
+                {% for company in companies %}
+                    {{ company.name }}
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="col-3">
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ducimus rerum odit neque dolorum fugit sapiente pariatur numquam tempora, velit voluptatem qui, quia ipsam facilis suscipit! Placeat doloribus dicta molestias unde.
+
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#products" aria-expanded="false" aria-controls="products">Список товаров</button>
+    <div class="collapse" id="products">
+        <div class="card card-body">
+            <ul>
+                {% for product in products %}
+                    <li>{{ product.name }} {{ product.count }} шт.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 

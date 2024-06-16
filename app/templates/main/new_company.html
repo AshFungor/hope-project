@@ -1,0 +1,29 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Создание фирмы{% endblock %}
+
+{% block content %}
+
+        <form class="new_company" style="display: grid;" method="POST">
+
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <ul class="flashes" style="">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+
+            {{ form.csrf_token }}
+            {{ form.company_name.label }} {{ form.company_name }}
+            {{ form.about.label }} {{ form.about }}
+            {{ form.founders.label }} {{ form.founders }}
+            {{ form.prefecture.label }} {{ form.prefecture }}
+
+            <p></p>
+            {{ form.submit }}
+        </form>
+
+{% endblock %}

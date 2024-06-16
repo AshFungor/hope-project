@@ -1,0 +1,49 @@
+{% extends 'main/base.html' %}
+
+{% block title %}
+    Запросы на перевод
+{% endblock %}
+
+{% block content %}
+<block class="message_container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flashes" style="">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+</block>
+<div class="main_container">
+    <div class="big_container" >
+        {% for suggestion in user_suggestions.items %}
+                <div class="form_container">
+                    <form action="{{ url_for('user_suggestions.get_user_suggestions', _external=True) }}" method="POST">
+                        <div class="sender">
+                            От: {{ suggestion.name }} ({{ suggestion.bank_account_id }})
+                        </div>
+                        <div class="product">
+                            +{{ suggestion.count }} {{ suggestion.product_name }}
+                        </div>
+                        <div class="amount">
+                             -{{ suggestion.amount }} над.
+                        </div>
+                        <input type="hidden" name="transaction_id" value="{{ suggestion.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input class="form_button_right" type="submit" name="action" value="Подтвердить">
+                        <input class="form_button_left" type="submit" name="action" value="Отклонить">
+                    </form>
+                </div>
+        {% endfor %}
+    </div>
+</div>
+    {% if user_suggestions.has_prev %}
+        <a href="{{ url_for('user_suggestions.user_sugs', _external=True, page = user_suggestions.prev_num) }}">Older posts >></a>
+    {% endif %}
+    {% if user_suggestions.has_next %}
+        <a href="{{ url_for('user_suggestions.user_sugs', _external=True, page = user_suggestions.next_num) }}"><< Newer posts</a>
+    {% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename= 'css/user_suggestion.css') }}">
+{% endblock %}
