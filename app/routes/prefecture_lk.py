@@ -25,7 +25,7 @@ def prefecture_cabinet():
             % loginned_user_id,
         )
     prefecture_current_account_size = get_bank_account_size(prefecture.bank_account_id)
-    if not prefecture_current_account_size:
+    if prefecture_current_account_size is None:
         logger.error(
             'Something went wrong. Can not find size of prefecture bank account: %s',
             prefecture.bank_account_id,
