@@ -3,7 +3,7 @@ from app.env import env
 import enum
 import datetime
 
-from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
 
@@ -35,8 +35,10 @@ class Company(ModelBase):
     name: Mapped[variable_strings[64]] = mapped_column(unique=True)
     about: Mapped[variable_strings[256]]
 
+    prefecture = relationship('Prefecture', foreign_keys=prefecture_id)
+
     def __init__(
-        self, 
+        self,
         bank_account_id: int,
         prefecture_id: int,
         name: str,

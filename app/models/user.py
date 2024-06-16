@@ -5,9 +5,10 @@ import datetime
 import flask_login
 
 from app.env import env
+from functools import cached_property
 
 from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy import ForeignKey
 
 from app.modules.database.handlers import serial
@@ -43,6 +44,8 @@ class User(ModelBase, flask_login.UserMixin):
     birthday: Mapped[c_date]
     is_admin: Mapped[bool] = mapped_column(default=False)
 
+    city = relationship('City', foreign_keys=city_id, back_populates='users')
+
 
     def __init__(
         self,
@@ -75,6 +78,10 @@ class User(ModelBase, flask_login.UserMixin):
     def __repr__(self) -> str:
         return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
+    @cached_property
+    def full_name_string(self):
+        return f"{self.last_name} {self.name} {self.patronymic}"
+
 
 class Goal(ModelBase):
     __tablename__ = 'goal'
@@ -82,18 +89,24 @@ class Goal(ModelBase):
     id: Mapped[serial]
     bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
     created_at: Mapped[c_datetime]
-    rate: Mapped[small_int]
+    amount_on_setup: Mapped[long_int] = mapped_column(nullable=False)
+    value: Mapped[long_int] = mapped_column(nullable=False)
+    amount_on_validate: Mapped[long_int] = mapped_column(nullable=True)
     complete: Mapped[bool] = mapped_column(default=False)
 
     def __init__(
         self,
-        bank_account_id : int,
-        rate: int,
+        bank_account_id: int,
+        value: int,
+        amount_on_setup: int,
+        amount_on_validate: int | None = None,
         created_at: datetime.datetime | None = datetime.datetime.now(validators.CurrentTimezone),
         complete: bool | None = False
     ) -> None:
         self.bank_account_id = bank_account_id
-        self.rate = validators.IntValidator.validate(rate, 16, True)
+        self.value = value
+        self.amount_on_setup = amount_on_setup
+        self.amount_on_validate = amount_on_validate
         self.created_at = validators.DtValidator.validate(
             created_at, 
             lower=datetime.datetime.now(validators.CurrentTimezone) - dateutil.relativedelta.relativedelta(days=1)
@@ -101,4 +114,4 @@ class Goal(ModelBase):
         self.complete = complete
 
     def __repr__(self) -> str:
-        return '<Goal object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__]) + '>'
+        return '<Goal object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'

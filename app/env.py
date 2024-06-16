@@ -32,7 +32,7 @@ class Env:
         'SERVER_POSTGRES_HOSTNAME',
         'SERVER_POSTGRES_PORT',
         'SQLITE_DATABASE_NAME',
-        'DEBUG'
+        'DEBUG',
     ]
     env_flask_vars = [
         'SQLALCHEMY_DATABASE_URI'
@@ -146,6 +146,7 @@ class Env:
             level=self._validate_logging_level(getattr(self, 'server_logging_level')),
             force=True # in case logger was already configured for some reason
         )
+        self.logger = logging.getLogger('APP')
 
         self.logging_listeners = listeners
         self.logging_listeners.start()

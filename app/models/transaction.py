@@ -111,9 +111,3 @@ class Transaction(ModelBase):
         env.db.impl().session.commit()
 
         return 'transaction accepted', True
-
-
-
-        
-
-
