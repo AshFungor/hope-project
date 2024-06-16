@@ -30,6 +30,8 @@ def new_proposal() -> flask.Response:
 
     if len(product_entries.all()) > 1:
         return flask.Response('product is not unique, database is corrupted', status=443)
+    if not product_entries.all():
+        return flask.Response(f'product with name = {product} not found', status=443)
     product_entry = product_entries.first()
 
     try:

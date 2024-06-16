@@ -32,7 +32,7 @@ class Env:
         'SERVER_POSTGRES_HOSTNAME',
         'SERVER_POSTGRES_PORT',
         'SQLITE_DATABASE_NAME',
-        'DEBUG'
+        'DEBUG',
     ]
     env_flask_vars = [
         'SQLALCHEMY_DATABASE_URI'
