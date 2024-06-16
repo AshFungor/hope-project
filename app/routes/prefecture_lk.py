@@ -9,6 +9,7 @@ from app.models.helpers import get_bank_account_size, get_goal_on_current_day
 logger = env.logger.getChild(__name__)
 
 
+@login_required
 @blueprints.accounts_blueprint.route('/prefecture_lk')
 @login_required
 def prefecture_cabinet():

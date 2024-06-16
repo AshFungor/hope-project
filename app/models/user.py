@@ -104,7 +104,7 @@ class Goal(ModelBase):
         complete: bool | None = False
     ) -> None:
         self.bank_account_id = bank_account_id
-        self.value = validators.IntValidator.validate(value, 16, False)
+        self.value = value
         self.amount_on_setup = amount_on_setup
         self.amount_on_validate = amount_on_validate
         self.created_at = validators.DtValidator.validate(

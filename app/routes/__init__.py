@@ -2,6 +2,7 @@ from . import admin_lk
 from . import city_lk
 from . import city_hall_lk
 from . import company_lk
+from . import company_workers
 from . import login
 from . import main
 from . import master_lk

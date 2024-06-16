@@ -39,8 +39,10 @@ def new_transaction():
             { 'name': product.name, 'number': number }
         )
 
-    user_id = flask_login.current_user.bank_account_id
-    return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
+    bank_account_id = flask.request.args.get("bank_account_id", None)
+    if not bank_account_id:
+        bank_account_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_transaction.html', user_bank_account=bank_account_id, products=data)
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/create', methods=['POST'])
@@ -66,5 +68,5 @@ def parse_new_transaction():
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
-    
+
     return flask.redirect(flask.request.headers.get('Referer'))
