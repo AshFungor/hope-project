@@ -52,18 +52,8 @@
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#staff" aria-expanded="false" aria-controls="collapseExample">Сотрудники</button>
-    <div class="collapse" id="staff">
-        <div class="card card-body">
-            <ul>
-                <li>1st nn</li>
-                <li>2nd nn</li>
-                <li>3rd nn</li>
-                <li>4th nn</li>
-                <li>5th nn</li>
-            </ul>
-        </div>
-    </div>
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_workers', company_id=company.id ) }}'">Сотрудники</button>
+
 
     <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы (магазины)</button>
     <div class="collapse" id="offices">
