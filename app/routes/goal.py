@@ -12,12 +12,10 @@ logger = env.logger.getChild(__name__)
 
 
 @goal.route('/goal/<int:id>', methods=['GET'])
-@login_required
 def get_goal(): ...
 
 
 @goal.route('/goal', methods=['POST'])
-@login_required
 def create_goal():
     bank_account_id = int(request.form.get('bank_account_id', 0))
     value = int(request.form.get('value', 0))
@@ -45,5 +43,4 @@ def create_goal():
 
 
 @goal.route('/goal/<int:id>', methods=['PUT'])
-@login_required
 def update_goal(): ...

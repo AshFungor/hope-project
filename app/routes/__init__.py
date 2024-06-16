@@ -13,3 +13,4 @@ from . import upload_csv
 from . import new_company
 from . import new_product
 from . import user_products
+from . import goal

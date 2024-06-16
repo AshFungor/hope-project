@@ -7,6 +7,7 @@ from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
 from flask_debugtoolbar import DebugToolbarExtension
+from zoneinfo import ZoneInfo
 
 # base
 import sys
@@ -27,6 +28,7 @@ import app.routes.blueprints as blueprints
 login_manager = LoginManager()
 login_manager.login_view = 'session.authorization'
 toolbar = DebugToolbarExtension()
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -58,20 +60,15 @@ def create_app() -> Flask:
 
     logging.info("handling Database creation")
     env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
+    env.assign_new(ZoneInfo("Europe/Moscow"), "default_timezone")
 
-    if bool(env.debug):
-        app.debug = True
+    app.debug = True if env.debug in ('True', 'true', 1) else False
+    if app.debug:
         toolbar.init_app(app)
 
     logging.info("handling routes")
 
-    app.register_blueprint(blueprints.accounts_blueprint)
-    app.register_blueprint(blueprints.session_blueprint)
-    app.register_blueprint(blueprints.csv_blueprint)
-    app.register_blueprint(blueprints.transaction_blueprint)
-    app.register_blueprint(blueprints.main)
-    app.register_blueprint(blueprints.proposal_blueprint)
-    app.register_blueprint(blueprints.goal)
+    list(map(lambda bp: app.register_blueprint(bp), blueprints.all_blueprints))
 
     csrf.exempt(blueprints.csv_blueprint)
     csrf.exempt(blueprints.transaction_blueprint)
