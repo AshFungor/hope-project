@@ -7,14 +7,11 @@
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
     <h3><strong>Список доступных фирм</strong></h3>
 </div>
-<div>
-    <ul>
+
+<div class="list-group">
     {% for company in companies %}
-      <li>
-          <a href="{{ url_for('accounts.company_cabinet', company_id=company.company_id) }}">{{ company.name }}, id={{ company.company_id }}</a>
-      </li>
+        <button type="button" class="list-group-item list-group-item-action text-center" id="{{ company.company_id }}" onclick="window.location.href='{{ url_for('accounts.company_cabinet', company_id=company.company_id) }}';">{{ company.name }}</button>
     {% endfor %}
-    </ul>
 </div>
 
 {% endblock %}
