@@ -5,75 +5,41 @@
 {% block content %}
 
 
-<form action="" role="form">
-
+<form role="form" action="{{ url_for( 'transaction.parse_new_transaction' ) }}" method="POST" id="form">
     <div class="mb-4">
-        <p class="mb-1" id="custiomer-account"><strong> Ваш счёт:</strong> {{ user_bank_account }} </p>
+        <p class="mb-1" id="customer-account"><strong> Ваш счёт:</strong> {{ user_bank_account }} </p>
     </div>
+
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="bank_account_id" value="{{ user_bank_account }}"/>
 
     <div class="mb-4">
         <label for="seller-account" class="form-label"><strong>Счёт получателя:</strong></label>
-        <input class="form-control text-center" id="seller-account" type="number" placeholder="Введите счёт получателя">
+        <input class="form-control text-center" name="seller-account" type="number" placeholder="Введите счёт получателя">
     </div>
 
     <div class="mb-4">
-        <select class="form-select">
+        <select class="form-select" name="product-name">
+            <option class="text-start" selected> Выбрать продукт </option>
             {% for product in products %}
-                {% if product.number == 0 %}
-                    <option class="text-start" selected> Выбрать продукт </option>
-                {% else %}
-                    <option class="text-start" value="{{ product.number }}"> {{ product.name }} </option>
-                {% endif %}
+                    <option class="text-start" name="{{ product.name }}" value="{{ product.name }}"> {{ product.name }} </option>
             {% endfor %}
         </select>
     </div>
 
     <div class="mb-4">
-        <label for="count" class="form-label"><strong>Кол-во товара:</strong></label>
-        <input class="form-control text-center" id="count" type="number" placeholder="Введите кол-во товара">
+        <label for="count" class="form-label"><strong>Количество товара:</strong></label>
+        <input class="form-control text-center" name="count" type="number" placeholder="Введите количество товара">
+    </div>
+
+    <div class="mb-4">
+        <label for="amount" class="form-label"><strong>Цена сделки:</strong></label>
+        <input class="form-control text-center" name="amount" type="number" placeholder="Введите цену сделки">
     </div>
 
     <div class="d-grid gap-2 d-mb-block mb-4">
-        <button type="submit" if="send-button" class="btn btn-success btn-lg mb-3"> Подтверждаю </button>
+        <button type="submit" class="btn btn-success btn-sm mb-3"> Подтверждаю </button>
     </div>
-
 </form>
-
-
-<script>
-    function sendRequest() {
-        var product_name = document.getElementById('product-selector').value;
-        var count = document.getElementById('count').value;
-        var customer_bank_account = document.getElementById('customer-account').value;
-        var seller_bank_account = document.getElementById('seller-account').value;
-
-        var data = {
-            seller_account: seller_bank_account,
-            customer_account: customer_bank_account,
-            product: product_name,
-            product_count: count,
-            amount: 0
-        };
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://localhost/transaction/create', true);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200) {
-                    var responseData = JSON.parse(xhr.responseText);
-                    console.log('Success:', responseData);
-                } else {
-                    console.error('Error:', xhr.status, xhr.statusText);
-                }
-                console.log('Request complete');
-            }
-        };
-        xhr.send(JSON.stringify(data));
-    }
-
-    document.getElementById('send-button').addEventListener('click', sendRequest);
-</script>
 
 {% endblock %}
