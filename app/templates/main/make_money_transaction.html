@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Новый счет{% endblock %}
+{% block title %}Перевод{% endblock %}
 
 {% block content %}
 
@@ -19,22 +19,8 @@
     </div>
 
     <div class="mb-4">
-        <select class="form-select" name="product-name">
-            <option class="text-start" selected> Выбрать продукт </option>
-            {% for product in products %}
-                    <option class="text-start" name="{{ product.name }}" value="{{ product.name }}"> {{ product.name }} </option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="mb-4">
-        <label for="count" class="form-label"><strong>Количество товара:</strong></label>
-        <input class="form-control text-center" name="count" type="number" placeholder="Введите количество товара">
-    </div>
-
-    <div class="mb-4">
-        <label for="amount" class="form-label"><strong>Цена сделки:</strong></label>
-        <input class="form-control text-center" name="amount" type="number" placeholder="Введите цену сделки">
+        <label for="amount" class="form-label"><strong>Количество:</strong></label>
+        <input class="form-control text-center" name="amount" type="number" placeholder="Введите сумму перевода">
     </div>
 
     <div class="d-grid gap-2 d-mb-block mb-4">
