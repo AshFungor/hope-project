@@ -12,15 +12,15 @@
 </div>
 <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
     <block style="display: grid">
-        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
-            Перевод
-        </a>
-        <p></p>
-        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
             Выставить счет
         </a>
         <p></p>
-        <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
+            Перевод
+        </a>
+        <p></p>
+        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
             Неоплаченные счета
         </a>
     </block>

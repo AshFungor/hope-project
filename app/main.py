@@ -73,5 +73,4 @@ def create_app() -> Flask:
     csrf.exempt(blueprints.csv_blueprint)
     csrf.exempt(blueprints.transaction_blueprint)
 
-
     return app

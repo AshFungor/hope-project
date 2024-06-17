@@ -79,7 +79,7 @@ class User(ModelBase, flask_login.UserMixin):
         return '<User object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
     @cached_property
-    def fio_string(self):
+    def full_name_string(self):
         return f"{self.last_name} {self.name} {self.patronymic}"
 
 

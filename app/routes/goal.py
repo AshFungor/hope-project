@@ -17,11 +17,21 @@ def get_goal(): ...
 
 @goal.route('/goal', methods=['POST'])
 def create_goal():
-    bank_account_id = int(request.form.get('bank_account_id', 0))
-    value = int(request.form.get('value', 0))
-    amount_on_setup = int(request.form.get('amount_on_setup', 0))
-    if not (bank_account_id and value and amount_on_setup):
-        return abort(400, description='Missing some values for goal creation')
+    form_fields = ('bank_account_id', 'value', 'amount_on_setup')
+    bank_account_id, value, amount_on_setup = (
+        int(request.form.get(field)) if request.form.get(field) else None
+        for field in form_fields
+    )
+    missing_variables = [
+        field
+        for field, value in zip(form_fields, (bank_account_id, value, amount_on_setup))
+        if value is None
+    ]
+    if len(missing_variables):
+        return abort(
+            400,
+            description=f'Missing values for goal creation: {", ".join(missing_variables)}',
+        )
     last_goal = get_last_goal_by_bank_account(bank_account_id)
     if last_goal:
         if last_goal.amount_on_validate:
