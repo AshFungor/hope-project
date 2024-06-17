@@ -13,6 +13,50 @@ import app.models as models
 import app.modules.database.static as static
 import app.routes.blueprints as blueprints
 from app.models.helpers import get_bank_account_size
+from app.forms.employment import EmploymentForm
+from app.modules.database.validators import CurrentTimezone
+
+logger = env.logger.getChild(__name__)
+
+
+@blueprints.accounts_blueprint.route('/company_worker_employment', methods=['GET', 'POST'])
+@login_required
+def company_worker_employment():
+    """ Нанимаем сотрудника фирмы """
+    company_id = request.args.get("company_id", None)
+    company_id = request.form.get("company_id", None) if company_id is None else company_id
+    query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
+    company = env.db.impl().session.execute(query_company).scalars().first()
+    if not company:
+        return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=404)
+
+    form = EmploymentForm()
+
+    if request.method == 'POST' and form.validate_on_submit():
+        worker_bank_account_id = form.bank_account_id.data
+        role = form.role.data
+        # проверяем
+        query_user = sqlalchemy.select(models.User).filter(
+            models.User.bank_account_id == worker_bank_account_id)
+        user = env.db.impl().session.execute(query_user).first()
+        if not user:
+            flask.flash('Указан неверный банковский счёт пользователя', category="warning")
+            logger.error('Incorrect user bank_id during employment.')
+            return redirect(url_for("accounts.company_cabinet", company_id=company_id))
+        user = user[0]
+        # принимаем на работу
+        env.db.impl().session.add(models.User2Company(
+            user_id=user.id,
+            company_id=int(company_id),
+            role=role,
+            ratio=0,
+            fired_at=None,
+            employed_at=datetime.datetime.now(tz=CurrentTimezone)
+        ))
+        env.db.impl().session.commit()
+        flask.flash('Пользователь трудоустроен', category="info")
+        return redirect(url_for("accounts.company_cabinet", company_id=company_id))
+    return render_template('main/company_workers_employment.html', company_id=company_id, company_name=company.name, form=form)
 
 
 @blueprints.accounts_blueprint.route('/company_worker_fire')
@@ -41,7 +85,7 @@ def company_worker_fire():
         worker = env.db.impl().session.execute(worker_query).scalars().first()
         worker.fired_at = datetime.datetime.now(env.default_timezone)
         env.db.impl().session.commit()
-        return redirect(url_for("accounts.company_workers", company_id=company_id))
+        return redirect(url_for("accounts.company_cabinet", company_id=company_id))
     return flask.Response("Доступ к увольнению в запрошенной фирме запрещён", status=403)
 
 
