@@ -10,6 +10,12 @@
         <h2 d-flex flex-wrap justify-content-center>Добрый день, {{ current_user.name }}!</h2>
     {% endif %}
 </div>
+
+<div class="text-wrap text-start mb-5">
+    <p class="h4"><strong>Банковский счёт:</strong> <b>{{ user.bank_account_id }}</b>.</p>
+    <p class="h3"><strong>Текущий баланс (в надиках):</strong> <b>{{ balance }}</b>.</p>
+</div>
+
 <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
     <block style="display: grid">
         <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
