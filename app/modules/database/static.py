@@ -261,8 +261,10 @@ class StaticTablesHandler:
 
         message, status = transaction.process(with_status == 'approved')
         if not status:
+            env.db.impl().session.rollback()
             logging.warning(f'transaction {transaction_id}; error {message}')
 
+        env.db.impl().session.commit()
         return message, status
 
 

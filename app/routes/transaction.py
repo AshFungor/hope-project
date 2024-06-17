@@ -57,8 +57,8 @@ def new_money_transaction():
 @blueprints.transaction_blueprint.route('/transaction/parse/create', methods=['POST'])
 def parse_new_transaction():
     mapper = {
-        'seller-account': 'seller_account',
-        'bank_account_id': 'customer_account',
+        'seller-account': 'customer_account',
+        'bank_account_id': 'seller_account',
         'product-name': 'product',
         'count': 'product_count',
         'amount': 'amount'
@@ -73,6 +73,31 @@ def parse_new_transaction():
     response = None
     try:
         response = requests.post('http://nginx/transaction/create', json=params)
+    except Exception as error:
+        logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
+    if response is not None and response.status_code != 200:
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
+
+    return flask.redirect(flask.request.headers.get('Referer'))
+
+
+@blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
+def parse_new_money_transaction():
+    mapper = {
+        'seller-account': 'customer_account',
+        'bank_account_id': 'seller_account',
+        'amount': 'amount'
+    }
+
+    params = {}
+    for key, value in mapper.items():
+        if key not in flask.request.form:
+            return flask.Response(f'missing form field: {key}', status=443)
+        params[value] = flask.request.form.get(key, None)
+
+    response = None
+    try:
+        response = requests.post('http://nginx/transaction/money/create', json=params)
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
