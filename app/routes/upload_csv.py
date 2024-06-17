@@ -24,9 +24,8 @@ def parse_users():
     if isinstance(result, flask.Response):
         return result
     added = static.StaticTablesHandler.prepare_users(result)
-    if added < result.shape[0]:
-        env.db.impl().session.rollback()
-        return flask.Response(status=443)
+    if isinstance(added, str):
+        return flask.Response(added, status=443)
     env.db.impl().session.commit()
     return flask.Response(status=200)
 
@@ -37,9 +36,8 @@ def parse_prefectures():
     if isinstance(result, flask.Response):
         return result
     added = static.StaticTablesHandler.prepare_prefectures(result)
-    if added < result.shape[0]:
-        env.db.impl().session.rollback()
-        return flask.Response(status=443)
+    if isinstance(added, str):
+        return flask.Response(added, status=443)
     env.db.impl().session.commit()
     return flask.Response(status=200)
 
@@ -50,9 +48,8 @@ def parse_cities():
     if isinstance(result, flask.Response):
         return result
     added = static.StaticTablesHandler.prepare_cities(result)
-    if added < result.shape[0]:
-        env.db.impl().session.rollback()
-        return flask.Response(status=443)
+    if isinstance(added, str):
+        return flask.Response(added, status=443)
     env.db.impl().session.commit()
     return flask.Response(status=200)
 
@@ -63,8 +60,7 @@ def parse_products():
     if isinstance(result, flask.Response):
         return result
     added = static.StaticTablesHandler.prepare_products(result)
-    if added < result.shape[0]:
-        env.db.impl().session.rollback()
-        return flask.Response(status=443)
+    if isinstance(added, str):
+        return flask.Response(added, status=443)
     env.db.impl().session.commit()
     return flask.Response(status=200)
