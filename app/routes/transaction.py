@@ -48,8 +48,8 @@ def new_transaction():
 @blueprints.transaction_blueprint.route('/transaction/parse/create', methods=['POST'])
 def parse_new_transaction():
     mapper = {
-        'seller-account': 'seller_account',
-        'bank_account_id': 'customer_account',
+        'bank_account_id': 'seller_account',
+        'customer-account': 'customer_account',
         'product-name': 'product',
         'count': 'product_count',
         'amount': 'amount'
