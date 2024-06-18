@@ -32,7 +32,7 @@ def view_transaction():
 @flask_login.login_required
 def view_history():
     offset = int(flask.request.args.get('offset', 0))
-    length = int(flask.request.args.get('length', 10))
+    length = int(flask.request.args.get('length', 7))
     user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
