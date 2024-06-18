@@ -104,45 +104,6 @@ def new_money_proposal() -> flask.Response:
         return flask.Response(f'incorrect input', status=443)
 
 
-@blueprints.transaction_blueprint.route('/transaction/money/create', methods=['POST'])
-def new_money_proposal(payload: dict[str, str] | None = None) -> flask.Response:
-    payload, data = handle_payload(payload, flask.request), []
-    # parse payload
-    for field in ['seller_account', 'customer_account', 'amount']:
-        if field not in payload:
-            return flask.Response(f'missing argument: {field}', status=443)
-        data.append(payload[field])
-
-    seller_account, customer_account, amount = data
-    try:
-        transaction = models.Transaction(
-            1,
-            int(customer_account),
-            int(seller_account),
-            int(amount),
-            int(amount),
-            'created',
-            datetime.datetime.now(tz=CurrentTimezone),
-            datetime.datetime.now(tz=CurrentTimezone),
-            ''
-        )
-        env.db.impl().session.add(transaction)
-
-        # approve it
-        message, status = transaction.process(True)
-        if not status:
-            env.db.impl().session.rollback()
-            logging.warning(message)
-            return flask.Response(message, status=443)
-        
-        env.db.impl().session.commit()
-        return flask.Response(message, status=200)
-    except Exception as error:
-        env.db.impl().session.rollback()
-        logging.warning(f'error while completing transaction: {error}')
-        return flask.Response(f'incorrect input', status=443)
-
-
 @blueprints.transaction_blueprint.route('/transaction/view/current', methods=['POST'])
 def view_proposal(payload: dict[str, str] | None = None):
     payload = handle_payload(payload, flask.request)
