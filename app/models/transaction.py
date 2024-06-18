@@ -135,5 +135,6 @@ class Transaction(ModelBase):
         customer_products.count += self.count
         seller_wallet.count += self.amount
         seller_products.count -= self.count
+        self.status = Status.APPROVED
 
         return 'transaction accepted', True
