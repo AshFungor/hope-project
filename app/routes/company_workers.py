@@ -50,7 +50,6 @@ def company_worker_employment():
             company_id=int(company_id),
             role=role,
             ratio=0,
-            fired_at=None,
             employed_at=datetime.datetime.now(tz=CurrentTimezone)
         ))
         env.db.impl().session.commit()

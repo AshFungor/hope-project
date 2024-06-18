@@ -6,7 +6,7 @@ import wtforms as wtf
 class EmploymentForm(FlaskForm):
     # должности: ['CEO', 'CFO', 'founder', 'marketing_manager', 'production_manager', 'employee']
     bank_account_id = wtf.StringField('Номер банковского счёта',
-                                      validators=[InputRequired(), NumberRange(min=10000, max=999999)])
+                                      validators=[InputRequired()])
     role = wtf.SelectField('Должность',
                            choices=['CEO', 'CFO', 'marketing_manager', 'production_manager', 'employee'],
                            validators=[InputRequired()])

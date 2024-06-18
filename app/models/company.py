@@ -9,7 +9,7 @@ from sqlalchemy import ForeignKey
 
 from app.modules.database.handlers import serial
 from app.modules.database.handlers import long_int
-from app.modules.database.handlers import c_datetime
+from app.modules.database.handlers import c_datetime, c_datetime_fired
 from app.modules.database.handlers import variable_strings
 from app.modules.database.handlers import small_int
 from app.modules.database.handlers import ModelBase
@@ -61,7 +61,7 @@ class User2Company(ModelBase):
     company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
     role: Mapped[variable_strings[32]]
     ratio: Mapped[small_int]
-    fired_at: Mapped[c_datetime] = mapped_column(default=None, nullable=True)
+    fired_at: Mapped[c_datetime_fired]
     employed_at: Mapped[c_datetime]
 
     def __init__(
@@ -70,15 +70,14 @@ class User2Company(ModelBase):
         company_id: int,
         role: str,
         ratio: int,
-        fired_at: datetime.datetime | None,
+        # fired_at: datetime.datetime | None,
         employed_at: datetime.datetime
     ) -> None:
         self.user_id = validators.IntValidator.validate(user_id, 64, False)
         self.company_id = validators.IntValidator.validate(company_id, 64, False)
         self.role = validators.GenericTextValidator.validate(role, 32, False)
         self.ratio = validators.IntValidator.validate(ratio, 16, True)
-        if fired_at:
-            self.fired_at = validators.DtValidator.validate(fired_at)
+        # self.fired_at = fired_at
         self.employed_at = validators.DtValidator.validate(employed_at)
 
     def __repr__(self) -> str:
