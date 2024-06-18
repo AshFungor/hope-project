@@ -111,6 +111,7 @@ def company_workers():
         # получаем список всех сотрудников текущей фирмы
         query = sqlalchemy.select(
             models.User.name, models.User.last_name, models.User.patronymic,
+            models.User.bank_account_id,
             models.User.id,
             models.User2Company.role
         ).join(

@@ -17,7 +17,7 @@
             <li class="list-group-item text-center">
                 <div class="row gx-1">
                     <div class="col">
-                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
+                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}<br>(р/счёт: {{ worker.bank_account_id }})
                     </div>
                     <div class="col">
                         {% if role != 'founder' %}
