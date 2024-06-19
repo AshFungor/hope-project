@@ -16,11 +16,15 @@ import app.routes.blueprints as blueprints
 from . import proposal as handles
 
 
-@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
+@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_transaction():
     # get user bank account id & make payload from it
-    user_id = flask_login.current_user.bank_account_id
+    user_id = None
+    if flask.request.method == 'POST':
+        user_id = flask.request.form['other_bank_account'] if 'other_bank_account' in flask.request.form else None
+    elif user_id is None:
+        user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
     }
@@ -28,12 +32,16 @@ def view_transaction():
     return flask.render_template('main/view_transaction.html', transactions=response)
 
 
-@blueprints.proposal_blueprint.route('/history', methods=['GET'])
+@blueprints.proposal_blueprint.route('/history', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_history():
     offset = int(flask.request.args.get('offset', 0))
     length = int(flask.request.args.get('length', 10))
-    user_id = flask_login.current_user.bank_account_id
+    user_id = None
+    if flask.request.method == 'POST':
+        user_id = flask.request.form['other_bank_account'] if 'other_bank_account' in flask.request.form else None
+    elif user_id is None:
+        user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
     }
@@ -100,7 +108,7 @@ def parse_new_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
     return flask.redirect(flask.url_for('accounts.person_account'))
 
@@ -125,6 +133,6 @@ def parse_new_money_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
     return flask.redirect(flask.request.headers.get('Referer'))
