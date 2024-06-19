@@ -9,5 +9,5 @@ import app.routes.blueprints as blueprints
 @blueprints.master_blueprint.route('/master_prefecture')
 @login_required
 def master_prefecture():
-    """Мастер что-то делает с фирмой"""
+    """Мастер что-то делает с префектурой"""
     return render_template('main/master4prefecture.html')
