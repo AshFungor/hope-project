@@ -1,32 +1,26 @@
 {% extends 'login/base.html' %}
 
-{% block title %}Login{% endblock %}
+{% block title %} Login {% endblock %}
 
 {% block content %}
 
-<block class="message_container">
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul class="flashes" style="">
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
-</block>
-
-
+<main class="form-signin">
     <form method="POST">
-        <div class="container">
-            <label for="Login"><b>Логин</b></label>
-            <input type="text" placeholder="" name="Login" required>
-            <label for="Password"><b>Пароль</b></label>
-            <input type="password" placeholder="" name="Password" required>
-            <button type="submit">Войти</button>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p></p>
+        <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+        <div class="form-floating">
+            <input type="text" class="form-control" id="floatingInput" name="Login" required placeholder="Login">
+            <label for="floatingInput">Login</label>
         </div>
+        <p></p>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="floatingPassword" name="Password" required placeholder="Password">
+            <label for="floatingPassword">Password</label>
+        </div>
+        <p></p>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
+</main>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/auth.css') }}">
 {% endblock %}
