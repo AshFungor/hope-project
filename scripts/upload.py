@@ -13,7 +13,7 @@ def upload(url: str, filepath: str, is_header_preset: bool = True):
     print(f'receiving data: \n{frame}')
     print(f'sending to {url}')
     response = requests.post(url, data=frame.to_csv().encode('UTF-8'))
-    print(f'request completed, response status: {response.status_code}')
+    print(f'request completed, response status: {response.status_code}, message: {response.content.decode('UTF-8')}')
 
 
 if __name__ == '__main__':
