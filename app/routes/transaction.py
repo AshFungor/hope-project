@@ -31,8 +31,8 @@ def view_transaction():
 @blueprints.proposal_blueprint.route('/history', methods=['GET'])
 @flask_login.login_required
 def view_history():
-    offset = int(flask.request.args.get('offset', 0))
-    length = int(flask.request.args.get('length', 7))
+    offset = max(int(flask.request.args.get('offset', 0)), 0)
+    length = max(int(flask.request.args.get('length', 7)), 1)
     user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
@@ -45,7 +45,7 @@ def view_history():
         transactions=selected, 
         prev_offset=max(offset - length, 0),
         prev_length=length,
-        next_offset=min(max(0, len(response) - length), offset + length),
+        next_offset=min(len(response) // length * length, offset + length),
         next_length=length,
         pages=pages)
 
@@ -100,7 +100,7 @@ def parse_new_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
 
     return flask.redirect(flask.url_for('accounts.person_account'))
 
@@ -125,6 +125,6 @@ def parse_new_money_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.content.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
 
     return flask.redirect(flask.request.headers.get('Referer'))

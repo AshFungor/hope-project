@@ -36,6 +36,7 @@
             <div class="accordion-body">
                 <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
                     <block style="display: grid">
+                        <p></p>
                         <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
                             Выставить счет
                         </a>
@@ -51,6 +52,7 @@
                         <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_history', _external=True) }}">
                             История транзакций
                         </a>
+                        <p></p>
                     </block>
                 </block>
             </div>
@@ -64,7 +66,11 @@
         </h2>
         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                ...
+                <p></p>
+                <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
+                    Ваши продукты
+                </a>
+                <p></p>
             </div>
         </div>
     </div>

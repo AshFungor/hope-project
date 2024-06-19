@@ -62,7 +62,7 @@ def create_app() -> Flask:
     env.assign_new(Database(DatabaseType.from_str(env.server_database_type), app), 'db')
     env.assign_new(ZoneInfo("Europe/Moscow"), "default_timezone")
 
-    app.debug = True if env.debug in ('True', 'true', 1) else False
+    app.debug = env.debug = True if env.debug in ('True', 'true', 1) else False
     if app.debug:
         toolbar.init_app(app)
 
