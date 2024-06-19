@@ -75,7 +75,7 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
         logging.warning(f'error while adding new transaction: {error}')
         return flask.Response(f'incorrect input', status=443)
     
-    return flask.Response('success', status=200)
+    return flask.Response(assigned_id, status=200)
 
 
 @blueprints.transaction_blueprint.route('/transaction/money/create', methods=['POST'])

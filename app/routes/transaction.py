@@ -102,11 +102,7 @@ def parse_new_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
 
-    if response.status_code == 200:
-        flask.flash(response.data.decode('UTF-8'), category='success')
-    else:
-        flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_transaction'))
+    return flask.redirect(flask.url_for('accounts.person_account'))
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
@@ -131,8 +127,4 @@ def parse_new_money_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
 
-    if response.status_code == 200:
-        flask.flash(response.data.decode('UTF-8'), category='success')
-    else:
-        flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_money_transaction'))
+    return flask.redirect(flask.request.headers.get('Referer'))
