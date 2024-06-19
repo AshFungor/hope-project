@@ -15,3 +15,7 @@ from . import new_company
 from . import new_product
 from . import user_products
 from . import goal
+from . import master4company
+from . import master4city
+from . import master4city_hall
+from . import master4prefecture

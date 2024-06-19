@@ -1,26 +1,34 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Сотрудники фирмы"{% endblock %}
+{% block title %}Сотрудники фирмы{% endblock %}
 
 {% block content %}
+
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
     <h3><strong>Фирма "{{ company.name }}"</strong></h3>
 </div>
 
 {% for role, workers in workers.items() %}
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>{{ role }}</strong>
-        <ul>
+<p class="mb-1"><strong>{{ role }}</strong></p>
+    <div class="card" style="width: 100%;">
+        <ul class="list-group list-group-flush">
         {% for worker in workers %}
-           <li>{{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
-               {% if role != 'founder' %}
-               <button onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button></li>
-               {% endif %}
-        {% endfor %}
+            <li class="list-group-item text-center">
+                <div class="row gx-1">
+                    <div class="col">
+                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
+                    </div>
+                    <div class="col d-flex justify-content-center">
+                        {% if role != 'founder' %}
+                        <button class="btn btn-sm btn-danger" onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
         </ul>
-    </p>
-</div>
+    </div>
 {% endfor %}
+
 
 {% endblock %}
