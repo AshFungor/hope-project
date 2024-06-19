@@ -5,10 +5,10 @@
 # стили сделаны для того, чтобы хоть что-то было
 
 {% block content %}
+<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
 
-<div class="col-6">
     {% if current_user.is_authenticated %}
-        <h2 d-flex flex-wrap justify-content-center>Добрый день, {{ current_user.name }}!</h2>
+        <h3><strong>Добрый день, {{ current_user.name }}!</strong></h3>
     {% endif %}
 </div>
 
