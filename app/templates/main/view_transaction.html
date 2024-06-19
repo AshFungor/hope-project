@@ -9,6 +9,31 @@
 </div>
 
 <div class="card" style="width: 100%">
+    <script>
+        function sendRequest(user_status, id, url) {
+            var data = {
+                status: user_status,
+                transaction_id: id
+            };
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var responseData = xhr.responseText;
+                        console.log('Success:', responseData);
+                    } else {
+                        console.error('Error:', xhr.status, xhr.statusText);
+                    }
+                    console.log('Request complete');
+                }
+            };
+            xhr.send(JSON.stringify(data));
+        }
+    </script>
     <table class="table table-striped">
         <tbody>
             {% for transaction in transactions %}
@@ -21,8 +46,8 @@
                 <tr>
                     <!-- надо что-то с кнопками придумать -->
                     <td colspan="4">
-                        <button type="button" class="btn btn-success">Принять</button>
-                        <button type="button" class="btn btn-danger">Отклонить</button>
+                        <button type="button" class="btn btn-success" onclick="sendRequest('approved', {{ transaction.transaction_id }}, '{{ url_for('transaction.decide_on_proposal', _external=True) }}')">Принять</button>
+                        <button type="button" class="btn btn-danger" onclick="sendRequest('declined', {{ transaction.transaction_id }}, '{{ url_for('transaction.decide_on_proposal', _external=True) }}')">Отклонить</button>
                     </td>
                 </tr>
             {% endfor %}

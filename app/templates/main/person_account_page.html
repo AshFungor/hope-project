@@ -5,24 +5,35 @@
 # стили сделаны для того, чтобы хоть что-то было
 
 {% block content %}
-<div class="col-6 text-center">
+
+<div class="col-6">
     {% if current_user.is_authenticated %}
         <h2 d-flex flex-wrap justify-content-center>Добрый день, {{ current_user.name }}!</h2>
     {% endif %}
 </div>
+
+<div class="mb-4">
+    <p class="mb-1" id="customer-account"><strong> Ваш банковский счет: </strong> {{ current_user.bank_account_id }} </p>
+</div>
+
 <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
     <block style="display: grid">
         <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
-            Перевод
+            Выставить счет
         </a>
         <p></p>
-        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
-            Выставить счет
+        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
+            Перевод
         </a>
         <p></p>
         <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
             Неоплаченные счета
         </a>
+        <p></p>
+        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_history', _external=True) }}">
+            История транзакций
+        </a>
     </block>
 </block>
+
 {% endblock %}
