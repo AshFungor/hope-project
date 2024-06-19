@@ -25,9 +25,7 @@
                     if (xhr.status === 200) {
                         var responseData = xhr.responseText;
                         console.log('Success:', responseData);
-                        location.reload();
                     } else {
-                        alert(xhr.response)
                         console.error('Error:', xhr.status, xhr.statusText);
                     }
                     console.log('Request complete');
@@ -42,7 +40,7 @@
                 <tr>
                     <td> {{ transaction.transaction_id }} </td>
                     <td> {{ transaction.product }} </td>
-                    <td> x{{ transaction.count }} </td>
+                    <td> {{ transaction.count }} </td>
                     <td> {{ transaction.amount }}</td>
                 </tr>
                 <tr>

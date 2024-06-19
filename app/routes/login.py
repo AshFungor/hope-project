@@ -16,7 +16,7 @@ def authorization():
     if request.method == 'POST':
         user = env.db.impl().session.query(models.User).filter_by(
             login=request.form.get('Login')).first()
-        if user is not None and user.password == request.form['Password']:
+        if user.password == request.form['Password']:
             login_user(user)
             prefecture = env.db.impl().session.query(models.Prefecture).join(
                 models.City, models.Prefecture.id == models.City.prefecture_id).filter(

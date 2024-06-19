@@ -111,7 +111,7 @@ class Transaction(ModelBase):
 
         if self.product_id == 1:
             # we make money transaction
-            if seller_wallet is None or customer_wallet is None:
+            if customer_products is None or seller_products is None:
                 return 'database lacks money entity with id = 1', False
             if seller_wallet.count < self.count:
                 return 'transaction is unavailable: not enough money owned by seller', False
