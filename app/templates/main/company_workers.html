@@ -19,7 +19,7 @@
                     <div class="col">
                         {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
                     </div>
-                    <div class="col">
+                    <div class="col d-flex justify-content-center">
                         {% if role != 'founder' %}
                         <button class="btn btn-sm btn-danger" onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button>
                         {% endif %}
