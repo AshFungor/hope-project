@@ -14,6 +14,7 @@ main = flask.Blueprint('main', __name__)
 # транзакции
 proposal_blueprint = flask.Blueprint('proposal', __name__)
 goal = flask.Blueprint('goal', __name__)
+product = flask.Blueprint('product', __name__)
 # для действий мастера игры
 master_blueprint = flask.Blueprint('master', __name__)
 
@@ -25,5 +26,6 @@ all_blueprints = (
     main,
     proposal_blueprint,
     goal,
+    product,
     master_blueprint,
 )
