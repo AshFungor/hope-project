@@ -9,7 +9,17 @@
 </div>
 
 <div class="card" style="width: 100%">
-    <table class="table table-striped">
+  <div class="table-responsive">
+    <table class="table table-stripped">
+        <thead>
+          <th scope="col"> номер транзакции </th>
+          <th scope="col"> товар </th>
+          <th scope="col"> количество </th>
+          <th scope="col"> цена </th>
+          <th scope="col"> статус </th>
+          <th scope="col"> время </th>
+          <th scope="col"> сторона сделки </th>
+        </thead>
         <tbody>
             {% for transaction in transactions %}
                 {% if transaction.status == 'approved' %}
@@ -21,14 +31,20 @@
                 {% endif %}
                     <td> {{ transaction.transaction_id }} </td>
                     <td> {{ transaction.product }} </td>
-                    <td> {{ transaction.count }} </td>
-                    <td> {{ transaction.amount }} </td>
+                    {% if transaction.is_money %}
+                      <td colspan="2"> {{ transaction.count }} </td>
+                    {% else %}
+                      <td> {{ transaction.count }} </td>
+                      <td> {{ transaction.amount }} </td>
+                    {% endif %}
                     <td> {{ transaction.status }} </td>
                     <td> {{ transaction.updated_at }} </td>
+                    <td> {{ transaction.side }} </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+  </div>
 </div>
 
 <p></p>

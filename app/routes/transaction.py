@@ -35,8 +35,8 @@ def view_transaction():
 @blueprints.proposal_blueprint.route('/history', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_history():
-    offset = int(flask.request.args.get('offset', 0))
-    length = int(flask.request.args.get('length', 10))
+    offset = max(int(flask.request.args.get('offset', 0)), 0)
+    length = max(int(flask.request.args.get('length', 7)), 1)
     user_id = None
     if flask.request.method == 'POST':
         user_id = flask.request.form['other_bank_account'] if 'other_bank_account' in flask.request.form else None
@@ -53,7 +53,7 @@ def view_history():
         transactions=selected, 
         prev_offset=max(offset - length, 0),
         prev_length=length,
-        next_offset=min(max(0, len(response) - length), offset + length),
+        next_offset=min(len(response) // length * length, offset + length),
         next_length=length,
         pages=pages)
 
@@ -110,7 +110,11 @@ def parse_new_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
-    return flask.redirect(flask.url_for('accounts.person_account'))
+    if response.status_code == 200:
+        flask.flash(response.data.decode('UTF-8'), category='success')
+    else:
+        flask.flash(response.data.decode('UTF-8'), category='danger')
+    return flask.redirect(flask.url_for('proposal.new_transaction'))
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
@@ -135,4 +139,8 @@ def parse_new_money_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
-    return flask.redirect(flask.request.headers.get('Referer'))
+    if response.status_code == 200:
+        flask.flash(response.data.decode('UTF-8'), category='success')
+    else:
+        flask.flash(response.data.decode('UTF-8'), category='danger')
+    return flask.redirect(flask.url_for('proposal.new_money_transaction'))

@@ -105,15 +105,21 @@ class Transaction(ModelBase):
             if isinstance(customer, str):
                 return customer, False
             return seller, False
-        
 
         customer_wallet, customer_products = customer
         seller_wallet, seller_products = seller
 
         if self.product_id == 1:
             # we make money transaction
-            customer_products = customer_wallet
-            seller_products = seller_wallet
+            if seller_wallet is None or customer_wallet is None:
+                return 'database lacks money entity with id = 1', False
+            if seller_wallet.count < self.count:
+                return 'transaction is unavailable: not enough money owned by seller', False
+            customer_wallet.count += self.amount
+            seller_wallet.count -= self.amount
+            self.status = Status.APPROVED
+
+            return 'transaction accepted', True
 
         if customer_products is None:
             try:
