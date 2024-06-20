@@ -6,6 +6,15 @@
 
 
 <form role="form" action="{{ url_for( 'transaction.parse_new_transaction' ) }}" method="POST" id="form">
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p class="text-{{ category }} text-center"> {{ message }} </p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <div class="mb-4">
         <p class="mb-1" id="customer-account"><strong> Ваш счёт:</strong> {{ user_bank_account }} </p>
     </div>
@@ -38,7 +47,7 @@
     </div>
 
     <div class="d-grid gap-2 d-mb-block mb-4">
-        <button type="submit" class="btn btn-success btn-sm mb-3"> Подтверждаю </button>
+        <button type="submit" class="btn btn-success mb-3"> Подтверждаю </button>
     </div>
 </form>
 

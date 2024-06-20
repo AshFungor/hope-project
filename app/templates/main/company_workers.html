@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Сотрудники фирмы"{% endblock %}
+{% block title %}Сотрудники фирмы{% endblock %}
 
 {% block content %}
 
@@ -17,22 +17,18 @@
             <li class="list-group-item text-center">
                 <div class="row gx-1">
                     <div class="col">
-                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}<br>(р/счёт: {{ worker.bank_account_id }})
+                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
                     </div>
-                    <div class="col">
+                    <div class="col d-flex justify-content-center">
                         {% if role != 'founder' %}
                         <button class="btn btn-sm btn-danger" onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button>
                         {% endif %}
                     </div>
                 </div>
             </li>
-        {% endfor %}
         </ul>
     </div>
 {% endfor %}
 
-<div class="col">
-    <button class="btn btn-success btn-sm mb-3" onclick="window.location.href='{{ url_for('accounts.company_worker_employment', company_id=company.id) }}'">Принять на работу</button>
-</div>
 
 {% endblock %}

@@ -1,22 +1,24 @@
 import flask
-from flask import Blueprint, render_template, url_for, request
-from flask_login import login_required, current_user
-
-import sqlalchemy
-
-from app.env import env
-import app.models as models
+import flask_login
 
 # local
-import app.modules.database.static as static
 import app.routes.blueprints as blueprints
-from app.models.helpers import get_bank_account_size
 
 
 @blueprints.accounts_blueprint.route('/person_account')
-@login_required
+@flask_login.login_required
 def person_account():
-    query_user = sqlalchemy.select(models.User).filter(models.User.id == current_user.id)
-    user = env.db.impl().session.execute(query_user).first()[0]
-    balance = get_bank_account_size(user.bank_account_id)
-    return render_template('main/person_account_page.html', user=user, balance=balance)
+    current_user = flask_login.current_user
+    specs = []
+
+    mapper = {
+        'bank_account_id': 'номер банковского счета',
+        'login': 'логин',
+        'birthday': 'день рождения'
+    }
+
+    for spec in ['bank_account_id', 'login', 'birthday']:
+        specs.append({'name': mapper[spec], 'value': getattr(current_user, spec)})
+    return flask.render_template('main/person_account_page.html', user_spec=specs)
+
+

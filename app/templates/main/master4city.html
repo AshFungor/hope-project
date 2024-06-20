@@ -1,0 +1,15 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Город для мастера{% endblock %}
+
+{% block content %}
+
+<div class="d-grid gap-2 d-mb-block mb-4">
+
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.edit_data' ) }}';">Назначить главу города</button>
+
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Добавить жителей</button>
+
+</div>
+
+{% endblock %}

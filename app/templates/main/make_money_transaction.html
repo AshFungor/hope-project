@@ -5,7 +5,18 @@
 {% block content %}
 
 
-<form role="form" action="{{ url_for( 'transaction.parse_new_transaction' ) }}" method="POST" id="form">
+<form role="form" action="{{ url_for( 'transaction.parse_new_money_transaction' ) }}" method="POST" id="form">
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="text-{{ category }} text-center">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
     <div class="mb-4">
         <p class="mb-1" id="customer-account"><strong> Ваш счёт:</strong> {{ user_bank_account }} </p>
     </div>
@@ -19,12 +30,12 @@
     </div>
 
     <div class="mb-4">
-        <label for="amount" class="form-label"><strong>Количество:</strong></label>
+        <label for="amount" class="form-label"><strong>Сумма:</strong></label>
         <input class="form-control text-center" name="amount" type="number" placeholder="Введите сумму перевода">
     </div>
 
     <div class="d-grid gap-2 d-mb-block mb-4">
-        <button type="submit" class="btn btn-success btn-sm mb-3"> Подтверждаю </button>
+        <button type="submit" class="btn btn-success mb-3"> Подтверждаю </button>
     </div>
 </form>
 
