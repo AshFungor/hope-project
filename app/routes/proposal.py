@@ -173,11 +173,16 @@ def view_proposal_history(payload: dict[str, str] | None = None):
                 'count': transaction.count,
                 'product': product.name,
                 'status': transaction.status,
-                'updated_at': transaction.updated_at.strftime('%d/%m/%Y %H:%M:%S'),
+                'updated_at': transaction.local_updated_at.strftime('%d/%m/%Y %H:%M:%S'),
                 'side': side,
                 'is_money': product.id == 1
             })
-    return flask.Response(json.dumps(response, indent=4, sort_keys=True), status=200)
+    return flask.Response(
+            json.dumps(sorted(response, key=lambda el: datetime.datetime.strptime(el['updated_at'], '%d/%m/%Y %H:%M:%S'), reverse=True), 
+                indent=4, 
+                sort_keys=True), 
+            status=200
+        )
 
 
 @blueprints.transaction_blueprint.route('/transaction/decide', methods=['POST'])
