@@ -11,3 +11,9 @@ import app.routes.blueprints as blueprints
 def master_cabinet():
     """Личный кабинет мастера"""
     return render_template('main/master_lk.html')
+
+@blueprints.master_blueprint.route('/edit_data')
+@login_required
+def edit_data():
+    """Мастер изменяет данные"""
+    return render_template('main/master_edit.html')
