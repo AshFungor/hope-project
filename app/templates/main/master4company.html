@@ -6,11 +6,11 @@
 
 <div class="d-grid gap-2 d-mb-block mb-4">
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Изменить ген.директора</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.edit_data' ) }}';">Изменить ген.директора</button>
 
     <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Списать/занести ресурсы/товары</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Добавить фирму</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.create_company' ) }}';">Добавить фирму</button>
 
 </div>
     

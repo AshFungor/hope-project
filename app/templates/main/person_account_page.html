@@ -12,13 +12,13 @@
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <div class="container-md"> Здесь представлены данные, ассоциированные с вашим аккаунтом. </div>
+                <div class="container-md text-center"> Здесь представлены данные, ассоциированные с вашим аккаунтом </div>
             </div>
             <table class="table table-striped">                
                 <tbody>
                   {% for entry in user_spec %}
                   <tr>
-                    <td> {{ entry.name }} </th>
+                    <td><strong> {{ entry.name|capitalize }}: </strong></th>
                     <td> {{ entry.value }} </th>
                   </tr>
                   {% endfor %}
@@ -33,26 +33,24 @@
         </h2>
         <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
-                    <block style="display: grid">
-                        <p></p>
-                        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
-                            Выставить счет
-                        </a>
-                        <p></p>
-                        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
-                            Перевод
-                        </a>
-                        <p></p>
-                        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
-                            Неоплаченные счета
-                        </a>
-                        <p></p>
-                        <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_history', _external=True) }}">
-                            История транзакций
-                        </a>
-                        <p></p>
-                    </block>
+                <block style="display: grid">
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+                        Выставить счет
+                    </a>
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
+                        Перевод
+                    </a>
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
+                        Неоплаченные счета
+                    </a>
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_history', _external=True) }}">
+                        История транзакций
+                    </a>
+                    <p></p>
                 </block>
             </div>
         </div>
@@ -66,9 +64,11 @@
         <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
             <div class="accordion-body">
                 <p></p>
-                <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
-                    Ваши продукты
-                </a>
+                <block style="display: grid">
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
+                        Ваши продукты
+                    </a>
+                </block>
                 <p></p>
             </div>
         </div>
