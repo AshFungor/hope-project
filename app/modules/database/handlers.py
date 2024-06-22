@@ -91,6 +91,11 @@ c_datetime = typing_extensions.Annotated[
     sqlalchemy.orm.mapped_column(sqlalchemy.TIMESTAMP, nullable=False, default=sqlalchemy.func.current_timestamp())
 ]
 
+c_datetime_fired = typing_extensions.Annotated[
+    datetime.datetime,
+    sqlalchemy.orm.mapped_column(sqlalchemy.TIMESTAMP, nullable=True, default=None)
+]
+
 # date (6.5.2004)
 c_date = typing_extensions.Annotated[
     datetime.date,
