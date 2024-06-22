@@ -28,7 +28,7 @@ def company_worker_employment():
     query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
     company = env.db.impl().session.execute(query_company).scalars().first()
     if not company:
-        return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=404)
+        return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=443)
 
     form = EmploymentForm()
 
