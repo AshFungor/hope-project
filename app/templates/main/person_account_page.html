@@ -7,22 +7,24 @@
     <div class="accordion-item">
         <h2 class="accordion-header"id="headingOne">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                Ваши данные
+                Профиль
             </button>
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-                <div class="container-md text-center"> Здесь представлены данные, ассоциированные с вашим аккаунтом </div>
+                <table class="table table-striped">
+                    <thead>
+                        <td colspan="2">Ваши данные:</td>
+                    </thead>               
+                    <tbody>
+                        {% for entry in user_spec %}
+                        <tr>
+                            <th> {{ entry.name|capitalize }}: </th>
+                            <td> {{ entry.value }} </td>
+                        </tr>
+                {% endfor %}
+                </table>
             </div>
-            <table class="table table-striped">                
-                <tbody>
-                  {% for entry in user_spec %}
-                  <tr>
-                    <td><strong> {{ entry.name|capitalize }}: </strong></th>
-                    <td> {{ entry.value }} </th>
-                  </tr>
-                  {% endfor %}
-              </table>
         </div>
     </div>
     <div class="accordion-item">

@@ -9,26 +9,26 @@
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Глава города:
+    <p class="mb-1"><strong>Глава города:</strong>
         {% if mayor %}
             {{ mayor.last_name }} {{ mayor.name }}
         {% else %}
             У этого города пока нет главы.
         {% endif %}
-    </strong></p>
+    </p>
 </div>
 
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Регистрация:</strong>
-        louem.
+    <p class="mb-1"><strong>Префектура:</strong>
+        {{ prefecture }}
     </p>
 </div>
 
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Адрес:</strong> корпус N, комната №{{ city.location }}</p>
+    <p class="mb-1"><strong>Адрес:</strong> {{ city.location }}</p>
 </div>
 <div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ city.bank_account }}</b></p>
+    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ city.bank_account_id }}</b></p>
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
@@ -66,6 +66,22 @@
             </ul>
         </div>
     </div>
+    <p></p>
+    <form action="{{ url_for( 'proposal.view_transaction') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="other_bank_account" value="{{ city.bank_account_id }}">
+        <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
+          Счета
+        </button>
+    </form>
+    <form style="width: 100%;" action="{{ url_for( 'proposal.view_history') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="other_bank_account" value="{{ city.bank_account_id }}">
+        <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
+          История счетов
+        </button>
+    </form>
+
 </div>
 
 {% endblock %}

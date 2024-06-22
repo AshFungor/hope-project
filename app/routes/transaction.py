@@ -109,7 +109,7 @@ def parse_new_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
     if response.status_code == 200:
         flask.flash(response.data.decode('UTF-8'), category='success')
@@ -138,7 +138,7 @@ def parse_new_money_transaction():
     except Exception as error:
         logging.warning(f'service request failed in handles module: {__name__}; error: {error}')
     if response is not None and response.status_code != 200:
-        logging.warning(f'message return code: {response.status_code}; message: ' + response.data.decode('UTF-8'))
+        logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
     if response.status_code == 200:
         flask.flash(response.data.decode('UTF-8'), category='success')
