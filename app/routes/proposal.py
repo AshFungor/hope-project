@@ -26,12 +26,10 @@ def handle_payload(passed: dict[str, str] | None, request: flask.Request):
 def get_transactions_for(id: int, for_seller: bool = True):
     feature = 'seller_bank_account_id' if for_seller else 'customer_bank_account_id'
     return env.db.impl().session.query(
-        models.User,
         models.Transaction,
         models.Product
     )                                                                                                   \
     .filter(getattr(models.Transaction, feature) == id)                                                 \
-    .join(models.User, models.User.bank_account_id == getattr(models.Transaction, feature))             \
     .join(models.Product, models.Product.id == models.Transaction.product_id)                           \
     .all()
 
@@ -128,7 +126,6 @@ def view_proposal(payload: dict[str, str] | None = None):
     user = int(payload['user'])
 
     proposals = env.db.impl().session.query(
-        models.User,
         models.Transaction,
         models.Product
     )                                                                                                   \
@@ -138,12 +135,11 @@ def view_proposal(payload: dict[str, str] | None = None):
             models.Transaction.customer_bank_account_id == user
         )
     )                                                                                                   \
-    .join(models.User, models.User.bank_account_id == models.Transaction.customer_bank_account_id)      \
     .join(models.Product, models.Product.id == models.Transaction.product_id)                           \
     .all()
 
     response = []
-    for user, transaction, product in proposals:
+    for transaction, product in proposals:
         response.append({
             'transaction_id': transaction.id,
             'amount': transaction.amount,
@@ -166,18 +162,23 @@ def view_proposal_history(payload: dict[str, str] | None = None):
 
     response = []
     for proposals, side in [(seller_proposals, 'seller'), (customer_proposals, 'customer')]:
-        for user, transaction, product in proposals:
+        for transaction, product in proposals:
             response.append({
                 'transaction_id': transaction.id,
                 'amount': transaction.amount,
                 'count': transaction.count,
                 'product': product.name,
                 'status': transaction.status,
-                'updated_at': transaction.updated_at.strftime('%d/%m/%Y %H:%M:%S'),
+                'updated_at': transaction.local_updated_at.strftime('%d/%m/%Y %H:%M:%S'),
                 'side': side,
                 'is_money': product.id == 1
             })
-    return flask.Response(json.dumps(response, indent=4, sort_keys=True), status=200)
+    return flask.Response(
+            json.dumps(sorted(response, key=lambda el: datetime.datetime.strptime(el['updated_at'], '%d/%m/%Y %H:%M:%S'), reverse=True), 
+                indent=4, 
+                sort_keys=True), 
+            status=200
+        )
 
 
 @blueprints.transaction_blueprint.route('/transaction/decide', methods=['POST'])

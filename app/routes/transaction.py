@@ -19,11 +19,10 @@ from . import proposal as handles
 @blueprints.proposal_blueprint.route('/view_transactions', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_transaction():
-    # get user bank account id & make payload from it
-    user_id = None
     if flask.request.method == 'POST':
-        user_id = flask.request.form['other_bank_account'] if 'other_bank_account' in flask.request.form else None
-    elif user_id is None:
+        user_id = flask.request.form.get('other_bank_account', None)
+    else:
+        # get user bank account id & make payload from it
         user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
@@ -35,12 +34,11 @@ def view_transaction():
 @blueprints.proposal_blueprint.route('/history', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_history():
-    offset = int(flask.request.args.get('offset', 0))
-    length = int(flask.request.args.get('length', 10))
-    user_id = None
+    offset = max(int(flask.request.args.get('offset', 0)), 0)
+    length = max(int(flask.request.args.get('length', 7)), 1)
     if flask.request.method == 'POST':
-        user_id = flask.request.form['other_bank_account'] if 'other_bank_account' in flask.request.form else None
-    elif user_id is None:
+        user_id = flask.request.form.get('other_bank_account', None)
+    else:
         user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
@@ -53,17 +51,18 @@ def view_history():
         transactions=selected, 
         prev_offset=max(offset - length, 0),
         prev_length=length,
-        next_offset=min(max(0, len(response) - length), offset + length),
+        next_offset=min(len(response) // length * length, offset + length),
         next_length=length,
         pages=pages)
 
 
-@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
+@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET', 'POST'])
 @flask_login.login_required
 def new_transaction():
+
     # get all products
     products = env.db.impl().session.query(models.Product).all()
-    env.db.impl().session.commit()
+    # по-моему, не нужно: env.db.impl().session.commit()
 
     data = []
     for number, product in zip(range(len(products)), products):
@@ -71,17 +70,19 @@ def new_transaction():
             { 'name': product.name, 'number': number }
         )
 
-    bank_account_id = flask.request.args.get("bank_account_id", None)
-    if not bank_account_id:
+    if flask.request.method == 'POST':
+        bank_account_id = flask.request.form.get('other_bank_account', None)
+    else:
         bank_account_id = flask_login.current_user.bank_account_id
     return flask.render_template('main/make_transaction.html', user_bank_account=bank_account_id, products=data)
 
 
-@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET'])
+@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET', 'POST'])
 @flask_login.login_required
 def new_money_transaction():
-    bank_account_id = flask.request.args.get("bank_account_id", None)
-    if not bank_account_id:
+    if flask.request.method == 'POST':
+        bank_account_id = flask.request.form.get('other_bank_account', None)
+    else:
         bank_account_id = flask_login.current_user.bank_account_id
     return flask.render_template('main/make_money_transaction.html', user_bank_account=bank_account_id)
 
@@ -110,7 +111,11 @@ def parse_new_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
-    return flask.redirect(flask.url_for('accounts.person_account'))
+    if response.status_code == 200:
+        flask.flash(response.data.decode('UTF-8'), category='success')
+    else:
+        flask.flash(response.data.decode('UTF-8'), category='danger')
+    return flask.redirect(flask.url_for('proposal.new_transaction'))
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
@@ -135,4 +140,8 @@ def parse_new_money_transaction():
     if response is not None and response.status_code != 200:
         logging.warning(f'message return code: {response.status_code}; message: ' + response.get_data(as_text=True))
 
-    return flask.redirect(flask.request.headers.get('Referer'))
+    if response.status_code == 200:
+        flask.flash(response.data.decode('UTF-8'), category='success')
+    else:
+        flask.flash(response.data.decode('UTF-8'), category='danger')
+    return flask.redirect(flask.url_for('proposal.new_transactions'))
