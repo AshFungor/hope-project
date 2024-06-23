@@ -53,7 +53,7 @@ def create_app() -> Flask:
     app.secret_key = env.get_var('SECRET_KEY')
 
     login_manager.init_app(app)
-    app.permanent_session_lifetime = datetime.timedelta(minutes=30)
+    app.permanent_session_lifetime = datetime.timedelta(days=3)
 
     logging.info("initializing csrf protect")
     csrf = CSRFProtect(app)
