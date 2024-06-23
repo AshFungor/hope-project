@@ -27,6 +27,7 @@ def get_money(id: int) -> int:
     except Exception as error:
         return f'error getting products for user {id}; looked up 1; error: {error}'
 
+
 @blueprints.accounts_blueprint.route('/person_account')
 @flask_login.login_required
 def person_account():
