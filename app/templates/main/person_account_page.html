@@ -22,7 +22,17 @@
                             <th> {{ entry.name|capitalize }}: </th>
                             <td> {{ entry.value }} </td>
                         </tr>
-                {% endfor %}
+                        {% endfor %}
+                        <tr>
+                            <td colspan="2"></td>
+                            <div class="text-wrap text-start mb-5">
+                                <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> надиков, выполнено:</p>
+                            <div class="progress">
+                                <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                 </table>
             </div>
         </div>

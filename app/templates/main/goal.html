@@ -5,12 +5,19 @@
 {% block content %}
 
 
-<form role="form" action="" method="POST" id="form">
+<form role="form" action="{{ url_for( 'goal_model.create_goal', _external=True ) }}" method="POST" id="form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="amount_on_setup" value=" {{ current }}"/>
+    <input type="hidden" name="bank_account_id" value=" {{ bank_account_id }}"/>
     
-    <!-- amount_on_setup, prefecture_current_account_size -->
-    <input type="hidden" name="" value=""/> 
-    
+    <div class="mb-4">
+        <p class="mb-1"><strong> Ваш счёт: </strong> {{ bank_account_id }} </p>
+    </div>
+
+    <div class="mb-4">
+        <p class="mb-1"><strong> Ваш баланс: </strong> {{ current }} </p>
+    </div>
+
     <div class="form-group mb-1">
         <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
     </div>
@@ -18,8 +25,6 @@
         <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
     </div>
 </form>
-
-
 
 
 {% endblock %}

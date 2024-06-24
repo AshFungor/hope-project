@@ -73,7 +73,6 @@ def add_company(name: str, about: str, founders: list[int], prefecture_name: str
             company.id,
             'founder',
             ratio,
-            None,
             datetime.datetime.now(tz=CurrentTimezone)
         ))
 
