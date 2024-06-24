@@ -37,9 +37,10 @@ def person_account():
     if goal is None:
         return flask.redirect(flask.url_for('goal_view.view_create_goal'))
 
+    setattr(goal, 'rate', goal.get_rate(get_money(current_user.bank_account_id)))
+
     setattr(current_user, 'money', get_money(current_user.bank_account_id))
     setattr(current_user, 'full_name', current_user.full_name_string)
-    setattr(current_user, 'goal', goal)
     specs = []
 
     mapper = {
@@ -52,6 +53,6 @@ def person_account():
 
     for spec in mapper:
         specs.append({'name': mapper[spec], 'value': getattr(current_user, spec)})
-    return flask.render_template('main/person_account_page.html', user_spec=specs)
+    return flask.render_template('main/person_account_page.html', user_spec=specs, goal=goal)
 
 
