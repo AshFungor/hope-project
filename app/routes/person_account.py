@@ -32,8 +32,14 @@ def get_money(id: int) -> int:
 @flask_login.login_required
 def person_account():
     current_user = copy.deepcopy(flask_login.current_user)
+
+    goal = models.Goal.get_last(current_user.bank_account_id, True)
+    if goal is None:
+        return flask.redirect(flask.url_for('goal_view.view_create_goal'))
+
     setattr(current_user, 'money', get_money(current_user.bank_account_id))
     setattr(current_user, 'full_name', current_user.full_name_string)
+    setattr(current_user, 'goal', goal)
     specs = []
 
     mapper = {

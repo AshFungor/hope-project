@@ -1,4 +1,5 @@
 import enum
+import typing
 import dateutil
 import datetime
 
@@ -119,14 +120,14 @@ class Goal(ModelBase):
         return '<Goal object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
     
     @staticmethod
-    def get_last(bank_account: int, limitByCurrentDay: bool = False) -> 'Goal' | None:
+    def get_last(bank_account: int, limitByCurrentDay: bool = False) -> typing.Union['Goal', None]:
         last = env.db.impl().session.execute(
                 orm.select(Goal)
                 .filter_by(bank_account_id=bank_account)
                 .order_by(Goal.created_at.desc())
             )               \
             .first()
-        if not last or limitByCurrentDay and last.local_created_at() != datetime.datetime.today():
+        if not last or limitByCurrentDay and last[0].local_created_at != datetime.datetime.today():
             return None
         return last
 
