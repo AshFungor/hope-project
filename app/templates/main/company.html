@@ -44,19 +44,19 @@
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Выставить счёт</button>
     </form>
     
-    <form action="{{ url_for( 'proposal.view_transaction' ) }}" method="POST">
+    <form action="{{ url_for( 'proposal.view_transaction', account=company.bank_account_id ) }}" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="other_bank_account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Входящие счета</button>
     </form>
 
-    <form action="{{ url_for( 'proposal.view_history' ) }}" method="POST">
+    <form action="{{ url_for( 'proposal.view_history', account=company.bank_account_id ) }}" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="other_bank_account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">История счетов</button>
     </form>
 
-    <form action="{{ url_for( 'proposal.new_money_transaction' ) }}" method="POST">
+    <form action="{{ url_for( 'proposal.new_money_transaction', account=company.bank_account_id ) }}" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="other_bank_account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>

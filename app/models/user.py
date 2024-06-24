@@ -128,7 +128,7 @@ class Goal(ModelBase):
     def get_rate(self, current: int) -> float:
         distance = max(self.value - current, 0)
         if distance:
-            return round((1 - distance / self.value) * 100, 2)
+            return max(round((1 - distance / self.value) * 100, 2), 0)
         return 100
 
     @staticmethod
