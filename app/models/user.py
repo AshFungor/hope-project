@@ -126,7 +126,7 @@ class Goal(ModelBase):
         return self.created_at.astimezone(tz=validators.CurrentTimezone)
     
     def get_rate(self, current: int) -> float:
-        distance = max(self.value - current, 0)
+        distance = max(self.value - current + self.amount_on_setup, 0)
         if distance:
             return max(round((1 - distance / self.value) * 100, 2), 0)
         return 100
