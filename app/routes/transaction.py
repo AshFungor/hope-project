@@ -16,12 +16,11 @@ import app.routes.blueprints as blueprints
 from . import proposal as handles
 
 
-@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET', 'POST'])
+@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
 @flask_login.login_required
 def view_transaction():
-    if flask.request.method == 'POST':
-        user_id = flask.request.form.get('other_bank_account', None)
-    else:
+    user_id = flask.request.form.get('other_bank_account', None)
+    if user_id is None:
         # get user bank account id & make payload from it
         user_id = flask_login.current_user.bank_account_id
     payload = {
@@ -31,7 +30,7 @@ def view_transaction():
     return flask.render_template('main/view_transaction.html', transactions=response)
 
 
-@blueprints.proposal_blueprint.route('/history', methods=['GET', 'POST'])
+@blueprints.proposal_blueprint.route('/history', methods=['GET'])
 @flask_login.login_required
 def view_history():
     offset = max(int(flask.request.args.get('offset', 0)), 0)
@@ -57,7 +56,7 @@ def view_history():
     )
 
 
-@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET', 'POST'])
+@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
 @flask_login.login_required
 def new_transaction():
 
@@ -71,21 +70,19 @@ def new_transaction():
             { 'name': product.name, 'number': number }
         )
 
-    if flask.request.method == 'POST':
-        bank_account_id = flask.request.form.get('other_bank_account', None)
-    else:
-        bank_account_id = flask_login.current_user.bank_account_id
-    return flask.render_template('main/make_transaction.html', user_bank_account=bank_account_id, products=data)
+    user_id = flask.request.form.get('account', None)
+    if user_id is None:
+        user_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
 
 
 @blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET', 'POST'])
 @flask_login.login_required
 def new_money_transaction():
-    if flask.request.method == 'POST':
-        bank_account_id = flask.request.form.get('other_bank_account', None)
-    else:
-        bank_account_id = flask_login.current_user.bank_account_id
-    return flask.render_template('main/make_money_transaction.html', user_bank_account=bank_account_id)
+    user_id = flask.request.form.get('account', None)
+    if user_id is None:
+        user_id = flask_login.current_user.bank_account_id
+    return flask.render_template('main/make_money_transaction.html', user_bank_account=user_id)
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/create', methods=['POST'])
@@ -146,4 +143,4 @@ def parse_new_money_transaction():
         flask.flash(response.data.decode('UTF-8'), category='success')
     else:
         flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_transactions', **flask.request.args))
+    return flask.redirect(flask.url_for('proposal.new_money_transaction', **flask.request.args))
