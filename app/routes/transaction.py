@@ -79,7 +79,7 @@ def new_transaction():
 @blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET', 'POST'])
 @flask_login.login_required
 def new_money_transaction():
-    user_id = flask.request.form.get('account', None)
+    user_id = flask.request.args.get('account', None)
     if user_id is None:
         user_id = flask_login.current_user.bank_account_id
     return flask.render_template('main/make_money_transaction.html', user_bank_account=user_id)
