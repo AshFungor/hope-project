@@ -19,3 +19,4 @@ from . import master4company
 from . import master4city
 from . import master4city_hall
 from . import master4prefecture
+from . import add_withdrowal
