@@ -36,9 +36,8 @@ def view_transaction():
 def view_history():
     offset = max(int(flask.request.args.get('offset', 0)), 0)
     length = max(int(flask.request.args.get('length', 7)), 1)
-    if flask.request.method == 'POST':
-        user_id = flask.request.form.get('other_bank_account', None)
-    else:
+    user_id = flask.request.form.get('account', None)
+    if user_id is None:
         user_id = flask_login.current_user.bank_account_id
     payload = {
         'user': user_id
@@ -53,7 +52,9 @@ def view_history():
         prev_length=length,
         next_offset=min(len(response) // length * length, offset + length),
         next_length=length,
-        pages=pages)
+        pages=pages,
+        id=user_id
+    )
 
 
 @blueprints.proposal_blueprint.route('/new_transaction', methods=['GET', 'POST'])
@@ -115,7 +116,8 @@ def parse_new_transaction():
         flask.flash(response.data.decode('UTF-8'), category='success')
     else:
         flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_transaction'))
+    # redirect with args
+    return flask.redirect(flask.url_for('proposal.new_transaction', **flask.request.args))
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
@@ -144,4 +146,4 @@ def parse_new_money_transaction():
         flask.flash(response.data.decode('UTF-8'), category='success')
     else:
         flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_transactions'))
+    return flask.redirect(flask.url_for('proposal.new_transactions', **flask.request.args))
