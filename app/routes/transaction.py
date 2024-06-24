@@ -19,7 +19,7 @@ from . import proposal as handles
 @blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
 @flask_login.login_required
 def view_transaction():
-    user_id = flask.request.form.get('other_bank_account', None)
+    user_id = flask.request.args.get('account', None)
     if user_id is None:
         # get user bank account id & make payload from it
         user_id = flask_login.current_user.bank_account_id
@@ -35,7 +35,7 @@ def view_transaction():
 def view_history():
     offset = max(int(flask.request.args.get('offset', 0)), 0)
     length = max(int(flask.request.args.get('length', 7)), 1)
-    user_id = flask.request.form.get('account', None)
+    user_id = flask.request.args.get('account', None)
     if user_id is None:
         user_id = flask_login.current_user.bank_account_id
     payload = {
@@ -70,7 +70,7 @@ def new_transaction():
             { 'name': product.name, 'number': number }
         )
 
-    user_id = flask.request.form.get('account', None)
+    user_id = flask.request.args.get('account', None)
     if user_id is None:
         user_id = flask_login.current_user.bank_account_id
     return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
