@@ -16,7 +16,7 @@ import app.routes.blueprints as blueprints
 from . import proposal as handles
 
 
-@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET'])
+@blueprints.proposal_blueprint.route('/view_transactions', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_transaction():
     user_id = flask.request.args.get('account', None)
@@ -30,7 +30,7 @@ def view_transaction():
     return flask.render_template('main/view_transaction.html', transactions=response)
 
 
-@blueprints.proposal_blueprint.route('/history', methods=['GET'])
+@blueprints.proposal_blueprint.route('/history', methods=['GET', 'POST'])
 @flask_login.login_required
 def view_history():
     offset = max(int(flask.request.args.get('offset', 0)), 0)
@@ -56,7 +56,7 @@ def view_history():
     )
 
 
-@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
+@blueprints.proposal_blueprint.route('/new_transaction', methods=['GET', 'POST'])
 @flask_login.login_required
 def new_transaction():
 
@@ -94,6 +94,7 @@ def parse_new_transaction():
         'count': 'product_count',
         'amount': 'amount'
     }
+
 
     params = {}
     for key, value in mapper.items():
