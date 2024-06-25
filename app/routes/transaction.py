@@ -76,7 +76,7 @@ def new_transaction():
     return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
 
 
-@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET', 'POST'])
+@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET'])
 @flask_login.login_required
 def new_money_transaction():
     user_id = flask.request.args.get('account', None)
@@ -94,6 +94,7 @@ def parse_new_transaction():
         'count': 'product_count',
         'amount': 'amount'
     }
+
 
     params = {}
     for key, value in mapper.items():
