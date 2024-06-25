@@ -47,12 +47,12 @@
             <div class="accordion-body">
                 <block style="display: grid">
                     <p></p>
-                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
-                        Выставить счет
-                    </a>
-                    <p></p>
                     <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
                         Перевод
+                    </a>
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+                        Выставить счет
                     </a>
                     <p></p>
                     <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">

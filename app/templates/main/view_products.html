@@ -7,9 +7,9 @@
 <table class="table">
 <thead>
     <tr>
-        <th scope="col"> название товара </th>
-        <th scope="col"> количество </th>
-        <th scope="col"> уровень </th>
+        <th scope="col"> Название товара </th>
+        <th scope="col"> Количество </th>
+        <th scope="col"> Уровень </th>
     </tr>
 </thead>
 {% for category in categories %}
@@ -20,25 +20,25 @@
     </thead>
     {% for product in products %}
         {% if product.category == category %}
-            {% if product.level == 1 %}
+            {% if product.level == 0 %}
             <tr>
                 <td class="table-light"> {{ product.name }} </td>
                 <td class="table-light"> {{ product.count }} </td>
                 <td class="table-light"> {{ product.level }} </td>
             </tr>
-            {% elif product.level == 2 %}
+            {% elif product.level == 1 %}
             <tr>
                 <td class="table-info"> {{ product.name }} </td>
                 <td class="table-info"> {{ product.count }} </td>
                 <td class="table-info"> {{ product.level }} </td>
             </tr>
-            {% elif product.level == 3 %}
+            {% elif product.level == 2 %}
             <tr>
                 <td class="table-primary"> {{ product.name }} </td>
                 <td class="table-primary"> {{ product.count }} </td>
                 <td class="table-primary"> {{ product.level }} </td>
             </tr>
-            {% elif product.level == 3 %}
+            {% elif product.level == 4 %}
             <tr>
                 <td class="table-warning"> {{ product.name }} </td>
                 <td class="table-warning"> {{ product.count }} </td>
