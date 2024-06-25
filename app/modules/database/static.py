@@ -21,7 +21,8 @@ class StaticTablesHandler:
     def prepare_bank_account(**kwargs: dict[str, object]) -> int | None:
         try:
             bank_account = models.BankAccount(**kwargs)
-            bind_account = models.Product2BankAccount(bank_account.id, 1, 0)
+            # to try transactions
+            bind_account = models.Product2BankAccount(bank_account.id, 1, 200 if env.debug else 0)
             env.db.impl().session.add(bank_account)
             env.db.impl().session.add(bind_account)
             return bank_account.id

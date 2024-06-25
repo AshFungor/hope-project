@@ -2,6 +2,8 @@ import enum
 import typing
 import datetime
 
+from functools import cached_property
+
 from app.env import env
 
 from sqlalchemy.orm import Mapped
@@ -65,6 +67,14 @@ class Transaction(ModelBase):
             return ''
         return f'transaction comment {additional_message}'
     
+    @cached_property
+    def local_created_at(self):
+        return self.created_at.astimezone(tz=validators.CurrentTimezone)
+    
+    @cached_property
+    def local_updated_at(self):
+        return self.updated_at.astimezone(tz=validators.CurrentTimezone)
+    
     def _get_products_for(self, account: int) -> typing.Tuple[bank_account.Product2BankAccount, bank_account.Product2BankAccount] | str:
         query = None
         try:
@@ -105,15 +115,24 @@ class Transaction(ModelBase):
             if isinstance(customer, str):
                 return customer, False
             return seller, False
-        
 
         customer_wallet, customer_products = customer
         seller_wallet, seller_products = seller
 
         if self.product_id == 1:
             # we make money transaction
-            customer_products = customer_wallet
-            seller_products = seller_wallet
+            if seller_wallet is None or customer_wallet is None:
+                return 'database lacks money entity with id = 1', False
+            if seller_wallet.count < self.count:
+                return 'transaction is unavailable: not enough money owned by seller', False
+            customer_wallet.count += self.amount
+            seller_wallet.count -= self.amount
+            self.status = Status.APPROVED
+
+            return 'transaction accepted', True
+        
+        if seller_products is None:
+            return f'Seller has no products associated with this account: {self.seller_bank_account_id}', False
 
         if customer_products is None:
             try:

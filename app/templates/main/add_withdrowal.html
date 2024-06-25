@@ -1,0 +1,248 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Про энегрию/ресурсы/товары{% endblock %}
+
+{% block content %}
+
+<!-- <form role="form" action="" method="POST" id="form">
+    <select class="form-select form-select-lg mb-5">
+        <option selected>Выберете действие</option>
+        <option value="1">Списать/</option>
+        <option value="2">Добавить</option>
+    </select>
+
+    <select class="form-select form-select-lg mb-5">
+        <option selected>Выберете объект</option>
+        <option value="1">Энергия</option>
+        <option value="2">Ресурс</option>
+        <option value="2">Товар</option>
+    </select>
+
+    <div class="mb-5 input-group input-group-lg">
+        <span class="input-group-text" id="inputGroup-sizing-lg">Банк/id:</span>
+        <input type="text" class="form-control text-center" placeholder="Введите данные">
+    </div>
+
+    <div class="d-grid gap-2 d-mb-block mb-4">
+        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+    </div>
+</form> -->
+
+
+<div class="accordion" id="accordionExample">
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading1">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
+                Cписать энергию
+            </button>
+        </h2>
+        <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading1" data-bs-parent="#accordionExample">
+
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем у (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading2">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
+                Добавить энергию
+            </button>
+        </h2>
+        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#accordionExample">
+
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading3">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
+                Списать ресурс
+            </button>
+        </h2>
+        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordionExample">
+
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем у (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
+                        <input type="text" class="form-control text-center" >
+                    </div>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading4">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
+                Добавить ресурс
+            </button>
+        </h2>
+        <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#accordionExample">
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
+                        <input type="text" class="form-control text-center" >
+                    </div>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading5">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                Списать товар
+            </button>
+        </h2>
+        <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordionExample">
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем у (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
+                        <input type="text" class="form-control text-center" >
+                    </div>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading6">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6" aria-expanded="false" aria-controls="collapse6">
+                Добавить товар
+            </button>
+        </h2>
+        <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="heading6" data-bs-parent="#accordionExample">
+            <form role="form" action="" method="POST" id="form">
+                <div class="accordion-body">
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
+                        <input type="number" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
+                        <input type="number" class="form-control text-center">
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
+                        <input type="text" class="form-control text-center" >
+                    </div>
+
+                    <select class="form-select form-select-lg mb-5">
+                        <option selected>Выберете уровень</option>
+                        <option value="1">Эконом (0)</option>
+                        <option value="2">Комфторт (1)</option>
+                        <option value="3">Комфорт+ (2)</option>
+                        <option value="4">Люкс (4)</option>
+                    </select>
+
+                    <div class="d-grid gap-2 d-mb-block mb-4">
+                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                    </div>
+
+                </div>
+            </form>
+            
+        </div>
+    </div>
+
+    
+
+</div>
+    
+{% endblock %}
