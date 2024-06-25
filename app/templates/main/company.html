@@ -37,11 +37,31 @@
 
 <!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'proposal.new_transaction', bank_account_id=company.bank_account_id) }}';">Выставить счёт</button>
     
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Входящие счета</button>
+    <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ company.bank_account_id }}">
+        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
+    </form>
     
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Перевод средств</button>
+    <form action="{{ url_for( 'proposal.new_transaction', _external=True ) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ company.bank_account_id }}">
+        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Выставить счёт</button>
+    </form>
+    
+    <form action="{{ url_for( 'proposal.view_transaction', _external=True ) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ company.bank_account_id }}">
+        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Входящие счета</button>
+    </form>
+
+    <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ company.bank_account_id }}">
+        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">История счетов</button>
+    </form>
+
 </div>
 
 <!-- ссылки рандомные, нуждаются в корректировке! -->

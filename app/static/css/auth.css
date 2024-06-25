@@ -1,50 +1,195 @@
-@media screen and (max-width: 1280px) { div.contentblock {width: 1200px;} }
-@media screen and (max-width: 1140px) { div.contentblock {width: 1024px;} }
-@media screen and (max-width: 992px) { div. contentblock {width: 970px;} }
+* {
+    margin: 0;
+    padding: 0;
 
-form {
-    font: 14px Stem-Regular,arial, sans-serif;/*Выбираем шрифт */
-    border: 1px solid black;/*Цвет, размер и тип границы */
-    -webkit-border-radius: 20px;/*Скругляем углы */
-    color: #777991;/*Цвет label */
-    width: 25%; /*Ширина формы */
-    margin-right: auto; /*Положение формы */
-    margin-left: auto; /*Положение формы */
-    text-align: center; /*Центровка текста*/
+    font-family: "poppins", sans-serif;
+}
+
+body{
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url("../bg.jpg") no-repeat;
+    background-position: center;
+    background-size: cover;
+    width: 100%;
+}
+
+.box{
+    width: 400px;
+    height: 450px;
+    border: 2px solid  #625d5d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    background: transparent;
+}
+
+h2{
+    font-size: 2em;
+    color: #fff;
+    text-align: center;
+}
+
+.inputbox{
+    position: relative;
+    margin: 30px 0;
+    width: 300px;
+    border-bottom: 2px solid#fff;
+}
+
+.inputbox label{
+    position: absolute ;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    color: #fff;
+    font-size: 1em ;
+    pointer-events: none;
+    transition: 0.5s;
+}
+
+input:focus ~ label{
+    top: -5px;
+}
+
+input:focus ~ label{
+    top: -5px;
+}
+
+.inputbox input{
+    width: 100%;
+    height: 50px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    padding: 0 35px 0 5px;
+    color: #000;
+}
+
+.inputbox ion-icon{
+    position: absolute;
+    right: 8px;
+    color: #fff;
+    font-size: 1.2em;
+    top: 20px;
+}
+
+
+button{
+    width: 100%;
+    height: 40px;
+    border-radius: 40px;
+    background-color: #e6e2e2;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+.forget{
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0 15px;
+    font-size: 0.9em;
+    color: #fff;
+}
+
+.forget label:nth-child(2){
+    order: 1;
+}
+
+.forget label{
+    display: flex;
+    align-items: center;
+}
+
+.forget label input[ type="checkbox"]{
+    margin-right: 6px
+}
+
+.forget label a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.forget label a:hover{
+    text-decoration: underline;
+}
+
+.register {
+    font-size: 0.9em;
+    color: #fff;
+    text-align: center;
+    margin: 20px 0 15px;
+}
+
+.register p a{
+    text-decoration: none;
+    color: #fff;
+    font-weight: 800;
+}
+
+.register p a:hover{
+    text-decoration: underline;
+}
+
+
+/* -- YouTube Link Styles -- */
+
+#source-link {
+  top: 60px;
+}
+
+#source-link > i {
+  color: rgb(94, 106, 210);
+}
+
+#yt-link {
+  top: 10px;
+}
+
+#yt-link > i {
+  color: rgb(94, 106, 210);
 
 }
 
-input[type=text], input[type=password] {
-    text-align: center; /*Центровка текста*/
-    -webkit-border-radius: 4px;/*Скругляем углы */
-    width: 200px; /*Ширина */
-    padding: 15px 20px; /*Размер внутренних отступов*/
-    margin: 10px 0; /*Размер внешних отступов*/
-    margin-right: auto; /*Размер внешних отступов справа*/
-    margin-left: auto; /*Размер внешних отступов слева*/
-    display: block; /*тип отображения*/
-    border: 1px solid #050c26;/*Цвет, размер и тип границы */
-    box-sizing: border-box; /*Размер объекта по отношению к родительскому */
-    font: 14px Stem-Regular,arial, sans-serif;/*Выбираем шрифт */
-    color: #777991;/*Цвет текста в input */
+.meta-link {
+  align-items: center;
+  backdrop-filter: blur(3px);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: inline-flex;
+  gap: 5px;
+  left: 10px;
+  padding: 10px 20px;
+  position: fixed;
+  text-decoration: none;
+  transition: background-color 600ms, border-color 600ms;
+  z-index: 10000;
 }
 
-button {
-    font: 16px Stem-medium, arial, sans-serif; /*Выбираем шрифт кнопки */
-    background-color: #454cee; /*Выбираем цвет фона */
-    -webkit-border-radius: 8px; /*Закругление */
-    color: white; /*Выбираем цвет текста*/
-    padding: 16px 20px; /*Размер внутренних отступов*/
-    margin: 8px 0;/*Размер внешних отступов*/
-    border: none; /*Без границы*/
-    cursor: pointer; /*Изменение курсора при наведении на кнопку*/
-    width: auto; /*Ширина*/
+.meta-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-button:hover {
-    opacity: 0.9; /*Изменение яркости кнопки при наведении*/
+.meta-link > i, .meta-link > span {
+  height: 20px;
+  line-height: 20px;
 }
 
-.container {
-    padding: 20px; /*Размер внутренних отступов контейнера*/
+.meta-link > span {
+  color: white;
+  font-family: "Rubik", sans-serif;
+  transition: color 600ms;
 }
