@@ -10,5 +10,5 @@ class NewProductForm(FlaskForm):
     category = wtf.SelectField('Вид/категория товара',
                                choices=['MINERALS', 'ENERGY', 'FOOD', 'TECHNIC', 'CLOTHES'],
                                validators=[InputRequired()])
-    level = wtf.SelectField('Уровень', choices=['1', '2', '3', '4'], validators=[InputRequired()])
+    level = wtf.SelectField('Уровень', choices=['0', '1', '2', '4'], validators=[InputRequired()])
     submit = wtf.SubmitField('Создать товар')
