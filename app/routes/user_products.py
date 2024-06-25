@@ -41,3 +41,20 @@ def get_user_products():
         categories.append(product.category)
 
     return flask.render_template('main/view_products.html', products=parsed, categories=set(categories))
+
+@blueprints.product.route('/products4company')
+@flask_login.login_required
+def get_company_products():
+    products = get_products(int(flask.request.args.get('company_bank_account', None)))
+
+    parsed,categories = [], []
+    for product, account in products:
+        parsed.append({
+            'category': product.category,
+            'level': product.level,
+            'name': product.name,
+            'count': account.count
+        })
+        categories.append(product.category)
+
+    return flask.render_template('main/view_product4company.html', products=parsed, categories=set(categories))

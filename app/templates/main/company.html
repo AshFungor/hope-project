@@ -66,9 +66,9 @@
 
 <!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Просмотр операций по счёту</button>
+<!--    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Просмотр операций по счёту</button>-->
 
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Статистика производства</button>
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">

@@ -24,9 +24,9 @@ logger = env.logger.getChild(__name__)
 def company_worker_employment():
     """ Нанимаем сотрудника фирмы """
     company_id = request.args.get("company_id", None)
-    company_id = request.form.get("company_id", None) if company_id is None else company_id
+    company_id = request.form.get("company_id", None) if (company_id is None) else company_id
     query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
-    company = env.db.impl().session.execute(query_company).scalars().first()
+    company = env.db.impl().session.execute(query_company).first()
     if not company:
         return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=443)
 
