@@ -1,5 +1,6 @@
 import typing
 
+import sqlalchemy
 import flask
 import flask_login
 
@@ -19,6 +20,8 @@ def get_products(account: int) -> list[typing.Tuple[models.Product, models.Produ
             models.Product2BankAccount.bank_account_id == account
         ).join(
             models.Product, models.Product2BankAccount.product_id == models.Product.id
+        ).filter(
+            models.Product2BankAccount.count != 0
         )
     except Exception as error:
         return f'failed to get products on handles module: {__name__}; error: {error}'

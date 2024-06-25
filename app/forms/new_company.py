@@ -16,4 +16,4 @@ class NewCompanyForm(FlaskForm):
     submit = wtf.SubmitField('Создать компанию')
 
     def set_choices_prefectures(self):
-        self.prefecture.choices = [i[0] for i in env.db.impl().session.query(models.Prefecture.name).all()]
+        self.prefecture.choices = [i[0] for i in env.db.impl().session.query(models.Prefecture.name).filter(models.Prefecture.name != 'Штаб').all()]
