@@ -57,9 +57,9 @@ class Consumption(ModelBase):
         count: int,
         consumed_at: datetime.datetime
     ):
-        self.bank_account_id = validators.IntegerValidator.validate(bank_account_id, 64, False)
-        self.product_id = validators.IntegerValidator.validate(product_id, 64, False)
-        self.count = validators.IntegerValidator.validate(count, 64, False)
+        self.bank_account_id = validators.IntValidator.validate(bank_account_id, 64, False)
+        self.product_id = validators.IntValidator.validate(product_id, 64, False)
+        self.count = validators.IntValidator.validate(count, 64, False)
         self.consumed_at = validators.DtValidator.validate(consumed_at)
 
     @functools.cached_property
@@ -84,14 +84,14 @@ class Consumption(ModelBase):
             ).join(
                 models.Product, models.Product.id == models.Consumption.product_id
             )
-        ).all()
+        ).scalars().all()
 
         if consumed is None:
             return False, f'в этот день товар {product_name} не употреблялся'
         
         total = 0
         for entry in consumed:
-            if limitByCurrentDay and entry.local_consumed_at.date() > datetime.datetime.now(tz=validators.CurrentTimezone).date():
+            if limitByCurrentDay and entry.local_consumed_at.date() >= datetime.datetime.now(tz=validators.CurrentTimezone).date():
                 total += entry.count
 
         if total < norm:

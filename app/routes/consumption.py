@@ -56,7 +56,7 @@ def consume():
                 models.Product2BankAccount.product_id == product
             )
         )
-    ).first()
+    ).first()[0]
     has = products.count
 
     original = flask.request.args.get('for', None)
@@ -68,6 +68,7 @@ def consume():
             ))
             env.db.impl().session.commit()
         except Exception as error:
+            logging.warning(f'error on consumption: {error}')
             return redirect_to_original(original, 'ошибка потребления')
     else:
         return redirect_to_original(original, 'норма товара уже употреблена')
