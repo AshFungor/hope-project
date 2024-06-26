@@ -8,6 +8,6 @@ class EmploymentForm(FlaskForm):
     bank_account_id = wtf.StringField('Номер банковского счёта',
                                       validators=[InputRequired()])
     role = wtf.SelectField('Должность',
-                           choices=['CEO', 'CFO', 'marketing_manager', 'production_manager', 'employee'],
+                           choices=['генеральный директор', 'финансовый директор', 'маркетолог', 'заведущий производством', 'рабочий'],
                            validators=[InputRequired()])
     submit = wtf.SubmitField('Принять на работу')

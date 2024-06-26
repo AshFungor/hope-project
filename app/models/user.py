@@ -51,7 +51,6 @@ class User(ModelBase, flask_login.UserMixin):
 
     city = relationship('City', foreign_keys=city_id, back_populates='users')
 
-
     def __init__(
         self,
         bank_account_id : int | None,   # must be a valid account id
@@ -98,6 +97,7 @@ class Goal(ModelBase):
     value: Mapped[long_int] = mapped_column(nullable=False)
     amount_on_validate: Mapped[long_int] = mapped_column(nullable=True)
     complete: Mapped[bool] = mapped_column(default=False)
+
 
     def __init__(
         self,

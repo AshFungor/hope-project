@@ -26,7 +26,7 @@ def company_cabinet():
             ).join(models.Company, models.User2Company.company_id == models.Company.id)
             .filter(models.User2Company.user_id == current_user.id)
         )
-        companies = env.db.impl().session.execute(query_companies).all()
+        companies = set(env.db.impl().session.execute(query_companies).all())
         return render_template('main/companies.html', companies=companies)
     # проверяем, доступно ли управление фирмой текущему пользователю
     query_companies = (
@@ -42,8 +42,31 @@ def company_cabinet():
         query_CEO = sqlalchemy.select(models.User).join(
             models.User2Company,
             models.User.id == models.User2Company.user_id
-        ).filter(models.User2Company.company_id == company_id, models.User2Company.role == "CEO")
+        ).filter(models.User2Company.company_id == company_id,
+                 models.User2Company.role == "CEO",
+                 models.User2Company.fired_at == None)
         CEO = env.db.impl().session.execute(query_CEO).scalars().first()
+        user2company = env.db.impl().session.execute(
+            sqlalchemy.select(
+                models.User2Company
+            )
+            .filter(sqlalchemy.and_(
+                models.User2Company.user_id == current_user.id,
+                models.User2Company.fired_at == None
+            ))
+        ).scalars().all()
+        f_ceo, f_cfo, f_mark, f_prod, f_found= False, False, False, False, False
+        for role in user2company:
+            if role.role == 'CEO':
+                f_ceo = True
+            if role.role == 'CFO':
+                f_cfo = True
+            if role.role == 'marketing_manager':
+                f_mark = True
+            if role.role == 'production_manager':
+                f_prod = True
+            if role.role == 'founder':
+                f_found = True
         balance = get_bank_account_size(company.bank_account_id)
         offices = env.db.impl().session.execute(
             sqlalchemy.select(
@@ -51,5 +74,14 @@ def company_cabinet():
             )
             .filter(models.Office.company_id == company_id)
         ).scalars().all()
-        return render_template('main/company.html', company=company, CEO=CEO, balance=balance, offices=offices)
+        return render_template('main/company.html',
+                               company=company,
+                               CEO=CEO,
+                               balance=balance,
+                               offices=offices,
+                               f_ceo=f_ceo,
+                               f_cfo=f_cfo,
+                               f_mark=f_mark,
+                               f_prod=f_prod,
+                               f_found=f_found)
     return flask.Response("Доступ к запрошенной фирме запрещён", status=403)
