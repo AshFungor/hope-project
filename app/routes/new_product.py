@@ -4,13 +4,10 @@ import typing
 import flask
 import flask_login
 
-from flask import Blueprint, render_template, request, url_for, redirect
-from flask_login import login_required, current_user
-
 import app.models as models
-from app.env import env
-
 import app.routes.blueprints as blueprints
+
+from app.env import env
 
 from app.forms.new_product import NewProductForm
 
@@ -27,19 +24,23 @@ def add_product(name: str, level: int, category: str) -> typing.Tuple[bool, str]
         logging.warning(f'product params validation failed: {value_error}')
         return False, "Ошибка при создании товара"
 
-    env.db.impl().session.add(product)
-    env.db.impl().session.commit()
+    try:
+        env.db.impl().session.add(product)
+        env.db.impl().session.commit()
+    except Exception as error:
+        logging.warning(f'product insertion failed: {error}')
+        return False, "Ошибка при добавлении товара"
 
     return True, "Товар успешно создан"
 
 
 @blueprints.master_blueprint.route('/new_product', methods=['GET', 'POST'])
-@login_required
+@flask_login.login_required
 def create_product():
     """Создание нового продукта (только для нужд мастера игры или администратора) """
     form = NewProductForm()
 
-    if request.method == 'POST' and form.validate_on_submit():
+    if flask.request.method == 'POST' and form.validate_on_submit():
         name = form.product_name.data
         level = int(form.level.data)
         category = form.category.data
@@ -47,7 +48,8 @@ def create_product():
 
         if created:
             flask.flash(message, category="info")
-            return redirect(url_for("master.create_product"))
+            return flask.redirect(flask.url_for("master.create_product"))
         else:
             flask.flash(message, category="warning")
-    return render_template('main/new_product.html', form=form)
+    
+    return flask.render_template('main/new_product.html', form=form)

@@ -31,7 +31,6 @@ def company_worker_employment():
         )
         .filter(models.Company.id == company_id)
     ).scalars().first()
-    logger.warning(f'{company}')
     if company is None:
         return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=443)
 
@@ -46,7 +45,7 @@ def company_worker_employment():
             'рабочий': 'employee'
         }
         worker_bank_account_id = form.bank_account_id.data
-        role = mapper[str(form.role.data)]
+        role = mapper.get(str(form.role.data), None)
 
         # проверяем
         query_user = sqlalchemy.select(models.User).filter(

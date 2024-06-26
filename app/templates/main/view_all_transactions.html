@@ -4,6 +4,12 @@
 
 {% block content %}
 
+{% if message != None %}
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1">message</p>
+</div>
+{% endif %}
+
 <div class="text-wrap text-center mb-4">
     <p class="mb-1"><strong> Транзакции, выполненные вами </strong></p>
 </div>
@@ -19,6 +25,7 @@
           <th scope="col"> Статус </th>
           <th scope="col"> Время </th>
           <th scope="col"> Сторона сделки </th>
+          <th scope="col"> Вторая сторона сделки </th>
         </thead>
         <tbody>
             {% for transaction in transactions %}
@@ -40,6 +47,7 @@
                     <td> {{ transaction.status }} </td>
                     <td> {{ transaction.updated_at }} </td>
                     <td> {{ transaction.side }} </td>
+                    <td> {{ transaction.second_side }} </td>
                 </tr>
             {% endfor %}
         </tbody>
