@@ -4,6 +4,12 @@
 
 {% block content %}
 
+{% if message != None %}
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1">{{ message }}</p>
+</div>
+{% endif %}
+
 <table class="table">
 <thead>
     <tr>
@@ -50,6 +56,16 @@
                 <td class="table-light"> {{ product.count }} </td>
                 <td class="table-light"> {{ product.level }} </td>
             </tr>
+            {% endif %}
+            {% if product.consumable %}
+            <td colspan="4">
+                <form role="form" action="{{ url_for( 'product.consume', for=account_id, _external=True ) }}" method="POST" id="form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="product" value="{{ product.id }}"/>
+                    <input type="hidden" name="account" value="{{ account_id }}"/>
+                    <button type="submit" class="btn btn-success">Потребить</button>
+                </form>
+            </td>
             {% endif %}
         {% endif %}
     {% endfor %}

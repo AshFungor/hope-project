@@ -33,7 +33,7 @@ def get_money(id: int) -> int:
 def person_account():
     current_user = copy.deepcopy(flask_login.current_user)
 
-    goal = models.Goal.get_last(current_user.bank_account_id, False)
+    goal = models.Goal.get_last(current_user.bank_account_id, True)
     if goal is None:
         return flask.redirect(flask.url_for('goal_view.view_create_goal'))
 

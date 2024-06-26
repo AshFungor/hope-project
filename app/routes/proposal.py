@@ -1,12 +1,11 @@
 # base
 import json
 import logging
-import requests
 import datetime
 
 # flask
 import flask
-import sqlalchemy
+import sqlalchemy as orm
 
 # local
 from app.env import env
@@ -29,7 +28,12 @@ def get_transactions_for(id: int, for_seller: bool = True):
         models.Transaction,
         models.Product
     )                                                                                                   \
-    .filter(getattr(models.Transaction, feature) == id)                                                 \
+    .filter(
+        orm.and_(
+            getattr(models.Transaction, feature) == id,
+            models.Transaction.product_id != 1
+        )
+    )                                                                                                   \
     .join(models.Product, models.Product.id == models.Transaction.product_id)                           \
     .all()
 
@@ -53,9 +57,9 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
     product_entry = product_entries.first()
 
     # check office
-    if str(customer_account)[0] == '5' and str(seller_account)[0] == '4':
+    if str(customer_account)[0] in '54':
         user = env.db.impl().session.execute(
-            sqlalchemy.select(
+            orm.select(
                 models.User
             )
             .filter((models.User.bank_account_id == int(customer_account))
@@ -64,12 +68,12 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
             logging.warning(f'error while adding new transaction: not found user ({customer_account})')
             return flask.Response(f'incorrect input', status=443)
         office = env.db.impl().session.execute(
-            sqlalchemy.select(
+            orm.select(
                 models.Office
             )
             .join(models.Company, models.Company.id == models.Office.company_id)
             .join(models.City, models.City.id == models.Office.city_id)
-            .filter(sqlalchemy.and_(
+            .filter(orm.and_(
                 models.Company.bank_account_id == int(seller_account),
                 models.City.id == user.city_id
             ))
@@ -79,7 +83,6 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
             return flask.Response(f'у данной компании нет офиса в городе покупателя', status=443)
 
 
-    assigned_id = None
     try:
         transaction = models.Transaction(
             product_entry.id,
@@ -92,7 +95,6 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
             datetime.datetime.now(tz=CurrentTimezone),
             ''
         )
-        assigned_id = transaction.id   # здесь всегда None, без commit не будет генериться id
         env.db.impl().session.add(transaction)
         env.db.impl().session.commit()
     except Exception as error:
@@ -157,7 +159,7 @@ def view_proposal(payload: dict[str, str] | None = None):
         models.Product
     )                                                                                                   \
     .filter(                                                                                            \
-        sqlalchemy.and_(                                                                                \
+        orm.and_(                                                                                       \
             models.Transaction.status == 'created',
             models.Transaction.customer_bank_account_id == user
         )
@@ -171,7 +173,8 @@ def view_proposal(payload: dict[str, str] | None = None):
             'transaction_id': transaction.id,
             'amount': transaction.amount,
             'count': transaction.count,
-            'product': product.name
+            'product': product.name,
+            'second_side': transaction.seller_bank_account_id
         })
     return flask.Response(json.dumps(response, indent=4, sort_keys=True), status=200)
 
@@ -198,6 +201,7 @@ def view_proposal_history(payload: dict[str, str] | None = None):
                 'status': transaction.status,
                 'updated_at': transaction.local_updated_at.strftime('%d/%m/%Y %H:%M:%S'),
                 'side': side,
+                'second_side': transaction.customer_bank_account_id if side == 'seller' else transaction.seller_bank_account_id, 
                 'is_money': product.id == 1
             })
     return flask.Response(

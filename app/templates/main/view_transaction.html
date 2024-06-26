@@ -43,6 +43,7 @@
                 <th>Название</th>
                 <th> <!-- жирно --> Количество <!-- жирно --> </th> <!-- Жалко Рому -->
                 <th>Цена</th>
+                <th>Вторая сторона сделки</th>
             </thead>
             <tbody>
                 {% for transaction in transactions %}
@@ -51,6 +52,7 @@
                         <td> {{ transaction.product }} </td>
                         <td> x{{ transaction.count }} </td>
                         <td> {{ transaction.amount }}</td>
+                        <td> {{ transaction.second_side }}</td>
                     </tr>
                     <tr>
                         <td colspan="4">
