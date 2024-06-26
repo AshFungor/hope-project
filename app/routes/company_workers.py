@@ -24,17 +24,30 @@ logger = env.logger.getChild(__name__)
 def company_worker_employment():
     """ Нанимаем сотрудника фирмы """
     company_id = request.args.get("company_id", None)
-    company_id = request.form.get("company_id", None) if company_id is None else company_id
-    query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
-    company = env.db.impl().session.execute(query_company).scalars().first()
-    if not company:
+    company_id = request.form.get('company_id', None) if company_id is None else company_id
+    company = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.Company
+        )
+        .filter(models.Company.id == company_id)
+    ).scalars().first()
+    logger.warning(f'{company}')
+    if company is None:
         return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=443)
 
     form = EmploymentForm()
 
     if request.method == 'POST' and form.validate_on_submit():
+        mapper = {
+            'генеральный директор': 'CEO',
+            'финансовый директор': 'CFO',
+            'маркетолог': 'marketing_manager',
+            'заведущий производством': 'production_manager',
+            'рабочий': 'employee'
+        }
         worker_bank_account_id = form.bank_account_id.data
-        role = form.role.data
+        role = mapper[str(form.role.data)]
+
         # проверяем
         query_user = sqlalchemy.select(models.User).filter(
             models.User.bank_account_id == worker_bank_account_id)
@@ -44,6 +57,7 @@ def company_worker_employment():
             logger.error('Incorrect user bank_id during employment.')
             return redirect(url_for("accounts.company_cabinet", company_id=company_id))
         user = user[0]
+
         # принимаем на работу
         env.db.impl().session.add(models.User2Company(
             user_id=user.id,
@@ -55,7 +69,7 @@ def company_worker_employment():
         env.db.impl().session.commit()
         flask.flash('Пользователь трудоустроен', category="info")
         return redirect(url_for("accounts.company_cabinet", company_id=company_id))
-    return render_template('main/company_workers_employment.html', company_id=company_id, company_name=company.name, form=form)
+    return render_template('main/company_workers_employment.html', company_id=company_id, company=company, form=form)
 
 
 @blueprints.accounts_blueprint.route('/company_worker_fire')
@@ -101,7 +115,10 @@ def company_workers():
             models.User2Company.company_id
         ).filter(sqlalchemy.and_(models.User2Company.user_id == current_user.id,
                                  models.User2Company.company_id == company_id,
-                                 models.User2Company.fired_at == None))
+                                 models.User2Company.fired_at == None,
+                                 sqlalchemy.or_(models.User2Company.role == 'CEO',
+                                                models.User2Company.role == 'founder'),
+                                 ))
     )
     company_id = env.db.impl().session.execute(query_companies).scalars().first()
     # ещё надо сделать проверку, имеет ли право текущий пользователь работать с сотрудниками

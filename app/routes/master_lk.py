@@ -1,3 +1,4 @@
+import datetime
 import logging
 import flask
 from flask import Blueprint, render_template, url_for
@@ -9,6 +10,7 @@ import app.modules.database.static as static
 import app.routes.blueprints as blueprints
 import app.models as models
 from app.env import env
+from app.modules.database.validators import CurrentTimezone
 
 
 @blueprints.accounts_blueprint.route('/master_lk')
@@ -117,7 +119,7 @@ def action_with_resource():
             status=400
         )
     count = int(flask.request.form.get('count', None))
-    name = flask.request.form.get('name', None)
+    name = flask.request.form.get('name', None).strip()
     bank_account = flask.request.form.get('bank_account', None)
     if None in (count, bank_account, name):
         return flask.Response(
@@ -177,3 +179,78 @@ def action_with_resource():
     return render_template('main/add_withdrowal.html')
 
 
+@blueprints.master_blueprint.route('/create_office', methods=['POST'])
+@login_required
+def create_office():
+    office_data = {
+        'company_account': int(flask.request.form.get('company_bank_account', None)),
+        'city_name': flask.request.form.get('city_bank_account', None).capitalize(),
+        'amount': int(flask.request.form.get('amount', None))
+    }
+
+    # checks
+    for key, value in office_data.items():
+        if office_data[key] is None:
+            logging.warning(f'missing field: {key}')
+            return flask.Response(
+                'Не удалось получить данные',
+                status=400
+            )
+
+    city = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.City
+        )
+        .filter_by(name=office_data['city_name'])
+    ).scalars().first()
+    if city is None:
+        logging.warning(f'City {office_data["city_name"]} was not found')
+        return flask.Response(
+            'Город не был найден. Проверьте правильность введенных данных.',
+            status=400
+        )
+
+    company = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.Company
+        )
+        .filter(models.Company.bank_account_id == office_data['company_account'])
+    ).scalars().first()
+    logging.info(f'{office_data["company_account"]}')
+    if company is None:
+        logging.warning(f'Company {office_data["company_account"]} was not found')
+        return flask.Response(
+            'Компания не была найдена. Проверьте правильность введенных данных.',
+            status=400
+        )
+
+    company_wallet = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.Product2BankAccount
+        )
+        .filter(
+            sqlalchemy.and_(
+                models.Product2BankAccount.bank_account_id == office_data['company_account'],
+                models.Product2BankAccount.product_id == 1
+            )
+        )
+    ).scalars().first()
+
+    company_wallet.count = company_wallet.count - office_data['amount']
+    if company_wallet.count < 0:
+        env.db.impl().session.rollback()
+        logging.warning(f'The company ({office_data["company_account"]}) does not have money for an office')
+        return flask.Response(
+            'У данной компании нет денег на счету для покупки офиса.',
+            status=400
+        )
+    # create office
+    office = models.Office(
+        city_id=city.id,
+        company_id=company.id,
+        founded_at=datetime.datetime.now(tz=CurrentTimezone)
+    )
+    env.db.impl().session.add(office)
+    env.db.impl().session.commit()
+
+    return render_template('main/create_office.html')

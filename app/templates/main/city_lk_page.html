@@ -67,19 +67,21 @@
         </div>
     </div>
     <p></p>
-    <form action="{{ url_for( 'proposal.view_transaction') }}" method="POST">
+    <form action="{{ url_for( 'proposal.view_transaction') }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="other_bank_account" value="{{ city.bank_account_id }}">
+        <input type="hidden" name="account" value="{{ city.bank_account_id }}">
         <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
           Счета
         </button>
-    </form>
-    <form style="width: 100%;" action="{{ url_for( 'proposal.view_history') }}" method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="other_bank_account" value="{{ city.bank_account_id }}">
+    </form>
+    <form style="width: 100%;" action="{{ url_for( 'proposal.view_history') }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="account" value="{{ city.bank_account_id }}">
         <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
           История счетов
         </button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     </form>
 
 </div>
