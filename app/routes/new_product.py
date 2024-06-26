@@ -36,6 +36,11 @@ def add_product(name: str, level: int, category: str) -> typing.Tuple[bool, str]
 @blueprints.master_blueprint.route('/new_product', methods=['GET', 'POST'])
 @login_required
 def create_product():
+    if not current_user.is_admin:
+        return flask.Response(
+            'Доступ к этой станице запрещен.',
+            status=400
+        )
     """Создание нового продукта (только для нужд мастера игры или администратора) """
     form = NewProductForm()
 

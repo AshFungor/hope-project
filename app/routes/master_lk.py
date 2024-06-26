@@ -2,7 +2,7 @@ import datetime
 import logging
 import flask
 from flask import Blueprint, render_template, url_for
-from flask_login import login_required
+from flask_login import login_required, current_user
 import sqlalchemy
 
 # local
@@ -22,6 +22,11 @@ def master_cabinet():
 @blueprints.master_blueprint.route('/edit_data')
 @login_required
 def edit_data():
+    if not current_user.is_admin:
+        return flask.Response(
+            'Доступ к этой станице запрещен.',
+            status=400
+        )
     """Мастер изменяет данные"""
     return render_template('main/master_edit.html')
 
@@ -38,6 +43,7 @@ def action_with_energy():
             status=400
         )
     if form_id is None:
+        logging.warning('При попытке добавить мастером энергию, прозошла ошибка: не найден id формы')
         return flask.Response(
             'Ошибка при добавлении энергии',
             status=400
@@ -45,6 +51,7 @@ def action_with_energy():
     count = flask.request.form.get('count', None)
     bank_account = flask.request.form.get('bank_account', None)
     if None in (count, bank_account):
+        logging.warning('При попытке добавить мастером энергию, прозошла ошибка: не были получены вводимые данные')
         return flask.Response(
             'Ошибка получения данных',
             status=400
@@ -91,16 +98,35 @@ def action_with_energy():
         products2bank_account.count = products2bank_account.count - int(count)
     elif form_id == 2:
         products2bank_account.count += int(count)
+
+    # make transaction
     try:
-        env.db.impl().session.commit()
-        logging.info(f'На счет ({bank_account}) был начислен продукт энергия в количестве {count}')
-    except Exception as Error:
-        logging.warning(f'На счет ({bank_account}) хотели ничислить {count} энергии, но прозошла ошибка')
-        flask.Response(
-            f'Произошла ошибка во время выполнения действия',
-            400
+        transaction = models.Transaction(
+            product_id,
+            int(bank_account),
+            current_user.bank_account_id,
+            int(count),
+            0,
+            status='approved',
+            created_at=datetime.datetime.now(tz=CurrentTimezone),
+            updated_at=datetime.datetime.now(tz=CurrentTimezone),
+            comment='Добавление мастером энергии'
         )
-        logging.warning(f'{Error}')
+    except Exception as Error:
+        env.db.impl().session.rollback()
+        logging.warning('При попытке регистрации транзакции произошла ошибка')
+        return flask.Response(
+             'При попытке регистрации транзакции произошла ошибка',
+             status=400,
+        )
+    env.db.impl().session.add(transaction)
+    env.db.impl().session.commit()
+    if form_id == 1:
+        logging.info(f'Было зарегистрированно списание {count} энергии пользователю со счетом {bank_account} мастером {current_user.bank_account_id} '
+                     f'с комментарием {transaction.comment}')
+    elif form_id == 2:
+        logging.info(f'Было зарегистрированно добавление {count} энергии пользователю со счетом {bank_account} мастером {current_user.bank_account_id} '
+                     f'с комментарием {transaction.comment}')
     return render_template('main/add_withdrowal.html')
 
 
@@ -170,15 +196,37 @@ def action_with_resource():
         products2bank_account.count = products2bank_account.count - int(count)
     elif form_id in (4, 6):
         products2bank_account.count += count
+
+    # make transaction
     try:
-        env.db.impl().session.commit()
-        logging.info(f'На счет ({bank_account}) был начислен продукт {name} в количестве {count}')
-    except Exception as Error:
-        flask.Response(
-            f'Произошла ошибка во время выполнения действия',
-            400
+        transaction = models.Transaction(
+            product_id,
+            int(bank_account),
+            current_user.bank_account_id,
+            int(count),
+            0,
+            status='approved',
+            created_at=datetime.datetime.now(tz=CurrentTimezone),
+            updated_at=datetime.datetime.now(tz=CurrentTimezone),
+            comment='Добавление мастером ресурсов'
         )
-        logging.warning(f'{Error}')
+    except Exception as Error:
+        env.db.impl().session.rollback()
+        logging.warning(f'При попытке регистрации транзакции произошла ошибка: {Error}')
+        return flask.Response(
+            'При попытке регистрации транзакции произошла ошибка',
+            status=400,
+        )
+    env.db.impl().session.add(transaction)
+    env.db.impl().session.commit()
+    if form_id == 3:
+        logging.info(f'Было зарегистрированно списание {count} ресурсов {name} пользователю со счетом {bank_account} мастером {current_user.bank_account_id}')
+    elif form_id == 4:
+        logging.info(f'Было зарегистрированно добавление {count} ресурсов {name} пользователю со счетом {bank_account} мастером {current_user.bank_account_id}')
+    elif form_id == 5:
+        logging.info(f'Было зарегистрированно списание {count} продуктов {name} пользователю со счетом {bank_account} мастером {current_user.bank_account_id}')
+    elif form_id == 6:
+        logging.info(f'Было зарегистрированно добавление {count} продуктов {name} пользователю со счетом {bank_account} мастером {current_user.bank_account_id}')
     return render_template('main/add_withdrowal.html')
 
 
