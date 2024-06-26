@@ -93,7 +93,9 @@ def action_with_energy():
         products2bank_account.count += int(count)
     try:
         env.db.impl().session.commit()
+        logging.info(f'На счет ({bank_account}) был начислен продукт энергия в количестве {count}')
     except Exception as Error:
+        logging.warning(f'На счет ({bank_account}) хотели ничислить {count} энергии, но прозошла ошибка')
         flask.Response(
             f'Произошла ошибка во время выполнения действия',
             400
@@ -170,6 +172,7 @@ def action_with_resource():
         products2bank_account.count += count
     try:
         env.db.impl().session.commit()
+        logging.info(f'На счет ({bank_account}) был начислен продукт {name} в количестве {count}')
     except Exception as Error:
         flask.Response(
             f'Произошла ошибка во время выполнения действия',
@@ -252,5 +255,5 @@ def create_office():
     )
     env.db.impl().session.add(office)
     env.db.impl().session.commit()
-
+    logging.info(f'Был добавлен офис в компанию {company.name, company.bank_account_id} в городе {city.name, city.bank_account_id} за {office_data["amount"]} надиков')
     return render_template('main/create_office.html')

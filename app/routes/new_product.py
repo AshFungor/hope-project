@@ -46,6 +46,7 @@ def create_product():
         created, message = add_product(name, level, category)
 
         if created:
+            logging.info(f'быд добавлен продукт {name} с уровнем {level} категории {category}')
             flask.flash(message, category="info")
             return redirect(url_for("master.create_product"))
         else:
