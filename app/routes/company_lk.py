@@ -45,5 +45,11 @@ def company_cabinet():
         ).filter(models.User2Company.company_id == company_id, models.User2Company.role == "CEO")
         CEO = env.db.impl().session.execute(query_CEO).scalars().first()
         balance = get_bank_account_size(company.bank_account_id)
-        return render_template('main/company.html', company=company, CEO=CEO, balance=balance)
+        offices = env.db.impl().session.execute(
+            sqlalchemy.select(
+                models.Office
+            )
+            .filter(models.Office.company_id == company_id)
+        ).scalars().all()
+        return render_template('main/company.html', company=company, CEO=CEO, balance=balance, offices=offices)
     return flask.Response("Доступ к запрошенной фирме запрещён", status=403)

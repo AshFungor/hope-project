@@ -36,6 +36,7 @@ class Company(ModelBase):
     about: Mapped[variable_strings[256]]
 
     prefecture = relationship('Prefecture', foreign_keys=prefecture_id)
+    offices = relationship('Office', back_populates='company')
 
     def __init__(
         self,

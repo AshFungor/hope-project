@@ -79,11 +79,11 @@
     <div class="collapse" id="offices">
         <div class="card card-body">
             <ul>
-                <li>1st office</li>
-                <li>2nd office</li>
-                <li>3rd office</li>
-                <li>4th office</li>
-                <li>5th office</li>
+            {% for office in offices %}
+
+                <li>офис в городе {{ office.city.name }}</li>
+
+            {% endfor %}
             </ul>
         </div>
     </div>

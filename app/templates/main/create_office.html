@@ -6,21 +6,21 @@
 
 <div class="d-grid gap-2 d-mb-block mb-4">
 
-    <form role="form" action="" method="POST" id="form">
-
+    <form role="form" action="{{ url_for('master.create_office') }}" method="POST" id="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="mb-5 input-group input-group-lg">
-                <span class="input-group-text" id="inputGroup-sizing-lg">Открываем для (id фирмы):</span>
-                <input type="number" class="form-control text-center" placeholder="Введите данные">
+                <span class="input-group-text" id="inputGroup-sizing-lg">Открываем для (счет фирмы):</span>
+                <input type="number" name="company_bank_account" class="form-control text-center" placeholder="Введите данные">
             </div>
 
             <div class="mb-5 input-group input-group-lg">
-                <span class="input-group-text" id="inputGroup-sizing-lg">Открываем в (id города):</span>
-                <input type="number" class="form-control text-center" placeholder="Введите данные">
+                <span class="input-group-text" id="inputGroup-sizing-lg">Открываем в (название города):</span>
+                <input type="text" name="city_bank_account" class="form-control text-center" placeholder="Введите данные">
             </div>
 
             <div class="mb-5 input-group input-group-lg">
                 <span class="input-group-text" id="inputGroup-sizing-lg">Списываем со счета:</span>
-                <input type="text" class="form-control text-center" placeholder="Введите данные">
+                <input type="number" name="amount" class="form-control text-center" placeholder="Введите данные">
             </div>
 
             <div class="d-grid gap-2 d-mb-block mb-4">
