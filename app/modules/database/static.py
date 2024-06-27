@@ -144,7 +144,7 @@ class StaticTablesHandler:
         for index, user in users.iterrows():
             user_name, user_surname, user_patronymic, user_login, user_city, user_password, user_sex, user_birthday, user_bonus, user_admin =   \
                 user.get('Name', None), user.get('Surname', None), user.get('Patronymic', None), user.get('Login', None),                       \
-                user.get('City', None), user.get('Password', None), user.get('Sex', None), user.get('Birthday', None),                          \
+                user.get('City', None).strip(), user.get('Password', None), user.get('Sex', None), user.get('Birthday', None),                          \
                 user.get('Bonus', None), user.get('IsAdmin', None)
 
             # fuck, this gets to me...
@@ -176,11 +176,11 @@ class StaticTablesHandler:
             parsed.append(models.User(
                 bank_account,
                 user_city_id,
-                user_name,
-                user_surname,
-                user_patronymic,
-                user_login,
-                user_password,
+                user_name.strip(),
+                user_surname.strip(),
+                user_patronymic.strip(),
+                user_login.strip(),
+                user_password.strip(),
                 user_sex,
                 int(user_bonus),
                 user_birthday,
