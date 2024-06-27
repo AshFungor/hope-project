@@ -5,6 +5,7 @@ import datetime
 
 # flask
 import flask
+import flask_login
 import sqlalchemy as orm
 
 # local
@@ -18,13 +19,27 @@ import app.routes.user_products as products
 
 
 norms = {
-    'FOOD': 1
+    'FOOD': 1,
+    'CLOTHES': 1,
+    'TECH': 1
+}
+
+time_accounted = {
+    'FOOD': datetime.timedelta(days=1),
+    'CLOTHES': datetime.timedelta(days=2),
+    'TECH': datetime.timedelta(days=3)
 }
 
 def redirect_to_original(original: str, string: str) -> flask.Response:
     if original is None or original.startswith('5'):
         return products.get_user_products(string)
     return products.get_company_products(string)
+
+
+def get_current_user_bonus(level: int) -> int:
+    if level <= 3: return level - 1
+    return level
+
 
 @blueprints.product.route('/consume_product', methods=['POST'])
 def consume():
@@ -40,7 +55,12 @@ def consume():
     if named.category not in norms:
         return flask.Response(f'продукт {named.name} не может быть употреблен', status=443)
 
-    status, payload = models.Consumption.did_consume_enough(account, product, named, norms.get(named.category, 0), True)
+    status, payload = models.Consumption.did_consume_enough(
+        account,  
+        named.category, 
+        norms.get(named.category, 0), 
+        time_accounted.get(named.category, datetime.timedelta(days=1))
+    )
 
     if isinstance(payload, str):
         logging.warning(f'internal error: {payload}')
@@ -66,6 +86,10 @@ def consume():
             env.db.impl().session.add(models.Consumption(
                 account, product, payload, datetime.datetime.now(tz=CurrentTimezone)
             ))
+
+            if original is None or original.startswith('5'):
+                flask_login.current_user.bonus += get_current_user_bonus(named.level)
+
             env.db.impl().session.commit()
         except Exception as error:
             logging.warning(f'error on consumption: {error}')

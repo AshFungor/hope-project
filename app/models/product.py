@@ -68,30 +68,36 @@ class Consumption(ModelBase):
 
     @staticmethod
     def did_consume_enough(
-        id: int, 
-        product_id: int, 
-        product_name: str, 
+        id: int,
+        product_category: str, 
         norm: int, 
-        limitByCurrentDay: bool = False
+        time_offset: datetime.timedelta = datetime.timedelta(days=1)
     ) -> typing.Tuple[bool, str] | typing.Tuple[bool, int]:
+        suitable_products = env.db.impl().session.execute(
+            orm.select(models.Product) \
+            .filter(
+                models.Product.category == product_category
+            )
+        ).scalars().all()
+
+        suitable_products = [product.id for product in suitable_products]
+
         consumed = env.db.impl().session.execute(
             orm.select(models.Consumption) \
             .filter(
                 orm.and_(
                     models.Consumption.bank_account_id == id,
-                    models.Consumption.product_id == product_id
+                    models.Consumption.product_id.in_(suitable_products)
                 )
-            ).join(
-                models.Product, models.Product.id == models.Consumption.product_id
             )
         ).scalars().all()
 
         if consumed is None:
-            return False, f'в этот день товар {product_name} не употреблялся'
+            return False, f'в этот день категория {product_category} не употреблялся'
         
         total = 0
         for entry in consumed:
-            if limitByCurrentDay and entry.local_consumed_at.date() >= datetime.datetime.now(tz=validators.CurrentTimezone).date():
+            if (entry.local_consumed_at + time_offset).date() >= datetime.datetime.now(tz=validators.CurrentTimezone).date():
                 total += entry.count
 
         if total < norm:
