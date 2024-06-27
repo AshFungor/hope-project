@@ -128,7 +128,7 @@ class Env:
             self.server_logging_storage_type) + f'server-{os.getpid()}.log'
         file_log_sink = logging.handlers.RotatingFileHandler(
             self.server_logging_file, 
-            maxBytes=4096, 
+            maxBytes=1024 ** 3 * 512, # 1/2 Tb + rotation 
             backupCount=2
         )
         std_out_sink = logging.StreamHandler(sys.stdout)
