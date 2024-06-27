@@ -184,7 +184,7 @@ class StaticTablesHandler:
                 user_sex,
                 int(user_bonus),
                 user_birthday,
-                user_admin
+                user_admin == 'true'
             ))
 
         return parsed
