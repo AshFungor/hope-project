@@ -38,7 +38,8 @@ def prepare_data(
         products: list[typing.Tuple[models.Product, models.Product2BankAccount]], 
         account_id: int, 
         template: str,
-        message: str
+        message: str,
+        exclude_filter: bool = False
     ) -> flask.Response:
     parsed, categories = [], []
     for product, account in products:
@@ -48,7 +49,7 @@ def prepare_data(
             'level': product.level,
             'name': product.name,
             'count': account.count,
-            'consumable': product.category in consumption.norms
+            'consumable': product.category in consumption.norms and not exclude_filter
         })
         categories.append(product.category)
 
@@ -66,4 +67,4 @@ def get_user_products(message: str | None = None):
 @flask_login.login_required
 def get_company_products(message: str | None = None):
     products = get_products(int(flask.request.args.get('company_bank_account', None)))
-    return prepare_data(products, int(flask.request.args.get('company_bank_account', None)), 'main/view_product4company.html', message)
+    return prepare_data(products, int(flask.request.args.get('company_bank_account', None)), 'main/view_product4company.html', message, True)

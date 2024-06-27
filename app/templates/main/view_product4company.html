@@ -4,9 +4,9 @@
 
 {% block content %}
 
-{% if message is defined %}
+{% if message != None %}
 <div class="text-wrap text-start mb-1">
-    <p class="mb-1">message</p>
+    <p class="mb-1">{{ message }} </p>
 </div>
 {% endif %}
 
