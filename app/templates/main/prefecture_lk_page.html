@@ -25,7 +25,7 @@
 </div>
 
 <div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Баланс счета:</strong> <b>{{ prefecture_current_account_size }} надиков</b></p>
+    <p class="mb-1"><strong>Баланс счета:</strong> <b>{{ prefecture_current_account_size }}</b> Ψ</p>
 </div>
 
 {% if not prefecture_goal %}
@@ -47,7 +47,7 @@
     {% endif %}
 {% else %}
     <div class="text-wrap text-start mb-5">
-        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ prefecture_goal.value }}</b> надиков, выполнено:</p>
+        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ prefecture_goal.value }}</b> Ψ</p>
         <div class="progress">
             <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal_win_rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal_win_rate }}%">{{ goal_win_rate }}%</div>
         </div>
