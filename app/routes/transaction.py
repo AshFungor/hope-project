@@ -59,9 +59,14 @@ def view_history():
 @blueprints.proposal_blueprint.route('/new_transaction', methods=['GET'])
 @flask_login.login_required
 def new_transaction():
+    user_id = flask.request.args.get('account', None)
+    if user_id is None:
+        user_id = flask_login.current_user.bank_account_id
 
     # get all products
-    products = env.db.impl().session.query(models.Product).all()
+    products = env.db.impl().session.query(models.Product).join(
+        models.Product2BankAccount, models.Product.id == models.Product2BankAccount.product_id
+    ).filter(models.Product2BankAccount.bank_account_id == user_id).all()
     # по-моему, не нужно: env.db.impl().session.commit()
 
     data = []
@@ -69,14 +74,10 @@ def new_transaction():
         data.append(
             { 'name': product.name, 'number': number }
         )
-
-    user_id = flask.request.args.get('account', None)
-    if user_id is None:
-        user_id = flask_login.current_user.bank_account_id
     return flask.render_template('main/make_transaction.html', user_bank_account=user_id, products=data)
 
 
-@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET', 'POST'])
+@blueprints.proposal_blueprint.route('/new_money_transaction', methods=['GET'])
 @flask_login.login_required
 def new_money_transaction():
     user_id = flask.request.args.get('account', None)
@@ -94,6 +95,7 @@ def parse_new_transaction():
         'count': 'product_count',
         'amount': 'amount'
     }
+
 
     params = {}
     for key, value in mapper.items():

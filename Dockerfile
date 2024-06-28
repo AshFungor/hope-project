@@ -23,4 +23,4 @@ RUN for entity in ./*; do test "$entity" != "./app" && rm -r $entity; done
 
 ENV PYTHONPATH ${PYTHONPATH}:/hope-project/app/
 CMD su runner && \
-    gunicorn --workers=4 --bind=webapp:5000 'app.main:create_app()'
+    gunicorn --workers=8 --bind=webapp:5000 'app.main:create_app()'

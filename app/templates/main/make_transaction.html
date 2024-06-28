@@ -24,14 +24,14 @@
 
     <div class="mb-4">
         <label for="seller-account" class="form-label"><strong>Счёт получателя:</strong></label>
-        <input class="form-control text-center" name="customer-account" type="number" placeholder="Введите счёт получателя">
+        <input class="form-control text-center" name="seller-account" type="number" placeholder="Введите счёт получателя">
     </div>
 
     <div class="mb-4">
         <select class="form-select" name="product-name">
             <option class="text-start" selected> Выбрать продукт </option>
             {% for product in products %}
-                {% if product.id != 1 %}
+                {% if product.name != 'надик' %}
                     <option class="text-start" name="{{ product.name }}" value="{{ product.name }}"> {{ product.name }} </option>
                 {% endif %}
             {% endfor %}

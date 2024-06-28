@@ -18,6 +18,8 @@
       <script defer src="static/js/admin(dark).js"></script>
     {% endif %}
 
+    <script defer src="static/js/bootstrap-autocomplete.min.js"></script>
+
     {% import 'macros/set_color.html' as macros %}
     {% set color_for_big_button = macros.set_color_to_big_button(session.get('prefecture_name')) %}
     {% set color_for_button = macros.set_color_to_button(session.get('prefecture_name')) %}

@@ -49,6 +49,7 @@ def person_account():
         'full_name': 'полное имя',
         'login': 'логин',
         'birthday': 'день рождения',
+        'bonus': 'бонус'
     }
 
     for spec in mapper:

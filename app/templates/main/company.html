@@ -25,65 +25,71 @@
 </div>
 
 <div class="text-wrap text-start mb-5">
-    <p class="mb-1"><strong>Цель на сегодня:</strong> <b>n</b> надиков, выполнено:</p>
-    <div class="progress">
-        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100" style="width: 33%">33%</div>
-    </div>
-</div>
-
-<div class="text-wrap text-start mb-5">
     <p class="h3"><strong>Текущий баланс (в надиках):</strong> <b>{{ balance }}</b>.</p>
 </div>
 
+<div class="text-wrap text-start mb-5">
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> надиков, выполнено:</p>
+<div class="progress">
+<div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
+    </div>
+</div>
+
+
 <!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-    
-    <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="POST">
+    {% if f_cfo %}
+    <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
     </form>
-    
-    <form action="{{ url_for( 'proposal.new_transaction', _external=True ) }}" method="POST">
+    {% endif %}
+    {% if f_mark %}
+    <form action="{{ url_for( 'proposal.new_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Выставить счёт</button>
     </form>
-    
-    <form action="{{ url_for( 'proposal.view_transaction', _external=True ) }}" method="POST">
+
+    <form action="{{ url_for( 'proposal.view_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Входящие счета</button>
     </form>
-
-    <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="POST">
+    {% endif %}
+    {% if f_prod %}
+    <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
         <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">История счетов</button>
     </form>
-
+    {% endif %}
 </div>
 
 <!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Просмотр операций по счёту</button>
-
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Статистика производства</button>
+<!--    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Просмотр операций по счёту</button>-->
+    {% if f_prod %}
+    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
+    {% endif %}
 </div>
 
-<div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_workers', company_id=company.id ) }}'">Сотрудники</button>
 
+<div class="d-grid gap-2 d-mb-block mb-5">
+    {% if f_ceo or f_found %}
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_workers', company_id=company.id ) }}'">Сотрудники</button>
+    {% endif %}
 
     <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы (магазины)</button>
     <div class="collapse" id="offices">
         <div class="card card-body">
             <ul>
-                <li>1st office</li>
-                <li>2nd office</li>
-                <li>3rd office</li>
-                <li>4th office</li>
-                <li>5th office</li>
+            {% for office in offices %}
+
+                <li>офис в городе {{ office.city.name }}</li>
+
+            {% endfor %}
             </ul>
         </div>
     </div>

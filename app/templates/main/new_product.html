@@ -3,7 +3,6 @@
 {% block title %}Создание наименования продукта{% endblock %}
 
 {% block content %}
-
         <form class="new_product" style="display: grid;" method="POST">
 
             {% with messages = get_flashed_messages(with_categories=True) %}
@@ -18,7 +17,7 @@
 
             {{ form.csrf_token }}
             <div class="mb-3">
-                {{ form.product_name.label(class="form-label") }} {{ form.product_name(class="form-control") }}
+                {{ form.product_name.label(class="form-label") }} {{ form.product_name(class="form-control", list="list-products") }}
             </div>
             <div class="mb-3">
                 {{ form.category.label(class="form-label") }} {{ form.category(class="form-select") }}
@@ -27,10 +26,15 @@
                 {{ form.level.label(class="form-label") }} {{ form.level(class="form-select") }}
             </div>
 
+            <datalist id="list-products">
+                {% for product in products %}
+                    <option> {{ product }} </option>
+                {% endfor %}
+            </datalist>
+
             <p></p>
             <div class="d-grid gap-2 d-mb-block mb-4">
                 {{ form.submit(type="submit", class="btn btn-success") }}
             </div>
         </form>
-
 {% endblock %}
