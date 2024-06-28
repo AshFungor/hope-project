@@ -8,7 +8,7 @@
 
             {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
-                    <ul class="flashes" style="">
+                    <ul class="flashes">
                         {% for category, message in messages %}
                             <li class="{{ category }}">{{ message }}</li>
                         {% endfor %}
@@ -17,13 +17,23 @@
             {% endwith %}
 
             {{ form.csrf_token }}
-            {{ form.company_name.label }} {{ form.company_name }}
-            {{ form.about.label }} {{ form.about }}
-            {{ form.founders.label }} {{ form.founders }}
-            {{ form.prefecture.label }} {{ form.prefecture }}
+            <div class="mb-3">
+                {{ form.company_name.label(class="form-label") }} {{ form.company_name(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.about.label(class="form-label") }} {{ form.about(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.founders.label(class="form-label") }} {{ form.founders(class="form-control") }}
+            </div>
+            <div class="mb-3">
+                {{ form.prefecture.label(class="form-label") }} {{ form.prefecture(class="form-select") }}
+            </div>
 
             <p></p>
-            {{ form.submit }}
+            <div class="d-grid gap-2 d-mb-block mb-4">
+                {{ form.submit(type="submit", class="btn btn-success") }}
+            </div>
         </form>
 
 {% endblock %}

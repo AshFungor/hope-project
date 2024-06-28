@@ -6,11 +6,11 @@
 
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-    <h3><strong>Фирма "{{ company_name }}"</strong></h3>
+    <h3><strong>Фирма "{{ company.name }}"</strong></h3>
 </div>
 
-<form action="{{ url_for('accounts.company_worker_employment') }}" method="POST">
-    <input type="hidden" name="company_id" value="{{ company_id }}">
+<form style="display: grid;" action="{{ url_for('accounts.company_worker_employment') }}" method="POST">
+    <input type="hidden" name="company_id" value="{{ company.id }}">
     {{ form.csrf_token }}
     {{ form.bank_account_id.label }}
     {{ form.bank_account_id }}

@@ -22,8 +22,23 @@
                             <th> {{ entry.name|capitalize }}: </th>
                             <td> {{ entry.value }} </td>
                         </tr>
-                {% endfor %}
+                        {% endfor %}
+                        <tr>
+                            <td colspan="2"></td>
+                            <div class="text-wrap text-start mb-5">
+                                <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> надиков, выполнено:</p>
+                            <div class="progress">
+                                <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                 </table>
+                <block style="display: grid">
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
+                        Ваши продукты
+                    </a>
+                </block>
             </div>
         </div>
     </div>
@@ -37,12 +52,12 @@
             <div class="accordion-body">
                 <block style="display: grid">
                     <p></p>
-                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
-                        Выставить счет
-                    </a>
-                    <p></p>
                     <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_money_transaction', _external=True) }}">
                         Перевод
+                    </a>
+                    <p></p>
+                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.new_transaction', _external=True) }}">
+                        Выставить счет
                     </a>
                     <p></p>
                     <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('proposal.view_transaction', _external=True) }}">
@@ -57,13 +72,13 @@
             </div>
         </div>
     </div>
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingThree">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                Товары
-            </button>
-        </h2>
-        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+<!--    <div class="accordion-item">-->
+<!--        <h2 class="accordion-header" id="headingThree">-->
+<!--            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">-->
+<!--                Товары-->
+<!--            </button>-->
+<!--        </h2>-->
+        <!-- <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
             <div class="accordion-body">
                 <p></p>
                 <block style="display: grid">
@@ -73,7 +88,7 @@
                 </block>
                 <p></p>
             </div>
-        </div>
+        </div> -->
     </div>
 </div>
 

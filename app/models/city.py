@@ -6,6 +6,7 @@ from app.modules.database.handlers import long_int
 from app.modules.database.handlers import variable_strings
 from app.modules.database.handlers import c_datetime
 from app.modules.database.handlers import ModelBase
+from app.modules.database.handlers import c_datetime_fired
 
 import app.modules.database.validators as validators
 
@@ -49,7 +50,10 @@ class Office(ModelBase):
     city_id: Mapped[long_int] = mapped_column(ForeignKey('city.id'))
     company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
     founded_at: Mapped[c_datetime]
-    dismissed_at: Mapped[c_datetime] = mapped_column(nullable=True)
+    dismissed_at: Mapped[c_datetime_fired]
+
+    city = relationship('City', foreign_keys=city_id)
+    company = relationship('Company', foreign_keys=company_id)
 
 
 class Prefecture(ModelBase):

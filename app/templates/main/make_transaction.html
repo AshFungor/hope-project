@@ -31,7 +31,9 @@
         <select class="form-select" name="product-name">
             <option class="text-start" selected> Выбрать продукт </option>
             {% for product in products %}
+                {% if product.name != 'надик' %}
                     <option class="text-start" name="{{ product.name }}" value="{{ product.name }}"> {{ product.name }} </option>
+                {% endif %}
             {% endfor %}
         </select>
     </div>

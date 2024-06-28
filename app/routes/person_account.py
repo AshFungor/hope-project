@@ -27,10 +27,18 @@ def get_money(id: int) -> int:
     except Exception as error:
         return f'error getting products for user {id}; looked up 1; error: {error}'
 
+
 @blueprints.accounts_blueprint.route('/person_account')
 @flask_login.login_required
 def person_account():
     current_user = copy.deepcopy(flask_login.current_user)
+
+    goal = models.Goal.get_last(current_user.bank_account_id, True)
+    if goal is None:
+        return flask.redirect(flask.url_for('goal_view.view_create_goal'))
+
+    setattr(goal, 'rate', goal.get_rate(get_money(current_user.bank_account_id)))
+
     setattr(current_user, 'money', get_money(current_user.bank_account_id))
     setattr(current_user, 'full_name', current_user.full_name_string)
     specs = []
@@ -41,10 +49,11 @@ def person_account():
         'full_name': 'полное имя',
         'login': 'логин',
         'birthday': 'день рождения',
+        'bonus': 'бонус'
     }
 
     for spec in mapper:
         specs.append({'name': mapper[spec], 'value': getattr(current_user, spec)})
-    return flask.render_template('main/person_account_page.html', user_spec=specs)
+    return flask.render_template('main/person_account_page.html', user_spec=specs, goal=goal)
 
 

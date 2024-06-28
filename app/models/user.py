@@ -1,4 +1,7 @@
 import enum
+import math
+import typing
+import logging
 import dateutil
 import datetime
 
@@ -6,6 +9,8 @@ import flask_login
 
 from app.env import env
 from functools import cached_property
+
+import sqlalchemy as orm
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column, relationship
@@ -45,7 +50,6 @@ class User(ModelBase, flask_login.UserMixin):
     is_admin: Mapped[bool] = mapped_column(default=False)
 
     city = relationship('City', foreign_keys=city_id, back_populates='users')
-
 
     def __init__(
         self,
@@ -94,6 +98,7 @@ class Goal(ModelBase):
     amount_on_validate: Mapped[long_int] = mapped_column(nullable=True)
     complete: Mapped[bool] = mapped_column(default=False)
 
+
     def __init__(
         self,
         bank_account_id: int,
@@ -115,3 +120,28 @@ class Goal(ModelBase):
 
     def __repr__(self) -> str:
         return '<Goal object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+
+    @cached_property
+    def local_created_at(self):
+        return self.created_at.astimezone(tz=validators.CurrentTimezone)
+    
+    def get_rate(self, current: int) -> float:
+        distance = max(self.value - current + self.amount_on_setup, 0)
+        if distance:
+            return max(round((1 - distance / self.value) * 100, 2), 0)
+        return 100
+
+    @staticmethod
+    def get_last(bank_account: int, limitByCurrentDay: bool = False) -> typing.Union['Goal', None]:
+        last = env.db.impl().session.execute(
+                orm.select(Goal)
+                .filter_by(bank_account_id=bank_account)
+                .order_by(Goal.created_at.desc())
+            )               \
+            .scalars()      \
+            .first()
+        if not last or limitByCurrentDay and \
+            last.local_created_at.date() != datetime.datetime.now(tz=validators.CurrentTimezone).date():
+            return None
+        return last
+

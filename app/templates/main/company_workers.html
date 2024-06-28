@@ -10,7 +10,7 @@
 </div>
 
 {% for role, workers in workers.items() %}
-<p class="mb-1"><strong>{{ role }}</strong></p>
+<p class="mb-3"><strong>{{ role }}</strong></p>
     <div class="card" style="width: 100%;">
         <ul class="list-group list-group-flush">
         {% for worker in workers %}
@@ -26,9 +26,15 @@
                     </div>
                 </div>
             </li>
+        {% endfor %}
         </ul>
     </div>
 {% endfor %}
 
+<h></h>
+
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_worker_employment', company_id=company.id ) }}'">Принять на работу</button>
+</div>
 
 {% endblock %}

@@ -3,7 +3,7 @@ services:
     build: .
     container_name: backend
     env_file:
-      - .env
+      - path: .env
     volumes:
       - ./data/app_logs:/var/log:w
       - ./app:/hope-project/app:rw
@@ -29,7 +29,7 @@ services:
       test: pg_isready
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
   reverse-proxy:
     image: nginx:mainline
     container_name: nginx
