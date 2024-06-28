@@ -12,27 +12,53 @@
         </h2>
         <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
             <div class="accordion-body">
+                <div class="text-wrap border-bottom pb-3 mb-3">
+                    <p class="mb-1 text-center"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> Ψ</p>
+                    <div class="progress">
+                        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
+                    </div>
+                </div>
+                <style>
+                    .blur {
+                        position:relative;
+                    }
+
+                    .blur:before {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (balance/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ balance/1000 }}%);
+                        filter: blur(16px);
+                        z-index:0;
+                    }
+
+                    .blur span {
+                        position:relative;
+                        z-index:1;
+                    }
+                </style>
+
+                <div class="text-center mb-3 rounded blur" style="text-align: center;">
+                    <span><strong>Баланс: {{ balance }}</strong> Ψ</span>
+                </div>
+
                 <table class="table table-striped">
                     <thead>
                         <td colspan="2">Ваши данные:</td>
                     </thead>               
                     <tbody>
                         {% for entry in user_spec %}
+                        {% if entry.name != 'баланс счета' %}
                         <tr>
                             <th> {{ entry.name|capitalize }}: </th>
                             <td> {{ entry.value }} </td>
                         </tr>
+                        {% endif %}
                         {% endfor %}
-                        <tr>
-                            <td colspan="2"></td>
-                            <div class="text-wrap text-start mb-5">
-                                <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> надиков, выполнено:</p>
-                            <div class="progress">
-                                <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                    </tbody>
                 </table>
                 <block style="display: grid">
                     <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
@@ -71,24 +97,6 @@
                 </block>
             </div>
         </div>
-    </div>
-<!--    <div class="accordion-item">-->
-<!--        <h2 class="accordion-header" id="headingThree">-->
-<!--            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">-->
-<!--                Товары-->
-<!--            </button>-->
-<!--        </h2>-->
-        <!-- <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-            <div class="accordion-body">
-                <p></p>
-                <block style="display: grid">
-                    <a class="{{ color_for_button }} btn-lg" role="button" href="{{ url_for('product.get_user_products', _external=True) }}">
-                        Ваши продукты
-                    </a>
-                </block>
-                <p></p>
-            </div>
-        </div> -->
     </div>
 </div>
 

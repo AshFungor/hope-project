@@ -8,28 +8,62 @@
     <h3><strong>Город {{ city.name }}</strong></h3>
 </div>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Глава города:</strong>
-        {% if mayor %}
-            {{ mayor.last_name }} {{ mayor.name }}
-        {% else %}
-            У этого города пока нет главы.
-        {% endif %}
-    </p>
+<style>
+    .blur {
+        position:relative;
+    }
+
+    .blur:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (balance/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ balance/1000 }}%);
+        filter: blur(16px);
+        z-index:0;
+    }
+
+    .blur span {
+        position:relative;
+        z-index:1;
+    }
+</style>
+
+<div class="text-center mb-3 rounded blur" style="text-align: center;">
+    <span><strong>Баланс: {{ balance }}</strong> Ψ</span>
 </div>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Префектура:</strong>
-        {{ prefecture }}
-    </p>
-</div>
-
-<div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Адрес:</strong> {{ city.location }}</p>
-</div>
-<div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ city.bank_account_id }}</b></p>
-</div>
+<table class="table table-striped">
+    <thead>
+        <td colspan="2">Данные о городе:</td>
+    </thead>               
+    <tbody>
+        <tr>
+            <th>Номер банковского счета:</th>
+            <td>{{ city.bank_account_id }}</td>
+        </tr>
+        <tr>
+            <th>Глава города:</th>
+            <td>
+                {% if mayor %}
+                    {{ mayor.last_name }} {{ mayor.name }}
+                {% else %}
+                    У этого города пока нет главы.
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Префектура:</th>
+            <td> {{ prefecture }} </td>
+        </tr>
+        <tr>
+            <th>Адрес:</th>
+            <td> {{ city.location }} </td>
+        </tr>
+    </tbody>
+</table>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
     <button class="{{ color_for_big_button }} btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#population" aria-expanded="false" aria-controls="population">

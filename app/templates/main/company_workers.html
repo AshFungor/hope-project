@@ -10,16 +10,16 @@
 </div>
 
 {% for role, workers in workers.items() %}
-<p class="mb-3"><strong>{{ role }}</strong></p>
-    <div class="card" style="width: 100%;">
+<p class="mb-2"><strong>{{ role }}</strong></p>
+    <div class="card mb-2" style="width: 100%;">
         <ul class="list-group list-group-flush">
         {% for worker in workers %}
             <li class="list-group-item text-center">
-                <div class="row gx-1">
+                <div class="row">
                     <div class="col">
-                        {{ worker.name }} {{ worker.patronymic }} {{ worker.last_name }}
+                        {{ worker.name[0] }}.{{ "" if worker.patronymic[0] == "-" else worker.patronymic[0]}} {{ worker.last_name }}
                     </div>
-                    <div class="col d-flex justify-content-center">
+                    <div class="col">
                         {% if role != 'founder' %}
                         <button class="btn btn-sm btn-danger" onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button>
                         {% endif %}
@@ -31,10 +31,10 @@
     </div>
 {% endfor %}
 
-<h></h>
+<p style="height: 32px"></p>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_worker_employment', company_id=company.id ) }}'">Принять на работу</button>
+    <button class="btn btn-success mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_worker_employment', company_id=company.id ) }}'">Принять на работу</button>
 </div>
 
 {% endblock %}
