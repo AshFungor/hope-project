@@ -5,12 +5,11 @@ import flask_login
 
 import sqlalchemy as orm
 
-# database
-import app.models as models
 from app.env import env
 
-from . import blueprints
-from . import consumption
+import app.models as models
+import app.routes.blueprints as blueprints
+import app.routes.blueprints as consumption
 
 
 def get_products(account: int) -> list[typing.Tuple[models.Product, models.Product2BankAccount]] | str:
@@ -68,3 +67,18 @@ def get_user_products(message: str | None = None):
 def get_company_products(message: str | None = None):
     products = get_products(int(flask.request.args.get('company_bank_account', None)))
     return prepare_data(products, int(flask.request.args.get('company_bank_account', None)), 'main/view_product4company.html', message, True)
+
+
+@blueprints.product.route('/added_products')
+@flask_login.login_required
+def get_all_products():
+    products = env.db.impl().session.execute(
+        orm.select(models.Product).order_by(orm.desc(models.Product.level))
+    ).scalars().all()
+    categories = set([product.category for product in products])
+
+    return flask.render_template(
+        'main/view_all_products.html', 
+        products=products,
+        categories=categories
+    )
