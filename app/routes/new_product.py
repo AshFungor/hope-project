@@ -52,4 +52,4 @@ def create_product():
         else:
             flask.flash(message, category="warning")
     
-    return flask.render_template('main/new_product.html', form=form)
+    return flask.render_template('main/new_product.html', form=form, products=models.Product.get_all())

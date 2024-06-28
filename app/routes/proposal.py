@@ -29,10 +29,7 @@ def get_transactions_for(id: int, for_seller: bool = True):
         models.Product
     )                                                                                                   \
     .filter(
-        orm.and_(
-            getattr(models.Transaction, feature) == id,
-            models.Transaction.product_id != 1
-        )
+        getattr(models.Transaction, feature) == id
     )                                                                                                   \
     .join(models.Product, models.Product.id == models.Transaction.product_id)                           \
     .all()
@@ -57,7 +54,7 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
     product_entry = product_entries.first()
 
     # check office
-    if str(customer_account)[0] in '54':
+    if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
         user = env.db.impl().session.execute(
             orm.select(
                 models.User
