@@ -27,28 +27,24 @@
         <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
     </div>
 </form> -->
-
-
-<div class="accordion" id="accordionExample">
     <div class="accordion-item">
-        <h2 class="accordion-header" id="heading1">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1" aria-expanded="false" aria-controls="collapse1">
-                Cписать энергию
+        <h2 class="accordion-header" id="heading5">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                Начислить надики
             </button>
         </h2>
-        <div id="collapse1" class="accordion-collapse collapse" aria-labelledby="heading1" data-bs-parent="#accordionExample">
-
-            <form role="form" action="{{ url_for('master.action_with_energy') }}" method="POST" id="form">
+        <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordionExample">
+            <form role="form" action="{{ url_for('master.add_money') }}" method="POST" id="form">
                 <div class="accordion-body">
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем у (id):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Счет:</span>
                         <input type="number" name="bank_account" class="form-control text-center" >
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Количество:</span>
                         <input type="number" name="count" class="form-control text-center" >
                     </div>
 
@@ -62,104 +58,29 @@
         </div>
     </div>
 
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading2">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2" aria-expanded="false" aria-controls="collapse2">
-                Добавить энергию
+<div class="accordion-item">
+        <h2 class="accordion-header" id="heading5">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5" aria-expanded="false" aria-controls="collapse5">
+                Начислить надики
             </button>
         </h2>
-        <div id="collapse2" class="accordion-collapse collapse" aria-labelledby="heading2" data-bs-parent="#accordionExample">
-
-            <form role="form" action="{{ url_for('master.action_with_energy') }}" method="POST" id="1">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordionExample">
+            <form role="form" action="{{ url_for('master.add_money') }}" method="POST" id="form">
                 <div class="accordion-body">
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
-                        <input type="number" name="bank_account" class="form-control text-center" >
-                        <input type="hidden" name="form_id" value="2" >
-                    </div>
-
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
-                        <input type="number" name="count" class="form-control text-center" >
-                    </div>
-
-                    <div class="d-grid gap-2 d-mb-block mb-4">
-                        <button type="submit" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
-                    </div>
-
-                </div>
-            </form>
-
-        </div>
-    </div>
-
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading3">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3" aria-expanded="false" aria-controls="collapse3">
-                Списать ресурс
-            </button>
-        </h2>
-        <div id="collapse3" class="accordion-collapse collapse" aria-labelledby="heading3" data-bs-parent="#accordionExample">
-
-            <form role="form" action="{{ url_for('master.action_with_resource') }}" method="POST" id="form">
-                <div class="accordion-body">
-
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списать у (счет):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Счет:</span>
                         <input type="number" name="bank_account" class="form-control text-center" >
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Количество:</span>
                         <input type="number" name="count" class="form-control text-center" >
                     </div>
 
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
-                        <input type="text" name="name" class="form-control text-center" >
-                    </div>
-
                     <div class="d-grid gap-2 d-mb-block mb-4">
-                        <button type="submit" name="form_id" value="3" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
-                    </div>
-
-                </div>
-            </form>
-
-        </div>
-    </div>
-
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading4">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4" aria-expanded="false" aria-controls="collapse4">
-                Добавить ресурс
-            </button>
-        </h2>
-        <div id="collapse4" class="accordion-collapse collapse" aria-labelledby="heading4" data-bs-parent="#accordionExample">
-            <form role="form" action="{{ url_for('master.action_with_resource') }}" method="POST" id="form">
-                <div class="accordion-body">
-
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
-                        <input type="number" name="bank_account" class="form-control text-center" >
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    </div>
-
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
-                        <input type="number" name="count" class="form-control text-center" >
-                    </div>
-
-                    <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
-                        <input type="text" name="name" class="form-control text-center" >
-                    </div>
-
-                    <div class="d-grid gap-2 d-mb-block mb-4">
-                        <button type="submit" name="form_id" value="4" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                        <button type="submit" name="form_id" value="2" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
                     </div>
 
                 </div>
@@ -175,27 +96,32 @@
             </button>
         </h2>
         <div id="collapse5" class="accordion-collapse collapse" aria-labelledby="heading5" data-bs-parent="#accordionExample">
-            <form role="form" action="{{ url_for('master.action_with_resource') }}" method="POST" id="form">
+            <form role="form" action="{{ url_for('master.action_with_product') }}" method="POST" id="form">
                 <div class="accordion-body">
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем у (id):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Счет:</span>
                         <input type="number" name="bank_account" class="form-control text-center" >
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Списываем (кол-во):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Количество продукта:</span>
                         <input type="number" name="count" class="form-control text-center" >
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
-                        <input type="text" name="name" class="form-control text-center" >
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Стоимость(в надиках):</span>
+                        <input type="number" name="amount" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название продукта:</span>
+                        <input type="text" name="name" list="list-products" class="form-control text-center" >
                     </div>
 
                     <div class="d-grid gap-2 d-mb-block mb-4">
-                        <button type="submit" name="form_id" value="5" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                        <button type="submit" name="form_id" value="3" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
                     </div>
 
                 </div>
@@ -211,27 +137,32 @@
             </button>
         </h2>
         <div id="collapse6" class="accordion-collapse collapse" aria-labelledby="heading6" data-bs-parent="#accordionExample">
-            <form role="form" action="{{ url_for('master.action_with_resource') }}" method="POST" id="form">
+            <form role="form" action="{{ url_for('master.action_with_product') }}" method="POST" id="form">
                 <div class="accordion-body">
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем к (id):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Счет:</span>
                         <input type="number" name="bank_account" class="form-control text-center" >
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Добавляем (кол-во):</span>
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Количество продукта:</span>
                         <input type="number" name="count" class="form-control text-center">
                     </div>
 
                     <div class="mb-5 input-group input-group-lg">
-                        <span class="input-group-text" id="inputGroup-sizing-lg">Название:</span>
-                        <input type="text" name="name" class="form-control text-center" >
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Название продукта:</span>
+                        <input type="text" name="name" list="list-products" class="form-control text-center" >
+                    </div>
+
+                    <div class="mb-5 input-group input-group-lg">
+                        <span class="input-group-text" id="inputGroup-sizing-lg">Стоимость(в надиках):</span>
+                        <input type="number" name="amount" class="form-control text-center" >
                     </div>
 
                     <div class="d-grid gap-2 d-mb-block mb-4">
-                        <button type="submit" name="form_id" value="6" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
+                        <button type="submit" name="form_id" value="4" class="btn btn-success btn-lg mb-3">Подтверждаю</button>
                     </div>
 
                 </div>
@@ -240,7 +171,11 @@
         </div>
     </div>
 
-    
+<datalist id="list-products">
+    {% for product in products %}
+        <option> {{ product }} </option>
+    {% endfor %}
+</datalist>
 
 </div>
     
