@@ -119,6 +119,11 @@ class Transaction(ModelBase):
         customer_wallet, customer_products = customer
         seller_wallet, seller_products = seller
 
+        if self.amount <= 0:
+            return 'cannot accept transaction with negative amount', False
+        if self.count <= 0:
+            return 'cannot accept transaction with negative count', False
+
         if self.product_id == 1:
             # we make money transaction
             if seller_wallet is None or customer_wallet is None:

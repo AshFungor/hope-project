@@ -1,0 +1,66 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Продукты {% endblock %}
+
+{% block content %}
+
+<div>
+<form role="form" action="{{ url_for( 'master.view_consumers', _external=True ) }}" method="GET">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm">
+                <select name="limits" class="form-select">
+                    <option selected value="all"> Все </option>
+                    <option value="limit-consumers">Только потребившие</option>
+                    <option value="limit-non-consumers">Только не потребившие</option>
+                </select>
+            </div>
+            <div class="col-sm">
+                <select name="category" class="form-select">
+                    <option selected value="all"> Все </option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}"> {{ cat }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <p></p>
+        </div>
+        <div class="row"></div>
+            <div class="col-sm">
+                <button type="submit" class="btn btn-success mb-3"> Просмотреть </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col"> Банковский Счет </th>
+            <th scope="col"> Фамилия </th>
+            <th scope="col"> Имя </th>
+            <th scope="col"> Отчество </th>
+            {% for cat in current %}
+                <th scope="col"> {{ cat }} </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for user, mapper, color in consumed %}
+            <tr>
+                <td class="table-light"> {{ user.bank_account_id }} </td>
+                <td class="table-light"> {{ user.name }} </td>
+                <td class="table-light"> {{ user.last_name }} </td>
+                <td class="table-light"> {{ user.patronymic }} </td>
+                {% for cat in current %}
+                    <td class="table-light"> {{ mapper[cat] }} </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+</div>
+
+{% endblock %}

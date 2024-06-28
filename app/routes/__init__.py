@@ -17,4 +17,5 @@ from . import user_products
 from . import goal
 from . import add_withdrowal
 from . import create_office
+from . import consumption
 
