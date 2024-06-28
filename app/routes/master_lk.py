@@ -49,7 +49,7 @@ def action_with_product():
         data = {
             'количество': int(flask.request.form.get('count', None)),
             'сумма': int(flask.request.form.get('amount', None)),
-            'название товара': flask.request.form.get('name', None).strip(),
+            'название товара': flask.request.form.get('name', None).strip().lower(),
             'счет': int(flask.request.form.get('bank_account', None))
         }
     except Exception:
