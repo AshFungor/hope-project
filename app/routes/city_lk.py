@@ -95,7 +95,9 @@ def city_cabinet():
             description='An error occurred while rendering the city page'
         )
     products = get_products_and_count(bank_account=city.bank_account_id)
+    balance = products[0].count
     return render_template('main/city_lk_page.html',
+                           balance=balance,
                            city=city,
                            mayor=city.mayor,
                            residents=residents,

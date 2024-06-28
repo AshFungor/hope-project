@@ -8,35 +8,64 @@
     <h3><strong>Фирма "{{ company.name }}"</strong></h3>
 </div>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Описание фирмы: </strong>{{ company.about }}</p>
-</div>
-
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Ген. директор: </strong>  {{ CEO.name }} {{ CEO.patronymic }} {{ CEO.last_name }}</p>
-</div>
-
-<div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Префектура: </strong> {{ company.prefecture.name }} </p>
-</div>
-
-<div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ company.bank_account_id }}</b></p>
-</div>
-
-<div class="text-wrap text-start mb-5">
-    <p class="h3"><strong>Текущий баланс (в надиках):</strong> <b>{{ balance }}</b>.</p>
-</div>
-
-<div class="text-wrap text-start mb-5">
-    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> надиков, выполнено:</p>
-<div class="progress">
-<div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
+<div class="text-center text-wrap border-bottom pb-3 mb-3">
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> Ψ</p>
+    <div class="progress">
+        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }} %</div>
     </div>
 </div>
+<style>
+    .blur {
+        position:relative;
+    }
+
+    .blur:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (balance/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ balance/1000 }}%);
+        filter: blur(16px);
+        z-index:0;
+    }
+
+    .blur span {
+        position:relative;
+        z-index:1;
+    }
+</style>
+
+<div class="text-center mb-3 rounded blur" style="text-align: center;">
+    <span><strong>Баланс: {{ balance }}</strong> Ψ</span>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <td colspan="2">Данные о фирме:</td>
+    </thead>               
+    <tbody>
+        <tr>
+            <th>Номер банковского счета:</th>
+            <td>{{ company.bank_account_id }}</td>
+        </tr>
+        <tr>
+            <th>Описание фирмы:</th>
+            <td> {{ company.about }} </td>
+        </tr>
+        <tr>
+            <th>Ген. директор:</th>
+            <td> {{ CEO.name }} {{ CEO.patronymic }} {{ CEO.last_name }} </td>
+        </tr>
+        <tr>
+            <th>Префектура:</th>
+            <td> {{ company.prefecture.name }} </td>
+        </tr>
+    </tbody>
+</table>
 
 
-<!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
     {% if f_cfo %}
     <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
@@ -67,11 +96,9 @@
     {% endif %}
 </div>
 
-<!-- ссылки рандомные, нуждаются в корректировке! -->
 <div class="d-grid gap-2 d-mb-block mb-5">
-<!--    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Просмотр операций по счёту</button>-->
     {% if f_prod %}
-    <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
+        <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
     {% endif %}
 </div>
 

@@ -42,7 +42,7 @@ def person_account():
     setattr(current_user, 'money', get_money(current_user.bank_account_id))
     setattr(current_user, 'full_name', current_user.full_name_string)
     specs = []
-
+    balance = get_money(current_user.bank_account_id)
     mapper = {
         'bank_account_id': 'номер банковского счета',
         'money': 'баланс счета',
@@ -51,9 +51,10 @@ def person_account():
         'birthday': 'день рождения',
         'bonus': 'бонус'
     }
+    
 
     for spec in mapper:
         specs.append({'name': mapper[spec], 'value': getattr(current_user, spec)})
-    return flask.render_template('main/person_account_page.html', user_spec=specs, goal=goal)
+    return flask.render_template('main/person_account_page.html', user_spec=specs, goal=goal, balance=balance)
 
 
