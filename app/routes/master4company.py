@@ -4,6 +4,7 @@ from flask_login import login_required
 # local
 import app.modules.database.static as static
 import app.routes.blueprints as blueprints
+import app.models as models
 
 
 @blueprints.master_blueprint.route('/master_company')

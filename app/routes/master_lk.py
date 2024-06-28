@@ -50,7 +50,7 @@ def action_with_product():
             'количество': int(flask.request.form.get('count', None)),
             'сумма': int(flask.request.form.get('amount', None)),
             'название товара': flask.request.form.get('name', None).strip(),
-            'cчет': int(flask.request.form.get('bank_account', None))
+            'счет': int(flask.request.form.get('bank_account', None))
         }
     except Exception:
         return flask.Response(
@@ -113,7 +113,13 @@ def action_with_product():
         customer_wallet.count += data['сумма']
     elif form_id == 4:
         products2bank_account.count += data['количество']
-        customer_wallet.count = customer_wallet + data['сумма']
+        customer_wallet.count = customer_wallet.count - data['сумма']
+    if customer_wallet.count < 0:
+        env.db.impl().session.rollback()
+        return flask.Response(
+            'У покупателя недостаточно надиков',
+            400
+        )
     try:
         transaction = models.Transaction(
             product.id,
@@ -124,9 +130,9 @@ def action_with_product():
             status='approved',
             created_at=datetime.datetime.now(tz=CurrentTimezone),
             updated_at=datetime.datetime.now(tz=CurrentTimezone),
-            comment=f'мастер перевел продукт {product.name} на счет {data["счет"]} в количестве {data["количество"]}'
+            comment=f'мастер перевел/списал продукт {product.name} на счет {data["счет"]} в количестве {data["количество"]}'
         )
-        logging.info(f'мастер перевел продукт {product.name} на счет {data["счет"]} в количестве {data["количество"]}')
+        logging.info(f'мастер перевел/списал продукт {product.name} на счет {data["счет"]} в количестве {data["количество"]}')
         env.db.impl().session.add(transaction)
         env.db.impl().session.commit()
     except Exception as Error:
@@ -139,7 +145,7 @@ def action_with_product():
     return render_template('main/add_withdrowal.html', products=models.Product.get_all())
 
 
-@blueprints.master_blueprint.route('/master_add_money')
+@blueprints.master_blueprint.route('/master_add_money', methods=['POST'])
 @login_required
 def add_money():
     try:
@@ -169,7 +175,7 @@ def add_money():
 
     if data['форма'] == 1:
         user_wallet.count -= data['количество']
-    elif data['фирма'] == 2:
+    elif data['форма'] == 2:
         user_wallet.count += data['количество']
     try:
         transaction = models.Transaction(
@@ -181,14 +187,14 @@ def add_money():
             status='approved',
             created_at=datetime.datetime.now(tz=CurrentTimezone),
             updated_at=datetime.datetime.now(tz=CurrentTimezone),
-            comment=f'мастер {current_user.bank_account} перевел продукт надики на счет {data["счет"]} в количестве {data["количество"]}'
+            comment=f'мастер {current_user.bank_account_id} перевел продукт надики на счет {data["счет"]} в количестве {data["количество"]}'
         )
-        logging.info(f'мастер {current_user.bank_account} перевел продукт надики на счет {data["счет"]} в количестве {data["количество"]}')
+        logging.info(f'мастер {current_user.bank_account_id} перевел продукт надики на счет {data["счет"]} в количестве {data["количество"]}')
         env.db.impl().session.add(transaction)
         env.db.impl().session.commit()
     except Exception as Error:
         env.db.impl().session.rollback()
-        logging.warning(f'При пропытке добавить надики мастером {current_user.bank_account} на счет {data["счет"]} в количестве {data["количество"]}')
+        logging.warning(f'При пропытке добавить надики мастером {current_user.bank_account_id} на счет {data["счет"]} в количестве {data["количество"]}')
         return flask.Response(
             'при попытке добавить надики произошла ошибка'
         )
@@ -270,4 +276,4 @@ def create_office():
     env.db.impl().session.commit()
     logging.info(f'матстер {current_user.bank_account_id} добавил офис в городе {city.name} для компании {company.name}')
 
-    return render_template('main/create_office.html')
+    return render_template('main/create_office.html', cities=models.City.get_all())
