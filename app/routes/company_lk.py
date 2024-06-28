@@ -37,8 +37,16 @@ def company_cabinet():
     )
     company_id = env.db.impl().session.execute(query_companies).scalars().first()
     if company_id:
+
         query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
         company = env.db.impl().session.execute(query_company).first()[0]
+
+        goal = models.Goal.get_last(company.bank_account_id, True)
+        if goal is None:
+            return flask.redirect(flask.url_for('goal_view.view_create_goal', account=company.bank_account_id))
+        balance = get_bank_account_size(company.bank_account_id)
+        setattr(goal, 'rate', goal.get_rate(balance))
+
         query_CEO = sqlalchemy.select(models.User).join(
             models.User2Company,
             models.User.id == models.User2Company.user_id
@@ -55,7 +63,7 @@ def company_cabinet():
                 models.User2Company.fired_at == None
             ))
         ).scalars().all()
-        f_ceo, f_cfo, f_mark, f_prod, f_found= False, False, False, False, False
+        f_ceo, f_cfo, f_mark, f_prod, f_found = False, False, False, False, False
         for role in user2company:
             if role.role == 'CEO':
                 f_ceo = True
@@ -67,7 +75,6 @@ def company_cabinet():
                 f_prod = True
             if role.role == 'founder':
                 f_found = True
-        balance = get_bank_account_size(company.bank_account_id)
         offices = env.db.impl().session.execute(
             sqlalchemy.select(
                 models.Office
@@ -83,5 +90,6 @@ def company_cabinet():
                                f_cfo=f_cfo,
                                f_mark=f_mark,
                                f_prod=f_prod,
-                               f_found=f_found)
+                               f_found=f_found,
+                               goal=goal)
     return flask.Response("Доступ к запрошенной фирме запрещён", status=403)
