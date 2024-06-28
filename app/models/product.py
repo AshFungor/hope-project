@@ -40,6 +40,12 @@ class Product(ModelBase):
         self.name = validators.GenericTextValidator.validate(name, 64, False)
         self.level = validators.IntValidator.validate(level, 16, True)
 
+    @staticmethod
+    def get_all() -> list[str]:
+        return [product.name for product in env.db.impl().session.execute(
+            orm.select(models.Product)
+        ).scalars().all()]
+
 
 class Consumption(ModelBase):
     __tablename__ = 'consumption'
