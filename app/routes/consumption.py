@@ -21,13 +21,13 @@ import app.routes.user_products as products
 norms = {
     'FOOD': 1,
     'CLOTHES': 1,
-    'TECH': 1
+    'TECHNIC': 1
 }
 
 time_accounted = {
     'FOOD': datetime.timedelta(days=1),
     'CLOTHES': datetime.timedelta(days=2),
-    'TECH': datetime.timedelta(days=3)
+    'TECHNIC': datetime.timedelta(days=3)
 }
 
 def redirect_to_original(original: str, string: str) -> flask.Response:
