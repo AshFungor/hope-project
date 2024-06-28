@@ -10,13 +10,11 @@
 
     <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.create_product' ) }}';"">Зарегистрировать товар</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_company' ) }}';">Действия с фирмой</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_add_withdrowal' ) }}';">Про ресурсы/товары/энергию</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_city' ) }}';">Действия с городом</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.create_company' ) }}';">Добавить фирму</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_prefecture' ) }}';">Дейсвтия с префектурой</button>
-
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_city_hall' ) }}';">Действия с мэрией</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_add_office' ) }}';"">Добавить офис для фирмы</button>
 
 </div>
 
