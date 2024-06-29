@@ -7,12 +7,10 @@ import app.models as models
 
 
 class NewCompanyForm(FlaskForm):
-    company_name = wtf.StringField('Название фирмы',
-                                    validators=[InputRequired()])
-    about = wtf.StringField('Краткое описание компании',
-                              validators=[InputRequired()])
-    prefecture = wtf.SelectField('Префектура', choices=[], validators=[InputRequired()])
-    founders = wtf.StringField('Учредитель (учредители) (р/счета через пробел)', validators=[InputRequired()])
+    company_name = wtf.StringField('Название фирмы:', validators=[InputRequired()], render_kw={'placeholder': 'Название'})
+    about = wtf.StringField('Краткое описание компании:', validators=[InputRequired()], render_kw={'placeholder': 'Информация о компании'})
+    prefecture = wtf.SelectField('Префектура:', choices=[], validators=[InputRequired()])
+    founders = wtf.StringField('Учредитель (учредители):', validators=[InputRequired()], render_kw={'placeholder': 'Счета через пробел'})
     submit = wtf.SubmitField('Создать компанию')
 
     def set_choices_prefectures(self):

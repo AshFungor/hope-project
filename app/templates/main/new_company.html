@@ -18,16 +18,16 @@
 
             {{ form.csrf_token }}
             <div class="mb-3">
-                {{ form.company_name.label(class="form-label") }} {{ form.company_name(class="form-control") }}
+                <strong>{{ form.company_name.label(class="form-label") }}</strong> {{ form.company_name(class="form-control text-center") }}
             </div>
             <div class="mb-3">
-                {{ form.about.label(class="form-label") }} {{ form.about(class="form-control") }}
+                <strong>{{ form.about.label(class="form-label") }}</strong> {{ form.about(class="form-control text-center") }}
             </div>
             <div class="mb-3">
-                {{ form.founders.label(class="form-label") }} {{ form.founders(class="form-control") }}
+                <strong>{{ form.founders.label(class="form-label") }}</strong> {{ form.founders(class="form-control text-center") }}
             </div>
             <div class="mb-3">
-                {{ form.prefecture.label(class="form-label") }} {{ form.prefecture(class="form-select") }}
+                <strong>{{ form.prefecture.label(class="form-label") }}</strong> {{ form.prefecture(class="form-select text-center") }}
             </div>
 
             <p></p>

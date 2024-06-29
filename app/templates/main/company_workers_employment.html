@@ -12,13 +12,19 @@
 <form style="display: grid;" action="{{ url_for('accounts.company_worker_employment') }}" method="POST">
     <input type="hidden" name="company_id" value="{{ company.id }}">
     {{ form.csrf_token }}
-    {{ form.bank_account_id.label }}
-    {{ form.bank_account_id }}
 
-    {{ form.role.label }}
-    {{ form.role }}
+    <div class="mb-3">
+        <strong>{{ form.bank_account_id.label(class="form-label") }}</strong> {{ form.bank_account_id(class="form-control text-center") }}
+    </div>
+    <div class="mb-3">
+        <strong>{{ form.role.label(class="form-label") }}</strong> {{ form.role(class="form-select text-center") }}
+    </div>
 
-    {{ form.submit }}
+    <p></p>
+    <div class="d-grid gap-2 d-mb-block mb-4">
+        {{ form.submit(type="submit", class="btn btn-success") }}
+    </div>
+
 </form>
 
 {% endblock %}
