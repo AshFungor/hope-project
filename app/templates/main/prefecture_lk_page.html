@@ -53,7 +53,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (prefecture_current_account_size/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ prefecture_current_account_size/1000 }}%);
+        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (prefecture.money / 1000) }}%, rgba(251,171,0,0.5990220048899755) {{ prefecture.money / 1000 }}%);
         filter: blur(16px);
         z-index:0;
     }
@@ -65,7 +65,7 @@
 </style>
 
 <div class="text-center mb-3 rounded blur" style="text-align: center;">
-    <span><strong>Баланс: {{ prefecture_current_account_size }}</strong> Ψ</span>
+    <span><strong>Баланс: {{ prefecture.money }}</strong> Ψ</span>
 </div>
 
 <table class="table table-striped">
@@ -82,7 +82,7 @@
             <td> {{ prefecture.prefect.full_name_string }} </td>
         </tr>
         <tr>
-            <th>Заместитель префекта по экономической политике::</th>
+            <th>Заместитель префекта по экономической политике:</th>
             <td> {{ prefecture.economic_assistant.full_name_string }} </td>
         </tr>
         <tr>
@@ -92,54 +92,87 @@
     </tbody>
 </table>
 
-{% if not prefecture_goal %}
-    <div class="text-wrap text-start mb-5">
-        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>не установлена</b></p>
+{% if goal %}
+<div class="text-wrap text-start mb-5">
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> Ψ</p>
+    <div class="progress">
+        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }}%</div>
     </div>
-    {% if prefecture.prefect and prefecture.prefect.id == user.id %}
-        <form role="form" action="{{ url_for( 'goal.create_goal' ) }}" method="POST" id="form">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="bank_account_id" value="{{ prefecture.bank_account_id }}"/>
-        <input type="hidden" name="amount_on_setup" value="{{ prefecture_current_account_size }}"/>
-        <div class="form-group mb-1">
-            <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
-        </div>
-        <div class="d-grid gap-2 d-mb-block mb-4">
-            <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
-        </div>
-    </form>
-    {% endif %}
+</div>
 {% else %}
-    <div class="text-wrap text-start mb-5">
-        <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ prefecture_goal.value }}</b> Ψ</p>
-        <div class="progress">
-            <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal_win_rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal_win_rate }}%">{{ goal_win_rate }}%</div>
-        </div>
-    </div>
+<div class="text-wrap text-start mb-5">
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>не установлена</b> Ψ</p>
+</div>
 {% endif %}
-{% if prefecture.economic_assistant and prefecture.economic_assistant.id == user.id %}
-    <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
+
+{% if roles['economic_assistant'] %}
+    <block class="mb-3">
         <block style="display: grid">
-            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.new_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" role="button" href="{{ url_for('proposal.new_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Перевод
             </a>
-            <p></p>
-            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Выставить счет
             </a>
-            <p></p>
-            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Неоплаченные счета
             </a>
+            <p></p>
         </block>
     </block>
+{% endif %}
+
+{% if roles['social_assistant'] %}
+<button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#bankrupts" aria-expanded="false" aria-controls="cities">
+    Банкроты
+</button>
+<div class="collapse table-responsive mb-3" id="bankrupts">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" colspan="7"> Банкроты </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if bankrupt_users %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="4"> ФИО </th>
+                <th scope="col"> Город </th>
+                <th scope="col"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for user in bankrupt_users %}
+            <tr>
+                <td class="table-light"> {{ user.bank_account_id }} </td>
+                <td class="table-light" colspan="4"> {{ user.full_name_string }} </td>
+                <td class="table-light"> {{ user.city_name }} </td>
+                <td class="table-light"> {{ user.minus }} </td>
+            </tr>
+        {% endfor %}
+        {% if bankrupt_companies %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="4"> Название компании </th>
+                <th scope="col" colspan="2"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for company in bankrupt_companies %}
+            <tr>
+                <td class="table-light" colspan="2"> {{ company.bank_account_id }} </td>
+                <td class="table-light" colspan="3"> {{ company.name }} </td>
+                <td class="table-light" colspan="2"> {{ company.minus }} </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endif %}
 
 <div class="d-grid gap-2 d-mb-block mb-5">
     <button class="btn btn-outline-dark btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
         Население
     </button>
-    
     <div class="collapse" id="cities">
         <div class="card card-body">
             <ul>
@@ -164,8 +197,8 @@
             </ul>
         </div>
     </div>
+</div> 
 
-</div>
 <div class="d-grid gap-2 d-mb-block mb-5">
     <button class="btn btn-outline-dark btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
         Инфраструктурные объекты
