@@ -106,7 +106,8 @@ def prefecture_cabinet():
     if current_role['prefect'] and goal is None:
         return flask.redirect(flask.url_for('goal_view.view_create_goal', account=prefecture.bank_account_id))
 
-    setattr(goal, 'rate', goal.get_rate(account.get_money(prefecture.bank_account_id) if goal else None))
+    if goal:
+        setattr(goal, 'rate', goal.get_rate(account.get_money(prefecture.bank_account_id)))
     setattr(prefecture, 'money', account.get_money(prefecture.bank_account_id))
     balance = account.get_money(prefecture.id)
 
