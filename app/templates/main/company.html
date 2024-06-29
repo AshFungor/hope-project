@@ -71,44 +71,44 @@
     <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
-        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
     </form>
     {% endif %}
     {% if f_mark %}
     <form action="{{ url_for( 'proposal.new_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
-        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Выставить счёт</button>
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Выставить счёт</button>
     </form>
 
     <form action="{{ url_for( 'proposal.view_transaction', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
-        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">Входящие счета</button>
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Входящие счета</button>
     </form>
     {% endif %}
     {% if f_prod %}
     <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="GET">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="account" value="{{ company.bank_account_id }}">
-        <button class="btn btn-outline-primary btn-lg mb-3" style="width: 100%" type="submit">История счетов</button>
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">История счетов</button>
     </form>
     {% endif %}
 </div>
 
 <div class="d-grid gap-2 d-mb-block mb-5">
     {% if f_prod %}
-        <button class="btn btn-outline-primary btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
+        <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_company_products', company_bank_account=company.bank_account_id ) }}';">Наши ресурсы/энергия/товары</button>
     {% endif %}
 </div>
 
 
 <div class="d-grid gap-2 d-mb-block mb-5">
     {% if f_ceo or f_found %}
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_workers', company_id=company.id ) }}'">Сотрудники</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" type="button" onclick="window.location.href='{{ url_for( 'accounts.company_workers', company_id=company.id ) }}'">Сотрудники</button>
     {% endif %}
 
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы (магазины)</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы (магазины)</button>
     <div class="collapse" id="offices">
         <div class="card card-body">
             <ul>
