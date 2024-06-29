@@ -1,3 +1,4 @@
+import sqlalchemy
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
@@ -9,6 +10,8 @@ from app.modules.database.handlers import ModelBase
 from app.modules.database.handlers import c_datetime_fired
 
 import app.modules.database.validators as validators
+import app.models as models
+from app.env import env
 
 
 class City(ModelBase):
@@ -41,6 +44,12 @@ class City(ModelBase):
         self.bank_account_id = bank_account_id
         self.name = validators.GenericTextValidator.validate(name, 64)
         self.location = validators.GenericTextValidator.validate(location, 64)
+
+    @staticmethod
+    def get_all() -> list[str]:
+        return [city.name for city in env.db.impl().session.execute(
+            sqlalchemy.select(models.City)
+        ).scalars().all()]
 
 
 class Office(ModelBase):
