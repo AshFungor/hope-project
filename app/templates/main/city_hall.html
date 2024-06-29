@@ -76,22 +76,25 @@
         </tr>
     </tbody>
 </table>
+{% if role %}
+    <div class="d-grid gap-2 d-mb-block mb-4">
 
-<!-- <div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Мэр:</strong> {{ mayor }}</p>
-</div>
+        <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="account" value="{{ bank_account }}">
+            <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
+        </form>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Министр экономики:</strong> {{ economic_assistant }}</p>
-</div>
+        <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="GET">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="account" value="{{ bank_account }}">
+            <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">История транзакций</button>
+        </form>
 
-<div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Министр социальной политики:</strong>  {{ social_assistant }}</p>
-</div>
+        <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Банкроты</button>
+    </div>
+{% endif %}
 
-<div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> {{ bank_account }}</p>
-</div> -->
 
 
 <div class="text-wrap text-start mb-5">
