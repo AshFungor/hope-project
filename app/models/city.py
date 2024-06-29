@@ -24,7 +24,7 @@ class City(ModelBase):
         ForeignKey('prefecture.id'), nullable=True
     )
     bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
-    name:Mapped[variable_strings[64]]
+    name: Mapped[variable_strings[64]]
     location: Mapped[variable_strings[64]]
 
     mayor = relationship('User', foreign_keys=mayor_id)
