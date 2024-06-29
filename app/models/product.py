@@ -103,7 +103,7 @@ class Consumption(ModelBase):
         
         total = 0
         for entry in consumed:
-            if (entry.local_consumed_at + time_offset).date() >= datetime.datetime.now(tz=validators.CurrentTimezone).date():
+            if (entry.local_consumed_at + time_offset).date() > datetime.datetime.now(tz=validators.CurrentTimezone).date():
                 total += entry.count
 
         if total < norm:

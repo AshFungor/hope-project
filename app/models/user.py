@@ -141,7 +141,7 @@ class Goal(ModelBase):
             .scalars()      \
             .first()
         if not last or limitByCurrentDay and \
-            last.local_created_at.date() != datetime.datetime.now(tz=validators.CurrentTimezone).date():
+            last.local_created_at.date() < datetime.datetime.now(tz=validators.CurrentTimezone).date():
             return None
         return last
 

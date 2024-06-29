@@ -17,8 +17,5 @@ from . import user_products
 from . import goal
 from . import add_withdrowal
 from . import create_office
-from . import master4city_hall
-from . import master4city
-from . import master4company
-from . import master4prefecture
+from . import consumption
 
