@@ -9,7 +9,7 @@ from app.env import env
 
 import app.models as models
 import app.routes.blueprints as blueprints
-import app.routes.blueprints as consumption
+import app.routes.consumption as consumption
 
 
 def get_products(account: int) -> list[typing.Tuple[models.Product, models.Product2BankAccount]] | str:

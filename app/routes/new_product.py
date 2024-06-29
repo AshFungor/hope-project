@@ -4,12 +4,31 @@ import typing
 import flask
 import flask_login
 
+import sqlalchemy as orm
+
 import app.models as models
 import app.routes.blueprints as blueprints
 
 from app.env import env
 
 from app.forms.new_product import NewProductForm
+
+
+def visitor(field: any, type: str) -> None | str:
+    if type.lower().startswith('name'):
+        matches = env.db.impl().session.execute(
+            orm.select(models.Product).filter(models.Product.name == field)
+        ).scalars().all()
+        if len(matches):
+            return f'имя продукта уже существует: {field}'
+    if type.lower().startswith('level'):
+        if not field.isnumeric():
+            return 'уровень должен быть числом'
+        if not (1 <= int(field) <= 4):
+            return 'уровень должен быть в промежутке от 1 до 4'
+    if type.lower().startswith('category'):
+        if field not in ['MINERALS', 'ENERGY', 'FOOD', 'TECHNIC', 'CLOTHES']:
+            return f'категория не существует: {field}'
 
 
 def add_product(name: str, level: int, category: str) -> typing.Tuple[bool, str]:
@@ -41,10 +60,19 @@ def create_product():
     form = NewProductForm()
 
     if flask.request.method == 'POST' and form.validate_on_submit():
-        name = form.product_name.data
-        level = int(form.level.data)
-        category = form.category.data
-        created, message = add_product(name, level, category)
+
+        data = [form.product_name.data, form.level.data, form.category.data]
+        for field, type in zip(
+            [form.product_name.data, form.level.data, form.category.data],
+            ('name', 'level', 'category')
+        ):
+            result = visitor(field, type)
+            if result is not None:
+                flask.flash(result, category="warning")
+                return flask.render_template('main/new_product.html', form=form, products=models.Product.get_all())
+
+        name, level, category = data
+        created, message = add_product(name, int(level), category)
 
         if created:
             flask.flash(message, category="info")
