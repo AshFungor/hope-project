@@ -4,29 +4,93 @@
 
 {% block content %}
 
-<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
+<style>
+    .blurn {
+        position:relative;
+    }
+
+    .blurn:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        {% if prefecture.name == 'Южная' %}
+            background: pink;
+        {% elif prefecture.name == 'Северная' %}
+            background: lightblue;
+        {% elif prefecture.name == 'Западная' %}
+            background: Indigo;
+        {% elif prefecture.name == 'Восточная' %}
+            background: yellow;
+        {% else %}
+            background: gold;
+        {% endif %}
+        filter: blur(32px);
+        z-index:0;
+    }
+
+    .blurn h3 {
+        position:relative;
+        z-index:1;
+    }
+</style>
+
+<div class="text-wrap blurn text-center mb-3 rounded border-bottom">
     <h3><strong>Префектура {{ prefecture.name }}</strong></h3>
 </div>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Префект:</strong> {{ prefecture.prefect.full_name_string }}</p>
+<style>
+    .blur {
+        position:relative;
+    }
+
+    .blur:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (prefecture_current_account_size/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ prefecture_current_account_size/1000 }}%);
+        filter: blur(16px);
+        z-index:0;
+    }
+
+    .blur span {
+        position:relative;
+        z-index:1;
+    }
+</style>
+
+<div class="text-center mb-3 rounded blur" style="text-align: center;">
+    <span><strong>Баланс: {{ prefecture_current_account_size }}</strong> Ψ</span>
 </div>
 
-<div class="text-wrap text-start mb-1">
-    <p class="mb-1"><strong>Заместитель префекта по экономической политике:</strong> {{ prefecture.economic_assistant.full_name_string }}</p>
-</div>
-
-<div class="text-wrap text-start mb-4">
-    <p class="mb-1"><strong>Заместитель министра по социальной политике:</strong> {{ prefecture.social_assistant.full_name_string }}</p>
-</div>
-
-<div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Расчётный счёт:</strong> <b>{{ prefecture.bank_account_id }}</b></p>
-</div>
-
-<div class="text-wrap text-start mb-2">
-    <p class="mb-1"><strong>Баланс счета:</strong> <b>{{ prefecture_current_account_size }}</b> Ψ</p>
-</div>
+<table class="table table-striped">
+    <thead>
+        <td colspan="2">Данные о префектуре:</td>
+    </thead>               
+    <tbody>
+        <tr>
+            <th>Номер банковского счета:</th>
+            <td> {{ prefecture.bank_account_id }} </td>
+        </tr>
+        <tr>
+            <th>Префект:</th>
+            <td> {{ prefecture.prefect.full_name_string }} </td>
+        </tr>
+        <tr>
+            <th>Заместитель префекта по экономической политике::</th>
+            <td> {{ prefecture.economic_assistant.full_name_string }} </td>
+        </tr>
+        <tr>
+            <th>Заместитель министра по социальной политике:</th>
+            <td> {{ prefecture.social_assistant.full_name_string }} </td>
+        </tr>
+    </tbody>
+</table>
 
 {% if not prefecture_goal %}
     <div class="text-wrap text-start mb-5">
@@ -56,15 +120,15 @@
 {% if prefecture.economic_assistant and prefecture.economic_assistant.id == user.id %}
     <block class="mb-3" style="display: flex; justify-content: center; text-align: center">
         <block style="display: grid">
-            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.new_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.new_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Перевод
             </a>
             <p></p>
-            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Выставить счет
             </a>
             <p></p>
-            <a class="btn btn-primary btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
+            <a class="btn btn-dark btn-lg" role="button" href="{{ url_for('proposal.view_transaction', account=prefecture.bank_account_id, _external=True) }}">
                 Неоплаченные счета
             </a>
         </block>
@@ -72,7 +136,7 @@
 {% endif %}
 
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
+    <button class="btn btn-outline-dark btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#cities" aria-expanded="false" aria-controls="cities">
         Население
     </button>
     
@@ -103,7 +167,7 @@
 
 </div>
 <div class="d-grid gap-2 d-mb-block mb-5">
-    <button class="btn btn-outline-primary btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
+    <button class="btn btn-outline-dark btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#infrastructures" aria-expanded="false" aria-controls="infrastructures">
         Инфраструктурные объекты
     </button>
     <div class="collapse" id="infrastructures">
