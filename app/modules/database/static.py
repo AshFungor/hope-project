@@ -15,12 +15,19 @@ from app.env import env
 from app.modules.database.validators import CurrentTimezone
 
 
+def roller(**kwargs) -> models.BankAccount:
+    seed = models.BankAccount(**kwargs)
+    while env.db.impl().session.query(models.BankAccount).get(seed.id) is not None:
+        seed = models.BankAccount(**kwargs)
+    return seed
+
+
 class StaticTablesHandler:
 
     @staticmethod
     def prepare_bank_account(**kwargs: dict[str, object]) -> int | None:
         try:
-            bank_account = models.BankAccount(**kwargs)
+            bank_account = roller(**kwargs)
             # to try transactions
             bind_account = models.Product2BankAccount(bank_account.id, 1, 200 if env.debug else 0)
             env.db.impl().session.add(bank_account)
@@ -28,7 +35,7 @@ class StaticTablesHandler:
             return bank_account.id
         except Exception as error:
             env.db.impl().session.rollback()
-            logging.log(f'static models handling failed; error: {error}')
+            logging.warning(f'static models handling failed; error: {error}')
 
     @staticmethod
     def __parse_prefectures(prefectures: pd.DataFrame) -> list[models.Prefecture] | str:
