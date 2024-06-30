@@ -164,5 +164,6 @@ def view_consumers():
         'main/view_consumption.html', 
         consumed=data, 
         categories=norms.keys(),
-        current=current
+        current=current,
+        batch_size=len(data)
     )
