@@ -105,13 +105,15 @@ class Goal(ModelBase):
         value: int,
         amount_on_setup: int,
         amount_on_validate: int | None = None,
-        created_at: datetime.datetime | None = datetime.datetime.now(validators.CurrentTimezone),
+        created_at: datetime.datetime | None = None,
         complete: bool | None = False
     ) -> None:
         self.bank_account_id = bank_account_id
         self.value = value
         self.amount_on_setup = amount_on_setup
         self.amount_on_validate = amount_on_validate
+        if created_at is None:
+            created_at = datetime.datetime.now(validators.CurrentTimezone)
         self.created_at = validators.DtValidator.validate(
             created_at, 
             lower=datetime.datetime.now(validators.CurrentTimezone) - dateutil.relativedelta.relativedelta(days=1)

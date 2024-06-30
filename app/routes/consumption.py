@@ -48,6 +48,20 @@ def get_gradient(ratio: float, first: int = int('006064', base=16), second: int 
     return '#' + '0' * (6 - len(gen)) + gen
 
 
+def collect_consumers(data: typing.Tuple[models.User, dict[str, str]], full_mapping: dict[str, str]) -> str:
+    fillers = []
+    for mapped in full_mapping:
+        env.db.impl().session \
+            .query(models.Product) \
+            .filter(models.Product.category == mapped)
+    for user, mappings in data:
+        for mapped in mappings:
+            consumed = models.Consumption(
+                user.bank_account_id,
+
+            )
+
+
 def get_consumers() -> typing.Tuple[models.User, dict[str, str]]:
     users = env.db.impl().session.execute(
         orm.select(models.User)
