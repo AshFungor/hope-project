@@ -26,6 +26,12 @@ norms = {
     'TECHNIC': 1
 }
 
+defaults = {
+    'FOOD': 120,
+    'CLOTHES': 160,
+    'TECHNIC': 200
+}
+
 time_accounted = {
     'FOOD': datetime.timedelta(days=1),
     'CLOTHES': datetime.timedelta(days=2),
@@ -46,6 +52,56 @@ def get_current_user_bonus(level: int) -> int:
 def get_gradient(ratio: float, first: int = int('006064', base=16), second: int = int('2E7D32', base=16)):
     gen = hex(round(first * ratio + second * (1 - ratio)))[2:]
     return '#' + '0' * (6 - len(gen)) + gen
+
+
+def collect_consumers(
+    data: typing.Tuple[models.User, dict[str, str]], 
+    full_mapping: dict[str, str]
+) -> typing.Tuple[bool, str]:
+    fillers = {}
+    for mapped in full_mapping:
+        if mapped not in norms:
+            return f'ошибка: категория {mapped} не находиться в списке потребляемых ' + ', '.join(mapped.keys())
+        match = env.db.impl().session \
+            .query(models.Product) \
+            .filter(orm.and_(
+                models.Product.category == mapped,
+                models.Product.level == 1
+                )
+            ).first()
+        if match is None:
+            return False, f'для категории {mapped} необходим товар с уровнем 1'
+        fillers[mapped] = match
+    count = 0
+    for user, mappings, _ in data:
+        for mapped in mappings:
+            if mapped not in full_mapping:
+                return False, f'ошибка: категория {mapped} не находиться в списке полных ' + ', '.join(full_mapping.keys())
+            try:
+                status, _ = models.Consumption.did_consume_enough(
+                    user.bank_account_id, 
+                    mapped, 
+                    norms[mapped],
+                    time_accounted[mapped]
+                )
+                if status:
+                    continue
+                env.db.impl().session.add(models.Consumption(
+                    user.bank_account_id,
+                    fillers[mapped].id,
+                    norms[mapped],
+                    datetime.datetime.now(tz=CurrentTimezone)
+                ))
+                account = env.db.impl().session \
+                    .query(models.Product2BankAccount) \
+                    .get((user.bank_account_id, 1))
+                account.count -= defaults[mapped]
+                count += 1
+            except Exception as error:
+                env.db.impl().session.rollback()
+                return False, f'error: {error}'
+    env.db.impl().session.commit()
+    return True, f'потребление успешно: обработано {count} пользователей'
 
 
 def get_consumers() -> typing.Tuple[models.User, dict[str, str]]:
@@ -135,8 +191,13 @@ def consume():
 
 @blueprints.master_blueprint.route('/view_consumers', methods=['GET'])
 def view_consumers():
-    category = flask.request.args.get('category', 'all')
-    mode = flask.request.args.get('limits', 'all')
+    is_selector = flask.request.args.get('selectors', 'OFF').upper().startswith('ON')
+    is_collector = flask.request.args.get('collector', 'OFF').upper().startswith('ON')
+
+    category = flask.request.args.get('category', 'all') if is_selector else 'all'
+    mode = flask.request.args.get('limits', 'all') if is_selector else 'all'
+    category = flask.request.args.get('collecting-category', 'all') if is_collector else category
+
     data = get_consumers()
 
     current = norms.keys()
@@ -158,12 +219,28 @@ def view_consumers():
                 new_data.append((user, mapper, number))
     else:
         new_data = data
+    initial_size = len(data)
     data = new_data
+
+    message = None
+    if is_collector:
+        cats = []
+        if category.lower().startswith('all'):
+            cats = norms.keys()
+        else:
+            cats = [category]
+        status, message = collect_consumers(data, cats)
+        if status:
+            logging.info(f'потребление для категории {category} успешно')
+        else:
+            logging.warning(f'потребление для категории {category} не успешно, ошибка: {message}')
 
     return flask.render_template(
         'main/view_consumption.html', 
         consumed=data, 
         categories=norms.keys(),
         current=current,
-        batch_size=len(data)
+        batch_size=len(data),
+        initial_batch_size=initial_size,
+        message=message
     )
