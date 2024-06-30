@@ -76,32 +76,84 @@
         </tr>
     </tbody>
 </table>
-{% if role %}
-    <div class="d-grid gap-2 d-mb-block mb-4">
 
-        <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="account" value="{{ bank_account }}">
-            <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
-        </form>
-
-        <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="GET">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="hidden" name="account" value="{{ bank_account }}">
-            <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">История транзакций</button>
-        </form>
-
-        <button class="btn btn-outline-dark btn-lg mb-3" onclick="">Банкроты</button>
-    </div>
-{% endif %}
-
-
-
+{% if goal %}
 <div class="text-wrap text-start mb-5">
-    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>n</b> надиков, выполнено:</p>
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>{{ goal.value }}</b> Ψ</p>
     <div class="progress">
-        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="66" aria-valuemin="0" aria-valuemax="100" style="width: 66%">66%</div>
+        <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ goal.rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ goal.rate }}%">{{ goal.rate }}%</div>
     </div>
 </div>
+{% else %}
+<div class="text-wrap text-start mb-5">
+    <p class="mb-1"><strong>Цель по доходу в день:</strong> <b>не установлена</b> Ψ</p>
+</div>
+{% endif %}
+
+{% if roles['economic_assistant'] %}
+<div class="d-grid gap-2 d-mb-block mb-4">
+
+    <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ bank_account }}">
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">Перевод средств</button>
+    </form>
+
+    <form action="{{ url_for( 'proposal.view_history', _external=True ) }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="account" value="{{ bank_account }}">
+        <button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="submit">История транзакций</button>
+    </form>
+</div>
+<p></p>
+{% endif %}
+
+{% if roles['social_assistant'] %}
+<button class="btn btn-outline-dark btn-lg mb-3" style="width: 100%" type="button" data-bs-toggle="collapse" data-bs-target="#bankrupts" aria-expanded="false" aria-controls="bankrupts">
+    Банкроты
+</button>
+<div class="collapse table-responsive mb-3" id="bankrupts">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" colspan="7"> Банкроты </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if bankrupt_users %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="4"> ФИО </th>
+                <th scope="col"> Город </th>
+                <th scope="col"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for user in bankrupt_users %}
+            <tr>
+                <td class="table-light"> {{ user.bank_account_id }} </td>
+                <td class="table-light" colspan="4"> {{ user.full_name_string }} </td>
+                <td class="table-light"> {{ user.city_name }} </td>
+                <td class="table-light"> {{ user.minus }} </td>
+            </tr>
+        {% endfor %}
+        {% if bankrupt_companies %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="4"> Название компании </th>
+                <th scope="col" colspan="2"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for company in bankrupt_companies %}
+            <tr>
+                <td class="table-light" colspan="2"> {{ company.bank_account_id }} </td>
+                <td class="table-light" colspan="3"> {{ company.name }} </td>
+                <td class="table-light" colspan="2"> {{ company.minus }} </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p></p>
+{% endif %}
 
 {% endblock %}

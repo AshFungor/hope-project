@@ -1,52 +1,62 @@
-from flask import Blueprint, render_template, url_for, session
-from flask_login import login_required, current_user
+import copy
+
+import flask
+import flask_login
+
+import sqlalchemy as orm
 
 # local
-import app.modules.database.static as static
-import app.routes.blueprints as blueprints
-
 from app.env import env
 import app.models as models
+import app.routes.blueprints as blueprints
+import app.routes.person_account as account
+import app.modules.database.static as static
+import app.routes.prefecture_lk as prefecture
 
-import sqlalchemy
-
-from app.routes.person_account import get_money
 
 @blueprints.accounts_blueprint.route('/city_hall_lk')
-@login_required
+@flask_login.login_required
 def city_hall_cabinet():
+    current_user = copy.deepcopy(flask_login.current_user)
+    hall = env.db.impl().session.scalars(orm.select(models.CityHall)).first()
 
-    loginned_user_id = current_user.id
+    goal = models.Goal.get_last(hall.bank_account_id, True)
+    if goal is None:
+        return flask.redirect(flask.url_for('goal_view.view_create_goal', account=hall.bank_account_id))
+    if goal:
+        setattr(goal, 'rate', goal.get_rate(account.get_money(hall.bank_account_id)))
 
-    info = sqlalchemy.select(
-            models.CityHall
+    bank_account, mayor_id, economic_assistant_id, social_assistant_id = \
+        hall.bank_account_id, hall.mayor_id, hall.economic_assistant_id, hall.social_assistant_id
+
+    names = env.db.impl().session.scalars(
+        orm.select(
+            models.User
+        ).filter(
+            models.User.id.in_((mayor_id, economic_assistant_id, social_assistant_id))
+        )
+    ).all()
+    spec = {name.id: name.full_name_string for name in names}
+
+    mayor, economic_assistant, social_assistant = \
+        spec[mayor_id], spec[economic_assistant_id], spec[social_assistant_id]
+
+    roles = {
+        'mayor': current_user.id == mayor_id, 
+        'economic_assistant': current_user.id == economic_assistant_id,
+        'social_assistant': current_user.id == social_assistant_id
+    }
+
+    bankrupt_users, bankrupt_companies = prefecture.query_bankrupts('mayor', None)
+
+    return flask.render_template('main/city_hall.html', 
+        balance=account.get_money(bank_account),
+        bank_account=bank_account,
+        goal=goal,
+        mayor=mayor,
+        economic_assistant=economic_assistant,
+        social_assistant=social_assistant,
+        roles=roles,
+        bankrupt_users=bankrupt_users,
+        bankrupt_companies=bankrupt_companies
     )
-    data = env.db.impl().session.execute(info).scalars().first()
-    bank_account = data.bank_account_id
-    mayor_id = data.mayor_id
-    economic_assistant_id = data.economic_assistant_id
-    social_assistant_id = data.social_assistant_id
-
-    names = sqlalchemy.select(
-        models.User
-    ).filter(models.User.id.in_((mayor_id, economic_assistant_id, social_assistant_id)))
-    data = env.db.impl().session.execute(names).scalars().all()
-    spec = {name.id: name.full_name_string for name in data}
-
-    mayor = spec[mayor_id]
-    economic_assistant = spec[economic_assistant_id]
-    social_assistant = spec[social_assistant_id]
-
-    role = False
-    if loginned_user_id in (mayor_id, economic_assistant_id, social_assistant_id):
-        role = True
-
-    return render_template('main/city_hall.html', 
-                            session=session,
-                            balance=get_money(bank_account),
-                            bank_account=bank_account,
-                            mayor=mayor,
-                            economic_assistant=economic_assistant,
-                            social_assistant=social_assistant,
-                            role=role
-                            )
