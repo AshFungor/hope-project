@@ -4,10 +4,16 @@
 
 {% block content %}
 
+{% if message %}
+<p class="text-center"> {{ message }} </p>
+{% endif %}
+
 <div>
 <form role="form" action="{{ url_for( 'master.view_consumers', _external=True ) }}" method="GET">
     <div class="container">
         <div class="row">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="selectors" value="ON"/>
             <div class="col-sm">
                 <select name="limits" class="form-select">
                     <option selected value="all"> Все </option>
@@ -54,13 +60,38 @@
                 <td class="table-light"> {{ user.last_name }} </td>
                 <td class="table-light"> {{ user.patronymic }} </td>
                 {% for cat in current %}
-                    <td class="table-light"> {{ mapper[cat] }} </td>
+                <td class="table-light"> {{ mapper[cat] }} </td>
                 {% endfor %}
             </tr>
-        {% endfor %}
-    </tbody>
+            {% endfor %}
+        </tbody>
     </table>
+    <p> Показано {{ batch_size }} из {{ initial_batch_size }} </p>
 </div>
+
+<div class="mb-3">
+    <form role="form" action="{{ url_for( 'master.view_consumers', _external=True ) }}" method="GET">
+        <div class="container">
+            <input type="hidden" name="collector" value="ON"/>
+            <div class="row">
+                <label for="collecting-category" class="form-label"><strong>Категория: </strong></label>
+                <select name="collecting-category" class="form-select">
+                    <option selected value="all"> Все </option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}"> {{ cat }} </option>
+                    {% endfor %}
+                </select>
+                <p></p>
+            </div>
+            <div class="row"></div>
+                <div class="col-sm">
+                    <button type="submit" class="btn btn-success mb-3"> Списать </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
 </div>
 
 {% endblock %}
