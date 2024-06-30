@@ -73,15 +73,27 @@ def query_bankrupts(territory: str, id: int) -> typing.Tuple[list[models.User], 
         ).all()]
         return (users, companies)
     # get all users
-    return list(env.db.impl().session.execute(
-        orm.select(models.User) \
-        .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.User.bank_account_id) \
-        .where(orm.and_(
-                models.Product2BankAccount.product_id == 1,
-                models.Product2BankAccount.count <= 0
-            )
+    companies = [decorate_company(company, money) for company, money in env.db.impl().session
+        .query(models.Company, models.Product2BankAccount)
+        .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.Company.bank_account_id)
+        .filter(orm.and_(
+            models.Product2BankAccount.count < 0,
+            models.Product2BankAccount.product_id == 1
         )
-    ).scalars().all())
+    ).all()]
+    users = [decorate_user(user, city, money) for user, city, money in env.db.impl().session
+        .query(models.User, models.City, models.Product2BankAccount)
+        .join(models.User, models.City.id == models.User.city_id)
+        .join(models.Prefecture, models.Prefecture.id == models.City.prefecture_id)
+        .join(models.Product2BankAccount,
+            models.Product2BankAccount.bank_account_id == models.User.bank_account_id
+        )
+        .filter(orm.and_(
+            models.Product2BankAccount.count < 0,
+            models.Product2BankAccount.product_id == 1
+        )
+    ).all()]
+    return (users, companies)
 
 
 @blueprints.accounts_blueprint.route('/prefecture_account')
