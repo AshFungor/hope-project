@@ -18,7 +18,7 @@ import sqlalchemy as orm
 import app.models as models
 import app.routes.blueprints as blueprints
 import app.routes.person_account as accounts
-import app.modules.database.validators as validators
+import app.modules.statistics.excluders as exclude
 
 from app.env import env
 
@@ -33,7 +33,7 @@ def goal_picker(state: pd.DataFrame, **kwargs) -> pd.DataFrame:
 def get_goals(
         delta: datetime.timedelta, 
         offset: datetime.timedelta = datetime.timedelta()
-    ) -> list[typing.Tuple[models.Goal, models.Product2BankAccount]]:
+) -> list[typing.Tuple[models.Goal, models.Product2BankAccount]]:
     now = datetime.datetime.now() - offset
     lower, upper = now - delta, now
     return env.db.impl().session.query(
@@ -46,7 +46,8 @@ def get_goals(
         orm.and_(
             models.Goal.created_at < upper,
             models.Goal.created_at > lower,
-            models.Product2BankAccount.product_id == 1
+            models.Product2BankAccount.product_id == 1,
+            models.Goal.bank_account_id.not_in(exclude.high_rule())
         )
     ).order_by(
         models.Product2BankAccount.bank_account_id
@@ -71,7 +72,7 @@ def account_goals(
         upper: float = 0.75,
         time_span: datetime.timedelta | None = None,
         time_offset: datetime.timedelta | None = None
-    ) -> typing.Tuple[pd.DataFrame, np.array, int]:
+) -> typing.Tuple[pd.DataFrame, np.array, int]:
     diffs, cached_queries = np.ones(0), np.ones(0)
     state = pd.DataFrame(
         columns=[

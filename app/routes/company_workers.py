@@ -10,9 +10,9 @@ from app.env import env
 import app.models as models
 
 # local
+import app.routes.person_account as account
 import app.modules.database.static as static
 import app.routes.blueprints as blueprints
-from app.models.helpers import get_bank_account_size
 from app.forms.employment import EmploymentForm
 from app.modules.database.validators import CurrentTimezone
 
