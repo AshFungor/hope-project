@@ -1,6 +1,6 @@
 {% extends 'main/base.html' %}
 
-{% block title %} Продукты {% endblock %}
+{% block title %} Просмотр потребления {% endblock %}
 
 {% block content %}
 
@@ -75,6 +75,7 @@
         <div class="container">
             <div class="row">
                 <input type="hidden" name="collector" value="ON"/>
+                <input type="hidden" name="cut_by" value="ON"/>
             </div>
             <div class="row">
                 <label for="collecting-category" class="form-label"><strong>Категория: </strong></label>

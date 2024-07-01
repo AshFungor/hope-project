@@ -1,0 +1,103 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Просмотр целей {% endblock %}
+
+{% block content %}
+
+{% if data is defined %}
+<div class="mb-2 table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"> Банковский счет </th>
+                <th scope="col"> Цель </th>
+                <th scope="col"> Текущий счет </th>
+                <th scope="col"> Состояние </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for goal, account, rate in data %}
+            <tr>
+                <td> {{ account.bank_account_id }} </td>
+                <td> {{ goal.value }} Ψ </td>
+                <td> {{ account.count }} Ψ </td>
+                <td>
+                    <div class="text-wrap mb-3">
+                        <div class="progress">
+                            <div class="bg-success progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow={{ rate }} aria-valuemin="0" aria-valuemax="100" style="width: {{ rate }}%">{{ rate }} %</div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p> показано {{ size }} записей </p>
+    <div class="mb-3">
+        <form role="form" action="{{ url_for( 'master.view_goals', _external=True ) }}" method="GET">
+            <div class="container">
+                <div class="row">
+                    <input type="hidden" name="validate" value="ON"/>
+                    <input type="hidden" name="lower" value="0.25"/>
+                    <input type="hidden" name="upper" value="0.75"/>
+                    <input type="hidden" name="span" value="1"/>
+                    <input type="hidden" name="offset" value="0"/>
+                </div>
+                <div class="row">
+                        <button type="submit" class="btn btn-success mb-3"> Провалидировать </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% if stats is defined %}
+<div class="mb-2 table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"> Банковский счет </th>
+                <th scope="col"> Цель </th>
+                <th scope="col"> Состояние счета на момент установки цели </th>
+                <th scope="col"> Состояние счета на момент валидации цели </th>
+                <th scope="col"> Относительная дельта </th>
+                <th scope="col"> Влияние на курс </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, series in stats.iterrows() %}
+            <tr>
+                <td> {{ series['bank_account_id'] }} </td>
+                <td> {{ series['value'] }} </td>
+                <td> {{ series['on_setup'] }} Ψ </td>
+                <td> {{ series['on_validate'] }} Ψ </td>
+                <td> {{ series['diff'] }} </td>
+                <td> {{ series['impact'] }} </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p> провалидировано {{ size }} целей </p>
+
+    <div class="mb-3">
+        <table class="table table-striped">
+            <thead>
+                <td colspan="2"> Данные валидации: </td>
+            </thead>               
+            <tbody>
+                {% for name, value in spec.items() %}
+                <tr>
+                    <th> {{ name|capitalize }}: </th>
+                    <td> {{ value }} </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <img src='data:image/png;base64,{{ plot }}'/>
+</div>
+{% endif %}
+
+
+{% endblock %}
