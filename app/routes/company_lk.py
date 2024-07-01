@@ -10,7 +10,7 @@ import app.models as models
 # local
 import app.modules.database.static as static
 import app.routes.blueprints as blueprints
-from app.models.helpers import get_bank_account_size
+import app.routes.person_account as account
 
 @blueprints.accounts_blueprint.route('/company_lk')
 @login_required
@@ -44,7 +44,7 @@ def company_cabinet():
         goal = models.Goal.get_last(company.bank_account_id, True)
         if goal is None:
             return flask.redirect(flask.url_for('goal_view.view_create_goal', account=company.bank_account_id))
-        balance = get_bank_account_size(company.bank_account_id)
+        balance = account.get_money(company.bank_account_id)
         setattr(goal, 'rate', goal.get_rate(balance))
 
         query_CEO = sqlalchemy.select(models.User).join(
