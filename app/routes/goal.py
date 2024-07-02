@@ -32,11 +32,12 @@ def goal_picker(state: pd.DataFrame, **kwargs) -> pd.DataFrame:
 
 def get_goals(
         delta: datetime.timedelta, 
-        offset: datetime.timedelta = datetime.timedelta()
+        offset: datetime.timedelta = datetime.timedelta(),
+        **filters: dict[str, list[int]]
 ) -> list[typing.Tuple[models.Goal, models.Product2BankAccount]]:
     now = datetime.datetime.now() - offset
     lower, upper = now - delta, now
-    return env.db.impl().session.query(
+    base = env.db.impl().session.query(
         models.Goal,
         models.Product2BankAccount
     ).join(
@@ -49,7 +50,14 @@ def get_goals(
             models.Product2BankAccount.product_id == 1,
             models.Goal.bank_account_id.not_in(exclude.high_rule())
         )
-    ).order_by(
+    )
+
+    for filter in filters:
+        base = base.filter(
+            models.Goal.bank_account_id.not_in(filters[filter])
+        )
+
+    return base.order_by(
         models.Product2BankAccount.bank_account_id
     ).all()
 
@@ -71,7 +79,8 @@ def account_goals(
         lower: float = 0.25,
         upper: float = 0.75,
         time_span: datetime.timedelta | None = None,
-        time_offset: datetime.timedelta | None = None
+        time_offset: datetime.timedelta | None = None,
+        **filters: dict[str, list[int]]
 ) -> typing.Tuple[pd.DataFrame, np.array, int]:
     diffs, cached_queries = np.ones(0), np.ones(0)
     state = pd.DataFrame(
@@ -90,12 +99,10 @@ def account_goals(
     if time_offset is None:
         time_offset = datetime.timedelta(days=0)
 
-    for goal, account in get_goals(time_span, time_offset):
+    for goal, account in get_goals(time_span, time_offset, **filters):
         delta = account.count - goal.amount_on_setup
         goal.amount_on_validate = account.count
-        if goal.value <= delta:
-            # achieved
-            goal.completed = True
+        goal.complete = delta >= goal.value
         
         diff = -goal.value if goal.value > delta else goal.value
         diffs = np.append(diffs, diff)
@@ -186,11 +193,19 @@ def view_goals():
         # parse some args
         scale = flask.request.args.get('scale', 'OFF').upper().startswith('ON')
         lower = upper = span = offset = None
+        # filters
+        with_users = None
         try:
             lower = float(flask.request.args.get('lower', '0.25'))
             upper = float(flask.request.args.get('upper', '0.75'))
-            span = datetime.timedelta(days=int(flask.request.args.get('span', '1')))
-            offset = datetime.timedelta(days=int(flask.request.args.get('offset', '0')))
+            span = datetime.timedelta(
+                days=int(flask.request.args.get('span', '1'))
+            )
+            offset = datetime.timedelta(
+                days=int(flask.request.args.get('offset', '0'))
+            )
+            # filters
+            with_users = flask.request.args.get('exclude_users', 'OFF').upper().startswith('ON')
         except Exception as error:
             logger.warning('error on args parse while validating goals: %s' % error)
             return flask.abort(443, 'invalid args format')
@@ -207,7 +222,16 @@ def view_goals():
             f'time span = {span} and offset = {offset}'
         )
 
-        stats, diff, median = account_goals(scale, lower, upper, span, offset)
+        filters = {}
+        for filter, excluder, name in zip(
+            [with_users], 
+            [exclude.users], 
+            ['users']
+        ):
+            if filter:
+                filters[name] = excluder()
+
+        stats, diff, median = account_goals(scale, lower, upper, span, offset, **filters)
 
         if not diff.shape[0]:
             return flask.abort(400, 'batch is empty')

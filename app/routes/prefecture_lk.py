@@ -8,9 +8,11 @@ import flask_login
 import sqlalchemy as orm
 
 from app.env import env
+
 import app.models as models
 import app.routes.blueprints as blueprints
 import app.routes.person_account as account
+import app.modules.statistics.excluders as excluders
 
 
 def assistant_visitor(
@@ -34,66 +36,140 @@ def get_current_roles(
     return {soft: user and current_user.id == user.id for user, soft in zip(assistants.values(), soft_names)}
 
 
-def decorate_user(user: models.User, city: models.City, money: models.Product2BankAccount) -> models.User:
-    user = copy.deepcopy(user)
-    setattr(user, 'city_name', city.name)
-    setattr(user, 'minus', abs(money.count))
-    return user
+def decorate_city(
+    city: models.City, 
+    prefecture: models.Prefecture,
+    money: models.Product2BankAccount
+) -> models.City:
+    city = copy.deepcopy(city)
+    setattr(city, 'minus', abs(money.count))
+    setattr(city, 'prefecture_name', prefecture.name)
+    return city
 
 
-def decorate_company(company: models.Company, money: models.Product2BankAccount) -> models.Company:
+def get_bankrupt_cities(prefecture_id: int | None = None) -> list[models.City]:
+    return [decorate_city(city, prefecture, money) 
+        for city, prefecture, money in env.db.impl().session
+        .query(models.City, models.Prefecture, models.Product2BankAccount)
+        .join(
+            models.Product2BankAccount, 
+            models.Product2BankAccount.bank_account_id == models.City.bank_account_id
+        ).join(
+            models.Prefecture,
+            models.Prefecture.id == models.City.prefecture_id
+        ).filter(
+            orm.and_(
+                (
+                    models.City.prefecture_id == prefecture_id 
+                    if prefecture_id is not None else 
+                    True
+                ),
+                models.Product2BankAccount.count < 0,
+                models.Product2BankAccount.product_id == 1,
+                models.City.bank_account_id.not_in(excluders.high_rule())
+            )
+        ).all()
+    ]
+
+
+def decorate_company(
+    company: models.Company, 
+    money: models.Product2BankAccount
+) -> models.Company:
     company = copy.deepcopy(company)
     setattr(company, 'minus', abs(money.count))
     return company
 
 
-def query_bankrupts(territory: str, id: int) -> typing.Tuple[list[models.User], list[models.Company]] | list[models.Company]:
-    if territory.lower().startswith('prefecture'):
-        companies = [decorate_company(company, money) for company, money in env.db.impl().session
-            .query(models.Company, models.Product2BankAccount)
-            .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.Company.bank_account_id)
-            .filter(orm.and_(
-                models.Company.prefecture_id == id,
+def get_bankrupt_companies(
+    prefecture_id: int | None = None
+) -> list[models.Company]:
+    return [decorate_company(company, money) 
+        for company, money in env.db.impl().session
+        .query(
+            models.Company, models.Product2BankAccount
+        ).join(
+            models.Product2BankAccount, 
+            models.Product2BankAccount.bank_account_id == models.Company.bank_account_id
+        ).filter(
+            orm.and_(
+                (
+                    models.Company.prefecture_id == prefecture_id 
+                    if prefecture_id is not None else 
+                    True
+                ),
                 models.Product2BankAccount.count < 0,
-                models.Product2BankAccount.product_id == 1
+                models.Product2BankAccount.product_id == 1,
+                models.Company.bank_account_id.not_in(excluders.high_rule())
             )
-        ).all()]
-        users = [decorate_user(user, city, money) for user, city, money in env.db.impl().session
-            .query(models.User, models.City, models.Product2BankAccount)
-            .join(models.User, models.City.id == models.User.city_id)
-            .join(models.Prefecture, models.Prefecture.id == models.City.prefecture_id)
-            .join(models.Product2BankAccount,
-                models.Product2BankAccount.bank_account_id == models.User.bank_account_id
-            )
-            .filter(orm.and_(
-                models.Product2BankAccount.count < 0,
-                models.Prefecture.id == id,
-                models.Product2BankAccount.product_id == 1
-            )
-        ).all()]
-        return (users, companies)
-    # get all users
-    companies = [decorate_company(company, money) for company, money in env.db.impl().session
-        .query(models.Company, models.Product2BankAccount)
-        .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.Company.bank_account_id)
-        .filter(orm.and_(
-            models.Product2BankAccount.count < 0,
-            models.Product2BankAccount.product_id == 1
-        )
-    ).all()]
-    users = [decorate_user(user, city, money) for user, city, money in env.db.impl().session
-        .query(models.User, models.City, models.Product2BankAccount)
-        .join(models.User, models.City.id == models.User.city_id)
-        .join(models.Prefecture, models.Prefecture.id == models.City.prefecture_id)
-        .join(models.Product2BankAccount,
+        ).all()
+    ]
+
+
+def decorate_user(
+    user: models.User, 
+    city: models.City, 
+    money: models.Product2BankAccount
+) -> models.User:
+    user = copy.deepcopy(user)
+    setattr(user, 'city_name', city.name)
+    setattr(user, 'city_location', city.location)
+    setattr(user, 'minus', abs(money.count))
+    return user
+
+
+def get_bankrupt_users(
+    prefecture_id: int | None = None
+) -> list[models.User]:
+    return [decorate_user(user, city, money) 
+        for user, city, money in env.db.impl().session
+        .query(
+            models.User, 
+            models.City, 
+            models.Product2BankAccount
+        ).join(
+            models.User, 
+            models.City.id == models.User.city_id
+        ).join(
+            models.Prefecture, 
+            models.Prefecture.id == models.City.prefecture_id
+        ).join(
+            models.Product2BankAccount,
             models.Product2BankAccount.bank_account_id == models.User.bank_account_id
+        ).filter(
+            orm.and_(
+                (
+                    models.Prefecture.id == prefecture_id 
+                    if prefecture_id is not None else 
+                    True
+                ),
+                models.Product2BankAccount.count < 0,
+                models.Product2BankAccount.product_id == 1,
+                models.User.bank_account_id.not_in(excluders.high_rule())
+            )
+        ).all()
+    ]
+
+
+def query_bankrupts(
+    territory: str, 
+    id: int
+) -> typing.Tuple[
+    list[models.User], 
+    list[models.Company],
+    list[models.City]
+]:
+    if territory.lower().startswith('prefecture'):
+        return (
+            get_bankrupt_users(id),
+            get_bankrupt_companies(id),
+            get_bankrupt_cities(id)
         )
-        .filter(orm.and_(
-            models.Product2BankAccount.count < 0,
-            models.Product2BankAccount.product_id == 1
-        )
-    ).all()]
-    return (users, companies)
+    return (
+        get_bankrupt_users(),
+        get_bankrupt_companies(),
+        get_bankrupt_cities()
+    )
 
 
 @blueprints.accounts_blueprint.route('/prefecture_account')
@@ -135,7 +211,8 @@ def prefecture_cabinet():
     for spec in mapper:
         specs.append({'name': mapper[spec], 'value': getattr(prefecture, spec)})
 
-    bankrupt_users, bankrupt_companies = query_bankrupts('prefecture', prefecture.id)
+    bankrupt_users, bankrupt_companies, bankrupt_cities = \
+        query_bankrupts('prefecture', prefecture.id)
 
     return flask.render_template(
         'main/prefecture_lk_page.html', 
@@ -145,5 +222,6 @@ def prefecture_cabinet():
         prefecture=prefecture,
         roles=current_role,
         bankrupt_users=bankrupt_users,
-        bankrupt_companies=bankrupt_companies
+        bankrupt_companies=bankrupt_companies,
+        bankrupt_cities=bankrupt_cities
     )

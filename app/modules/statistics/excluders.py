@@ -11,6 +11,16 @@ from app.env import env
 import app.models as models
 
 
+def users() -> list[int]:
+    accounts = env.db.impl().session.query(
+        models.BankAccount
+    ).join(
+        models.User, models.BankAccount.id == models.User.bank_account_id
+    )
+
+    return [account.id for account in accounts]
+
+
 def high_rule() -> list[int]:
     # exclude admins
     admins = env.db.impl().session.query(
