@@ -90,7 +90,7 @@
 </div>
 {% endif %}
 
-{% if roles['economic_assistant'] %}
+{% if roles['economic_assistant'] or roles['social_assistant'] %}
 <div class="d-grid gap-2 d-mb-block mb-4">
 
     <form action="{{ url_for( 'proposal.new_money_transaction', _external=True ) }}" method="GET">
