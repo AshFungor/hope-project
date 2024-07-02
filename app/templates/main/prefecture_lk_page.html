@@ -134,16 +134,18 @@
         {% if bankrupt_users %}
             <tr>
                 <th scope="col"> Номер Счета </th>
-                <th scope="col" colspan="4"> ФИО </th>
+                <th scope="col" colspan="3"> ФИО </th>
                 <th scope="col"> Город </th>
+                <th scope="col"> Местоположение города </th>
                 <th scope="col"> Задолженность </th>
             </tr>
         {% endif %}
         {% for user in bankrupt_users %}
             <tr>
                 <td class="table-light"> {{ user.bank_account_id }} </td>
-                <td class="table-light" colspan="4"> {{ user.full_name_string }} </td>
+                <td class="table-light" colspan="3"> {{ user.full_name_string }} </td>
                 <td class="table-light"> {{ user.city_name }} </td>
+                <td class="table-light"> {{ user.city_location }} </td>
                 <td class="table-light"> {{ user.minus }} </td>
             </tr>
         {% endfor %}
@@ -159,6 +161,22 @@
                 <td class="table-light" colspan="2"> {{ company.bank_account_id }} </td>
                 <td class="table-light" colspan="3"> {{ company.name }} </td>
                 <td class="table-light" colspan="2"> {{ company.minus }} </td>
+            </tr>
+        {% endfor %}
+        {% if bankrupt_cities %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="3"> Название города </th>
+                <th scope="col" colspan="2"> Префектура </th>
+                <th scope="col" colspan="1"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for city in bankrupt_cities %}
+            <tr>
+                <td class="table-light" colspan="2"> {{ city.bank_account_id }} </td>
+                <td class="table-light" colspan="2"> {{ city.name }} </td>
+                <td class="table-light" colspan="2"> {{ city.prefecture_name }} </td>
+                <td class="table-light" colspan="1"> {{ city.minus }} </td>
             </tr>
         {% endfor %}
         </tbody>

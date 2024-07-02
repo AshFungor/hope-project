@@ -150,6 +150,22 @@
                 <td class="table-light" colspan="2"> {{ company.minus }} </td>
             </tr>
         {% endfor %}
+        {% if bankrupt_cities %}
+            <tr>
+                <th scope="col"> Номер Счета </th>
+                <th scope="col" colspan="3"> Название города </th>
+                <th scope="col" colspan="2"> Префектура </th>
+                <th scope="col" colspan="1"> Задолженность </th>
+            </tr>
+        {% endif %}
+        {% for city in bankrupt_cities %}
+            <tr>
+                <td class="table-light" colspan="2"> {{ city.bank_account_id }} </td>
+                <td class="table-light" colspan="2"> {{ city.name }} </td>
+                <td class="table-light" colspan="2"> {{ city.prefecture_name }} </td>
+                <td class="table-light" colspan="1"> {{ city.minus }} </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
