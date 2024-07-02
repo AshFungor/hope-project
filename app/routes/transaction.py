@@ -116,7 +116,7 @@ def parse_new_transaction():
     else:
         flask.flash(response.data.decode('UTF-8'), category='danger')
     # redirect with args
-    return flask.redirect(flask.url_for('proposal.new_transaction', **flask.request.args))
+    return flask.redirect(flask.url_for('proposal.new_transaction', account=params['seller_account']))
 
 
 @blueprints.transaction_blueprint.route('/transaction/parse/money/create', methods=['POST'])
@@ -145,4 +145,4 @@ def parse_new_money_transaction():
         flask.flash(response.data.decode('UTF-8'), category='success')
     else:
         flask.flash(response.data.decode('UTF-8'), category='danger')
-    return flask.redirect(flask.url_for('proposal.new_money_transaction', **flask.request.args))
+    return flask.redirect(flask.url_for('proposal.new_money_transaction', account=params['seller_account']))
