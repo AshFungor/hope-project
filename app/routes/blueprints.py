@@ -4,6 +4,7 @@ import flask
 csv_blueprint = flask.Blueprint('csv', __name__)
 transaction_blueprint = flask.Blueprint('transaction', __name__)
 goal_model = flask.Blueprint('goal_model', __name__)
+stats = flask.Blueprint('statistics', __name__)
 
 # front-end
 # личные кабинеты
@@ -30,4 +31,5 @@ all_blueprints = (
     goal_model,
     product,
     master_blueprint,
+    stats
 )

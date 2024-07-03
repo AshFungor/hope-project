@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+
+{% block title %} Просмотр рынка {% endblock %}
+
+{% block content %}
+
+<table class="table table-striped">
+    <thead>
+        <td colspan="2"> Общие данные о состоянии рынка: </td>
+    </thead>               
+    <tbody>
+        {% for entry, value in spec.items() %}
+        <tr>
+            <th> {{ entry|capitalize }}: </th>
+            <td> {{ value }} </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="mb-2">
+    <div class="mb-3" style="width: 100%">
+        <td class="justify-content-center" colspan="3"> <img src='data:image/png;base64,{{ plotted_share }}'/> </td>
+    </div>
+    <div class="mb-3" style="width: 100%">
+        <td class="justify-content-center" colspan="3"> <img src='data:image/png;base64,{{ plotted_loss}}'/> </td>
+    </div>
+    <div class="mb-3" style="width: 100%">
+        <td class="justify-content-center" colspan="3"> <img src='data:image/png;base64,{{ plotted_gain }}'/> </td>
+    </div>
+</div>
+
+{% endblock %}
