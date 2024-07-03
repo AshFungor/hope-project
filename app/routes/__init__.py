@@ -18,4 +18,5 @@ from . import goal
 from . import add_withdrowal
 from . import create_office
 from . import consumption
+from . import income
 
