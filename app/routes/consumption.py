@@ -90,7 +90,8 @@ def collect_consumers(
                     user.bank_account_id,
                     fillers[mapped].id,
                     norms[mapped],
-                    datetime.datetime.now(tz=CurrentTimezone)
+                    datetime.datetime.now(tz=CurrentTimezone) - \
+                        datetime.timedelta(days=1)
                 ))
                 account = env.db.impl().session \
                     .query(models.Product2BankAccount) \
@@ -261,6 +262,8 @@ def view_consumption():
         models.Product.id == models.Consumption.product_id
     ).filter(
         models.Consumption.bank_account_id == account
+    ).order_by(
+        orm.desc(models.Consumption.consumed_at)
     ).all()
 
     payload = []
