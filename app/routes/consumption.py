@@ -35,7 +35,7 @@ defaults = {
 time_accounted = {
     'FOOD': datetime.timedelta(days=1),
     'CLOTHES': datetime.timedelta(days=2),
-    'TECHNIC': datetime.timedelta(days=3)
+    'TECHNIC': datetime.timedelta(days=4)
 }
 
 def redirect_to_original(original: str, string: str) -> flask.Response:
@@ -90,7 +90,8 @@ def collect_consumers(
                     user.bank_account_id,
                     fillers[mapped].id,
                     norms[mapped],
-                    datetime.datetime.now(tz=CurrentTimezone)
+                    datetime.datetime.now(tz=CurrentTimezone) - \
+                        datetime.timedelta(days=1)
                 ))
                 account = env.db.impl().session \
                     .query(models.Product2BankAccount) \
@@ -261,6 +262,8 @@ def view_consumption():
         models.Product.id == models.Consumption.product_id
     ).filter(
         models.Consumption.bank_account_id == account
+    ).order_by(
+        orm.desc(models.Consumption.consumed_at)
     ).all()
 
     payload = []
@@ -273,11 +276,14 @@ def view_consumption():
             row['Автоматическое списание'] = 'да'
             row['Цена автоматического списания'] = \
                 norms[product.category] * defaults[product.category]
+            row['Время потребления'] = \
+                (consumed.local_consumed_at + datetime.timedelta(days=1)) \
+                    .strftime('%d/%m/%Y %H:%M:%S')
         else:
             row['Автоматическое списание'] = 'нет'
             row['Цена автоматического списания'] = '-'
-        row['Время потребления'] = \
-            consumed.local_consumed_at.strftime('%d/%m/%Y %H:%M:%S')
+            row['Время потребления'] = \
+                consumed.local_consumed_at.strftime('%d/%m/%Y %H:%M:%S')
         row['Категория'] = product.category
         payload.append(row)
 

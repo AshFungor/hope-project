@@ -1,6 +1,7 @@
 import io
 import base64
 import typing
+import logging
 import datetime
 
 import flask
@@ -219,7 +220,7 @@ def calculate_external_gain(
                     exclude.high_rule()
                 ),
                 (
-                    orm.true 
+                    True == True
                     if offset is not None else
                     models.Transaction.updated_at <= \
                         datetime.datetime.now() - offset
@@ -227,6 +228,57 @@ def calculate_external_gain(
             )
         ).all()
     ])
+
+
+def get_company_income(
+    account: int,
+    with_exact_timestamps: bool = False,
+    exclude_government: bool = True
+):
+    transactions = env.db.impl().session.query(
+        models.Transaction
+    ).filter(
+        orm.or_(
+            models.Transaction.customer_bank_account_id == account,
+            models.Transaction.seller_bank_account_id == account
+        )
+    ).filter(
+        orm.and_(
+            models.Transaction.status == 'approved',
+            (orm.True_
+            if not exclude_government else
+            models.Transaction.customer_bank_account_id.not_in(
+                [int(id) for id in common.get_government()]
+            ))
+        )
+    ).order_by(
+        orm.asc(models.Transaction.updated_at)
+    ).all()
+
+    if not transactions:
+        return [0], [0]
+    
+    relative = np.min(
+        [transaction.updated_at for transaction in transactions]
+    )
+    approximate_timestamp = lambda timestamp: \
+        (timestamp - relative).total_seconds() / (60 * 60)
+    
+    
+    incomes, income = [], 0
+    for transaction in transactions:
+        if transaction.customer_bank_account_id == account:
+            income += transaction.amount
+        if transaction.seller_bank_account_id == account:
+            income -= transaction.amount
+        incomes.append(income)
+
+    return [
+        approximate_timestamp(transaction.updated_at)
+        if not with_exact_timestamps else
+        transaction.updated_at
+        for transaction in transactions
+    ], incomes
 
 
 def plot_pie(data: list[typing.Tuple[int, int]], title: str) -> str:
@@ -255,6 +307,29 @@ def plot_pie(data: list[typing.Tuple[int, int]], title: str) -> str:
     return base64.b64encode(buffer.getbuffer()).decode("ascii")
 
 
+def plot_income(title: str, id: int | None = None) -> str:
+    ids = [
+        company.bank_account_id for company in env.db.impl().session.query(
+            models.Company
+        ).filter(
+            models.Company.bank_account_id.not_in(exclude.high_rule())
+        ).all()
+    ]
+    if id is int:
+        ids = [id]
+
+    plt.figure(figsize=(6, 4))
+    plt.title(title)
+    for id in ids:
+        x, y = get_company_income(id)
+        plt.plot(x, y)
+    
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    plt.grid(True)
+    return base64.b64encode(buffer.getbuffer()).decode("ascii")
+
+
 @blueprints.stats.route('/view_statistics', methods=['GET'])
 @flask_login.login_required
 def view_statistics():
@@ -280,11 +355,14 @@ def view_statistics():
         plot_pie(share, share_title), \
         plot_pie(gained, gained_title), \
         plot_pie(spent, spent_title)
+    
+    general_income = plot_income('Общие доходы компаний')
 
     return flask.render_template(
         'main/view_income.html',
         spec=spec,
         plotted_share=plotted_share,
         plotted_loss=plotted_spent,
-        plotted_gain=plotted_gain
+        plotted_gain=plotted_gain,
+        general_income=general_income
     )
