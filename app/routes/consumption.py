@@ -16,7 +16,7 @@ from app.modules.database.validators import CurrentTimezone
 
 import app.models as models
 import app.routes.blueprints as blueprints
-import app.modules.database.static as static
+import app.routes.income as income
 import app.routes.user_products as products
 
 
@@ -244,3 +244,46 @@ def view_consumers():
         initial_batch_size=initial_size,
         message=message
     )
+
+
+@blueprints.proposal_blueprint.route('/view_consumption', methods=['GET'])
+@flask_login.login_required
+def view_consumption():
+    account = flask.request.args.get('account', None)
+    if account is None:
+        account = flask_login.current_user.bank_account_id
+
+    consumption_data = env.db.impl().session.query(
+        models.Consumption,
+        models.Product
+    ).join(
+        models.Product,
+        models.Product.id == models.Consumption.product_id
+    ).filter(
+        models.Consumption.bank_account_id == account
+    ).all()
+
+    payload = []
+    for consumed, product in consumption_data:
+        row = {}
+        if datetime.time.max \
+            > consumed.consumed_at.time() > \
+            datetime.time(hour=20) \
+        :
+            row['Автоматическое списание'] = 'да'
+            row['Цена автоматического списания'] = \
+                norms[product.category] * defaults[product.category]
+        else:
+            row['Автоматическое списание'] = 'нет'
+            row['Цена автоматического списания'] = '-'
+        row['Время потребления'] = \
+            consumed.local_consumed_at.strftime('%d/%m/%Y %H:%M:%S')
+        row['Категория'] = product.category
+        payload.append(row)
+
+    return flask.render_template(
+        'main/view_all_consumption.html',
+        payload=payload
+    )
+        
+    
