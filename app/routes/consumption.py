@@ -284,7 +284,6 @@ def view_consumption():
             row['Цена автоматического списания'] = '-'
             row['Время потребления'] = \
                 consumed.local_consumed_at.strftime('%d/%m/%Y %H:%M:%S')
-
         row['Категория'] = product.category
         payload.append(row)
 

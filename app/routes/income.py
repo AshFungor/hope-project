@@ -30,8 +30,8 @@ from app.env import env
 def select_consumption_total(
     id: int,
     offset: datetime.timedelta,
-    auto_lower: datetime.time = datetime.time(hour=21),
-    auto_margin: datetime.timedelta = datetime.timedelta(hours=3) - \
+    auto_lower: datetime.time = datetime.time(hour=20),
+    auto_margin: datetime.timedelta = datetime.timedelta(hours=4) - \
         datetime.timedelta.resolution
 ) -> list[int]:
     if (datetime.datetime.combine(datetime.date.today(), auto_lower) 
