@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 import flask
 import flask_login
@@ -8,8 +9,13 @@ import sqlalchemy as orm
 from app.env import env
 
 # local
+import app.routes.consumption as consumption
 import app.routes.blueprints as blueprints
 import app.models as models
+
+
+def time_span_formatter(span: datetime.timedelta) -> str:
+    return f'{span.days} дней'
 
 
 def get_money(id: int) -> int:
@@ -51,10 +57,32 @@ def person_account():
         'birthday': 'день рождения',
         'bonus': 'бонус'
     }
+
+    consumption_data = {}
+    for name in consumption.norms:
+        status, left = models.Consumption.did_consume_enough(
+            current_user.bank_account_id,
+            name, 
+            consumption.norms[name],
+            consumption.time_accounted[name]
+        )
+        consumption_data[name] = {
+            'Употребление': 'да' if status else 'нет',
+            'Норма употребления': consumption.norms[name],
+            'Эпизодичность': time_span_formatter(
+                consumption.time_accounted[name]
+            )
+        }
     
 
     for spec in mapper:
         specs.append({'name': mapper[spec], 'value': getattr(current_user, spec)})
-    return flask.render_template('main/person_account_page.html', user_spec=specs, goal=goal, balance=balance)
+    return flask.render_template(
+        'main/person_account_page.html', 
+        user_spec=specs, 
+        goal=goal, 
+        balance=balance,
+        consumption_data=consumption_data
+    )
 
 
