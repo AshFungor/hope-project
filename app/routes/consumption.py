@@ -271,7 +271,7 @@ def view_consumption():
         row = {}
         if datetime.time.max \
             > consumed.consumed_at.time() > \
-            datetime.time(hour=20) \
+            datetime.time(hour=18) \
         :
             row['Автоматическое списание'] = 'да'
             row['Цена автоматического списания'] = \

@@ -233,7 +233,8 @@ def calculate_external_gain(
 def get_company_income(
     account: int,
     with_exact_timestamps: bool = False,
-    exclude_government: bool = True
+    exclude_government: bool = True,
+    offset: datetime.timedelta | None = None
 ):
     transactions = env.db.impl().session.query(
         models.Transaction
@@ -245,18 +246,25 @@ def get_company_income(
     ).filter(
         orm.and_(
             models.Transaction.status == 'approved',
-            (orm.True_
-            if not exclude_government else
-            models.Transaction.customer_bank_account_id.not_in(
-                [int(id) for id in common.get_government()]
-            ))
+            (
+                True == True
+                if not exclude_government else
+                models.Transaction.customer_bank_account_id.not_in(
+                    [int(id) for id in common.get_government()]
+                )
+            ),
+            (
+                True == True
+                if offset is None else
+                models.Transaction.updated_at >= datetime.datetime.now() - offset
+            )
         )
     ).order_by(
         orm.asc(models.Transaction.updated_at)
     ).all()
 
     if not transactions:
-        return [0], [0]
+        return [0], [0], [0]
     
     relative = np.min(
         [transaction.updated_at for transaction in transactions]
@@ -265,20 +273,25 @@ def get_company_income(
         (timestamp - relative).total_seconds() / (60 * 60)
     
     
-    incomes, income = [], 0
+    approx, incomes, deltas, income = [], [], [], 0
     for transaction in transactions:
-        if transaction.customer_bank_account_id == account:
-            income += transaction.amount
-        if transaction.seller_bank_account_id == account:
-            income -= transaction.amount
+        delta = 0
+        if transaction.product_id == 1:
+            if transaction.customer_bank_account_id == account:
+                income, delta = income + transaction.amount, delta + transaction.amount
+            if transaction.seller_bank_account_id == account:
+                income, delta = income - transaction.amount, delta - transaction.amount
+        else:
+            if transaction.seller_bank_account_id == account:
+                income, delta = income + transaction.amount, delta + transaction.amount
+            if transaction.customer_bank_account_id == account:
+                income, delta = income - transaction.amount, delta - transaction.amount
+        deltas.append(delta)
+        approx.append(approximate_timestamp(transaction.updated_at))
         incomes.append(income)
 
-    return [
-        approximate_timestamp(transaction.updated_at)
-        if not with_exact_timestamps else
-        transaction.updated_at
-        for transaction in transactions
-    ], incomes
+
+    return approx, incomes, deltas
 
 
 def plot_pie(data: list[typing.Tuple[int, int]], title: str) -> str:
@@ -304,6 +317,34 @@ def plot_pie(data: list[typing.Tuple[int, int]], title: str) -> str:
 
     buffer = io.BytesIO()
     plt.savefig(buffer, format='png')
+    plt.close("all")
+    return base64.b64encode(buffer.getbuffer()).decode("ascii")
+
+
+def plot_income(title: str, id: int | None = None) -> str:
+    ids = [
+        company.bank_account_id for company in env.db.impl().session.query(
+            models.Company
+        ).filter(
+            models.Company.bank_account_id.not_in(exclude.high_rule())
+        ).all()
+    ]
+    if id is not None:
+        ids = [id]
+
+    plt.figure(figsize=(6, 4))
+    plt.title(title)
+    plt.xlabel('Время, ч')
+    plt.ylabel('Прибыль в надиках')
+    
+    for id in ids:
+        x, y, _ = get_company_income(id)
+        plt.plot(x, y)
+    
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format='png')
+    plt.grid(True)
+    plt.close("all")
     return base64.b64encode(buffer.getbuffer()).decode("ascii")
 
 
@@ -358,11 +399,61 @@ def view_statistics():
     
     general_income = plot_income('Общие доходы компаний')
 
+    companies = env.db.impl().session.query(
+        models.Company
+    ).filter(
+        models.Company.bank_account_id.not_in(exclude.high_rule())
+    ).all()
+
     return flask.render_template(
         'main/view_income.html',
         spec=spec,
         plotted_share=plotted_share,
         plotted_loss=plotted_spent,
         plotted_gain=plotted_gain,
-        general_income=general_income
+        companies=companies
+    )
+
+
+@blueprints.stats.route('/view_company_statistics', methods=['GET'])
+@flask_login.login_required
+def view_company_statistics():
+    company = flask.request.args.get('company', None)
+    if company is None:
+        return flask.abort(443, f'company is missing')
+    
+    company = int(company)
+    obj = env.db.impl().session.query(
+        models.Company
+    ).filter(
+        models.Company.bank_account_id == company
+    ).first()
+
+    income = plot_income(f'Доход компании {obj.name}', company)
+    _, incomes, gains = get_company_income(company)
+    _, shifted_incomes, shifted_gains = get_company_income(
+        company, offset=datetime.timedelta(days=1, hours=12)
+    )
+
+    overall, shifted = incomes[-1], shifted_incomes[-1]
+
+    gains, shifted_gains = np.asarray(gains), np.asarray(shifted_gains)
+    positives_overall, positives_shifted = \
+        np.sum(gains[gains > 0]), np.sum(shifted_gains[shifted_gains > 0])
+    negatives_overall, negatives_shifted = \
+        np.sum(gains[gains < 0]), np.sum(shifted_gains[shifted_gains < 0])
+
+    company_spec = {
+        'Общая прибыль за все время': overall,
+        'Общий доход за все время': positives_overall,
+        'Общие расходы за все время': negatives_overall,
+        'Прибыль за последний день': shifted,
+        'Доходы за последний день': positives_shifted,
+        'Расходы за последний день': negatives_shifted
+    }
+
+    return flask.render_template(
+        'main/view_company_income.html',
+        plot=income,
+        company_spec=company_spec
     )
