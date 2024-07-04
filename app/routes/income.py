@@ -348,29 +348,6 @@ def plot_income(title: str, id: int | None = None) -> str:
     return base64.b64encode(buffer.getbuffer()).decode("ascii")
 
 
-def plot_income(title: str, id: int | None = None) -> str:
-    ids = [
-        company.bank_account_id for company in env.db.impl().session.query(
-            models.Company
-        ).filter(
-            models.Company.bank_account_id.not_in(exclude.high_rule())
-        ).all()
-    ]
-    if id is int:
-        ids = [id]
-
-    plt.figure(figsize=(6, 4))
-    plt.title(title)
-    for id in ids:
-        x, y = get_company_income(id)
-        plt.plot(x, y)
-    
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    plt.grid(True)
-    return base64.b64encode(buffer.getbuffer()).decode("ascii")
-
-
 @blueprints.stats.route('/view_statistics', methods=['GET'])
 @flask_login.login_required
 def view_statistics():
@@ -396,8 +373,12 @@ def view_statistics():
         plot_pie(share, share_title), \
         plot_pie(gained, gained_title), \
         plot_pie(spent, spent_title)
-    
-    general_income = plot_income('Общие доходы компаний')
+
+    companies = env.db.impl().session.query(
+        models.Company
+    ).filter(
+        models.Company.bank_account_id.not_in(exclude.high_rule())
+    ).all()
 
     companies = env.db.impl().session.query(
         models.Company
@@ -434,7 +415,7 @@ def view_company_statistics():
     _, shifted_incomes, shifted_gains = get_company_income(
         company, offset=datetime.timedelta(days=1, hours=12)
     )
-
+    
     overall, shifted = incomes[-1], shifted_incomes[-1]
 
     gains, shifted_gains = np.asarray(gains), np.asarray(shifted_gains)
