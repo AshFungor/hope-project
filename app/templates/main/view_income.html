@@ -49,4 +49,23 @@
     </form>
 </div>
 
+<div class="mb-2">
+    <form role="form" action="{{ url_for( 'statistics.view_company_statistics', _external=True ) }}" method="GET">
+        <div class="container">
+            <div class="row">
+                <label for="company" class="form-label"><strong> Компания: </strong></label>
+                <select name="company" class="form-select">
+                    {% for company in companies %}
+                        <option value="{{ company.bank_account_id }}"> {{ company.name }} </option>
+                    {% endfor %}
+                </select>
+                <p></p>
+            </div>
+            <div class="row">
+                    <button type="submit" class="btn btn-success mb-3"> Просмотреть </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 {% endblock %}

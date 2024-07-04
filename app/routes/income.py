@@ -413,7 +413,6 @@ def view_company_statistics():
     _, shifted_incomes, shifted_gains, shifted_products = get_company_income(
         company, offset=datetime.timedelta(days=1, hours=12)
     )
-
     overall, shifted = incomes[-1], shifted_incomes[-1]
 
     gains, shifted_gains = np.asarray(gains), np.asarray(shifted_gains)
