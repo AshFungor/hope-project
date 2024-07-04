@@ -18,6 +18,7 @@ import sqlalchemy as orm
 import app.models as models
 import app.routes.blueprints as blueprints
 import app.routes.person_account as accounts
+import app.modules.statistics.common as common
 import app.modules.statistics.excluders as exclude
 
 from app.env import env
@@ -28,6 +29,24 @@ logger = env.logger.getChild(__name__)
 def goal_picker(state: pd.DataFrame, **kwargs) -> pd.DataFrame:
     state.loc[state.shape[0]] = pd.Series(kwargs)
     return state
+
+
+def turners(
+    account: int
+) -> int:
+    turners = env.db.impl().session.query(
+        models.Transaction
+    ).filter(
+        orm.and_(
+            models.Transaction.product_id == 1,
+            models.Transaction.seller_bank_account_id == account,
+            models.Transaction.customer_bank_account_id.in_(
+                [int(id) for id in common.get_government()]
+            )
+        )
+    )
+
+    return sum([turner.amount for turner in turners])
 
 
 def get_goals(
@@ -101,7 +120,7 @@ def account_goals(
 
     for goal, account in get_goals(time_span, time_offset, **filters):
         delta = account.count - goal.amount_on_setup
-        goal.amount_on_validate = account.count
+        goal.amount_on_validate = account.count + turners(goal.bank_account_id)
         goal.complete = delta >= goal.value
         
         diff = -goal.value if goal.value > delta else goal.value
@@ -239,7 +258,12 @@ def view_goals():
         plot = predict(diff)
         shift = round(np.sum(diff), 10) * (median if scale else 1)
 
+        positives, negatives = \
+            np.sum(diff[diff > 0]), abs(np.sum(diff[diff < 0]))
+
         spec = {
+            'суммарное положительное смещение': positives,
+            'суммарное отрицательное смещение': negatives,
             'медиана': median,
             'нижний квантиль': lower,
             'верхний квантиль': upper,
