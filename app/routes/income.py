@@ -380,6 +380,12 @@ def view_statistics():
         models.Company.bank_account_id.not_in(exclude.high_rule())
     ).all()
 
+    companies = env.db.impl().session.query(
+        models.Company
+    ).filter(
+        models.Company.bank_account_id.not_in(exclude.high_rule())
+    ).all()
+
     return flask.render_template(
         'main/view_income.html',
         spec=spec,
@@ -409,7 +415,7 @@ def view_company_statistics():
     _, shifted_incomes, shifted_gains = get_company_income(
         company, offset=datetime.timedelta(days=1, hours=12)
     )
-
+    
     overall, shifted = incomes[-1], shifted_incomes[-1]
 
     gains, shifted_gains = np.asarray(gains), np.asarray(shifted_gains)
