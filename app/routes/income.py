@@ -235,9 +235,13 @@ def get_company_income(
     with_exact_timestamps: bool = False,
     exclude_government: bool = True,
     offset: datetime.timedelta | None = None
-):
+) -> typing.Tuple[list[int], list[int], list[int], list[int]]:
     transactions = env.db.impl().session.query(
-        models.Transaction
+        models.Transaction,
+        models.Product
+    ).join(
+        models.Product,
+        models.Product.id == models.Transaction.product_id
     ).filter(
         orm.or_(
             models.Transaction.customer_bank_account_id == account,
@@ -264,17 +268,16 @@ def get_company_income(
     ).all()
 
     if not transactions:
-        return [0], [0], [0]
+        return [0], [0], [0], []
     
     relative = np.min(
-        [transaction.updated_at for transaction in transactions]
+        [transaction.updated_at for transaction, _ in transactions]
     )
     approximate_timestamp = lambda timestamp: \
         (timestamp - relative).total_seconds() / (60 * 60)
     
-    
-    approx, incomes, deltas, income = [], [], [], 0
-    for transaction in transactions:
+    approx, incomes, deltas, goods, income = [], [], [], [], 0
+    for transaction, product in transactions:
         delta = 0
         if transaction.product_id == 1:
             if transaction.customer_bank_account_id == account:
@@ -283,15 +286,16 @@ def get_company_income(
                 income, delta = income - transaction.amount, delta - transaction.amount
         else:
             if transaction.seller_bank_account_id == account:
+                goods.append((-transaction.count, product.name))
                 income, delta = income + transaction.amount, delta + transaction.amount
             if transaction.customer_bank_account_id == account:
+                goods.append((transaction.count, product.name))
                 income, delta = income - transaction.amount, delta - transaction.amount
         deltas.append(delta)
         approx.append(approximate_timestamp(transaction.updated_at))
         incomes.append(income)
 
-
-    return approx, incomes, deltas
+    return approx, incomes, deltas, goods
 
 
 def plot_pie(data: list[typing.Tuple[int, int]], title: str) -> str:
@@ -332,13 +336,13 @@ def plot_income(title: str, id: int | None = None) -> str:
     if id is not None:
         ids = [id]
 
-    plt.figure(figsize=(6, 4))
+    plt.figure(figsize=(7, 5))
     plt.title(title)
     plt.xlabel('Время, ч')
     plt.ylabel('Прибыль в надиках')
     
     for id in ids:
-        x, y, _ = get_company_income(id)
+        x, y, _, _ = get_company_income(id)
         plt.plot(x, y)
     
     buffer = io.BytesIO()
@@ -404,9 +408,9 @@ def view_company_statistics():
         models.Company.bank_account_id == company
     ).first()
 
-    income = plot_income(f'Доход компании {obj.name}', company)
-    _, incomes, gains = get_company_income(company)
-    _, shifted_incomes, shifted_gains = get_company_income(
+    income = plot_income(f'Прибыль компании {obj.name}', company)
+    _, incomes, gains, products = get_company_income(company)
+    _, shifted_incomes, shifted_gains, shifted_products = get_company_income(
         company, offset=datetime.timedelta(days=1, hours=12)
     )
 
@@ -417,6 +421,25 @@ def view_company_statistics():
         np.sum(gains[gains > 0]), np.sum(shifted_gains[shifted_gains > 0])
     negatives_overall, negatives_shifted = \
         np.sum(gains[gains < 0]), np.sum(shifted_gains[shifted_gains < 0])
+    
+    def aggregate(products):
+        distributed = {}
+        for count, name in products:
+            if name not in distributed:
+                distributed[name] = {
+                    'away': 0,
+                    'in': 0
+                }
+            if count < 0:
+                distributed[name]['away'] -= count
+            else:
+                distributed[name]['in'] += count
+        return distributed
+
+    distributed = {
+        'total': aggregate(products), 
+        'shifted': aggregate(shifted_products)
+    }
 
     company_spec = {
         'Общая прибыль за все время': overall,
@@ -430,5 +453,6 @@ def view_company_statistics():
     return flask.render_template(
         'main/view_company_income.html',
         plot=income,
-        company_spec=company_spec
+        company_spec=company_spec,
+        distributed=distributed
     )
