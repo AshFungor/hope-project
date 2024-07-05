@@ -1,11 +1,14 @@
+import datetime
 import logging
 import flask
 import io
 
+import sqlalchemy as orm
 import pandas as pd
 
 from app.env import env
 
+import app.models as models
 import app.routes.blueprints as blueprints
 import app.modules.database.static as static
 
@@ -62,5 +65,33 @@ def parse_products():
     added = static.StaticTablesHandler.prepare_products(result)
     if isinstance(added, str):
         return flask.Response(added, status=443)
+    env.db.impl().session.commit()
+    return flask.Response(status=200)
+
+
+@blueprints.csv_blueprint.route('/lol_kek', methods=['GET'])
+def lol_kek_azaza():
+    upper = datetime.datetime(year=2024, month=7, day=4, hour=9, minute=35)
+    down = datetime.datetime(year=2024, month=7, day=4, hour=9, minute=40)
+
+    consumed = env.db.impl().session.query(
+        models.Product2BankAccount,
+        models.Consumption
+    ).join(
+        models.Product2BankAccount,
+        models.Product2BankAccount.bank_account_id == models.Consumption.bank_account_id
+    ).filter(
+        orm.and_(
+            models.Product2BankAccount.product_id == 1,
+            models.Consumption.product_id == 36,
+            models.Consumption.consumed_at > down,
+            models.Consumption.consumed_at < upper
+        )
+    ).all()
+
+    for account, consume in consumed:
+        account.count += consume.count * 200
+        env.db.impl().session.delete(consume)
+
     env.db.impl().session.commit()
     return flask.Response(status=200)
