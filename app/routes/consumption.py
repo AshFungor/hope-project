@@ -23,7 +23,7 @@ import app.routes.user_products as products
 norms = {
     'FOOD': 1,
     'CLOTHES': 1,
-    'TECHNIC': 1
+    'TECHNIC': 2
 }
 
 defaults = {
