@@ -23,7 +23,7 @@ import app.routes.user_products as products
 norms = {
     'FOOD': 1,
     'CLOTHES': 1,
-    'TECHNIC': 2
+    'TECHNIC': 1
 }
 
 defaults = {
@@ -35,8 +35,7 @@ defaults = {
 time_accounted = {
     'FOOD': datetime.timedelta(days=1),
     'CLOTHES': datetime.timedelta(days=2),
-    # temp
-    'TECHNIC': datetime.timedelta(hours=12)
+    'TECHNIC': datetime.timedelta(days=4)
 }
 
 def redirect_to_original(original: str, string: str) -> flask.Response:
