@@ -21,8 +21,15 @@
     <div class="form-group mb-4">
         <input class="form-control text-center" type="number" name="value" min="1" placeholder="Введите цель на сегодня (в надиках):">
     </div>
+
+    {% if show_prefecture %}
+    <div class="form-group mb-4">
+        <input class="form-control text-center" type="text" name="prefecture" placeholder="Выберите префектуру на сегодня:">
+    </div>
+    {% endif %}
+    
     <div class="d-grid gap-2 d-mb-block mb-4">
-        <button type="submit" class="btn btn-success btn-sm mb-3">Установить цель</button>
+        <button type="submit" class="btn btn-success btn-sm mb-3">Установить</button>
     </div>
 </form>
 
