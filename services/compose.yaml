@@ -1,0 +1,30 @@
+services:
+  banking:
+    build:
+      context: ${PWD}
+      dockerfile: ${BANKING_CONTEXT_PATH}/Dockerfile
+    command: ["sh", "-c", "sleep infinity"]
+    container_name: banking
+    volumes:
+      - ${PWD}:/app
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:16.3
+    container_name: postgres
+    env_file:
+      - path: deploy.env
+        required: false
+    environment:
+      - PGUSER=${POSTGRES_USER}
+    ports:
+      - ${POSTGRES_EXPOSED_PORT}:${POSTGRES_PORT}
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
