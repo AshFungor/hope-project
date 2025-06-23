@@ -30,4 +30,3 @@ jobs:
         run: echo $SECRET | docker -u ashfungor docker.io
       - name: push image
         run: docker image push --all-tags ashfungor/hope-project
-

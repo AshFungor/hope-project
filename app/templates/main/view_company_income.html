@@ -7,7 +7,7 @@
 <table class="table table-striped">
     <thead>
         <td colspan="2"> Данные компании: </td>
-    </thead>               
+    </thead>
     <tbody>
         {% for entry, value in company_spec.items() %}
         <tr>
@@ -26,7 +26,7 @@
     </thead>
     <thead>
         <th colspan="3"> Всего </th>
-    </thead>              
+    </thead>
     <tbody>
         {% for name, payload in distributed['total'].items() %}
         <tr>
@@ -38,7 +38,7 @@
     </tbody>
     <thead>
         <th colspan="3"> За последний день </th>
-    </thead>              
+    </thead>
     <tbody>
         {% for name, payload in distributed['shifted'].items() %}
         <tr>

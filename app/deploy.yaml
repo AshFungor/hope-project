@@ -1,0 +1,22 @@
+secret: "my-super-secret-key"
+timezone: "Europe/Moscow"
+
+logging: !logging
+  stdout: true
+  stderr: false
+  file: /var/log/server.log
+  rotation_threshold: 8388608
+  backups: 2
+
+database: !database
+  kind: !postgres
+    directory: ./data/postgres
+    hostname: pg_db
+    port: 5432
+    user: hope
+    password: somepasswd
+    database_name: hope
+
+flask_extensions: !flask_extensions
+  csrf: true
+  login_manager: true

@@ -7,7 +7,7 @@ services:
     volumes:
       - ./data/app_logs:/var/log:w
       - ./app:/hope-project/app:rw
-    restart: always      
+    restart: always
     depends_on:
       database:
         condition: service_healthy
