@@ -1,3 +1,6 @@
+import sqlalchemy
+
+from app import models
 from app.env import env
 
 import enum
@@ -53,6 +56,17 @@ class Company(ModelBase):
     def __repr__(self) -> str:
         return '<Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
 
+    @staticmethod
+    def id_to_company(id: str):
+        company = env.db.impl().session.execute(
+            sqlalchemy.select(
+                models.Company
+            ).filter(
+                models.Company.id == id
+            )
+        ).scalars().first()
+        return company
+
 
 class User2Company(ModelBase):
     __tablename__ = 'user_to_company'
@@ -83,3 +97,77 @@ class User2Company(ModelBase):
 
     def __repr__(self) -> str:
         return '<User2Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+
+
+'''Условия приема на должность:
+1) В компании не должно быть двух работников на одно и той же должности (кроме рабочих).
+2) Один пользователь может занимать только одну должность в одной компании.
+3) Найм должен осуществляться только ген. директором компании или ее основателем
+'''
+
+
+class CompanyAction(enum.Enum):
+    FOUNDER_HIRES = "founder  hires"
+    CEO_HIRES = "CEO hiring"
+    PRODUCT_MANAGER_HIRES = "product manager hires"
+    WORKING_WITH_EMPLOYEES = 'working with employees'
+    HIRING = 'hiring'
+    ...
+
+
+class CompanyActionPolicy:
+
+    def check_rights(
+            self,
+            user_id: str,
+            company_id: str,
+            action: CompanyAction,
+            hire_role: str = None
+    ) -> bool:
+        user_role = self.get_user_role(company_id=company_id, user_id=user_id)
+        if action == CompanyAction.HIRING:
+            hiring_mapper = {
+                'CEO': CompanyAction.FOUNDER_HIRES,
+                'CFO': CompanyAction.CEO_HIRES,
+                'marketing_manager': CompanyAction.CEO_HIRES,
+                'production_manager': CompanyAction.CEO_HIRES,
+                'employee': CompanyAction.PRODUCT_MANAGER_HIRES,
+            }
+            action = hiring_mapper.get(hire_role)
+        if not (action is None):
+            available_action = {
+                CompanyAction.FOUNDER_HIRES: (
+                    Role.FOUNDER.value,
+                ),
+                CompanyAction.CEO_HIRES: (
+                    Role.CEO.value
+                ),
+                CompanyAction.PRODUCT_MANAGER_HIRES: (
+                    Role.PRODUCTION_MANAGER.value
+                ),
+                CompanyAction.WORKING_WITH_EMPLOYEES: (
+                    Role.FOUNDER.value,
+                    Role.CEO.value,
+                    Role.PRODUCTION_MANAGER.value
+                )
+            }
+            return user_role in available_action[action]
+        return False
+
+    def get_user_role(self, user_id: str, company_id: str) -> Role:
+        user_role_query = (
+            sqlalchemy.select(
+                User2Company.role
+            )
+            .filter(
+                sqlalchemy.and_(
+                    User2Company.user_id == user_id,
+                    User2Company.company_id == company_id
+                )
+            )
+        )
+        user_role = env.db.impl().session.execute(user_role_query).scalars().first()
+        return user_role
+
+
+companyActionPolicy = CompanyActionPolicy()

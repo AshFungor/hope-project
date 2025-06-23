@@ -3,10 +3,12 @@ import datetime
 import flask
 from flask import Blueprint, render_template, url_for, request, redirect
 from flask_login import login_required, current_user
+from flask_sqlalchemy import SQLAlchemy
 
 import sqlalchemy
 
 from app.env import env
+from app.models.company import CompanyAction
 import app.models as models
 
 # local
@@ -19,56 +21,136 @@ from app.modules.database.validators import CurrentTimezone
 logger = env.logger.getChild(__name__)
 
 
-@blueprints.accounts_blueprint.route('/company_worker_employment', methods=['GET', 'POST'])
-@login_required
-def company_worker_employment():
-    """ Нанимаем сотрудника фирмы """
-    company_id = request.args.get("company_id", None)
-    company_id = request.form.get('company_id', None) if company_id is None else company_id
-    company = env.db.impl().session.execute(
+def check_free(role: str, company_id: str, user_id: int) -> bool:
+    role = env.db.impl().session.execute(
         sqlalchemy.select(
-            models.Company
+            models.User2Company.role
+        ).filter(
+            sqlalchemy.and_(
+                sqlalchemy.or_(
+                    models.User2Company.role == role,
+                    models.User2Company.user_id == user_id,
+                ),
+                models.User2Company.fired_at == sqlalchemy.null(),
+                models.User2Company.company_id == company_id,
+            )
         )
-        .filter(models.Company.id == company_id)
     ).scalars().first()
-    if company is None:
-        return flask.Response(f"Не указана компания или компании не существует ({company_id})", status=443)
+    return role is None
 
-    form = EmploymentForm()
 
-    if request.method == 'POST' and form.validate_on_submit():
-        mapper = {
-            'генеральный директор': 'CEO',
-            'финансовый директор': 'CFO',
-            'маркетолог': 'marketing_manager',
-            'заведущий производством': 'production_manager',
-            'рабочий': 'employee'
-        }
-        worker_bank_account_id = form.bank_account_id.data
-        role = mapper.get(str(form.role.data), None)
+def not_employee(company_id: str, user_id: int):
+    role = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.User2Company.role
+        ).filter(
+            sqlalchemy.and_(
+                models.User2Company.company_id == company_id,
+                models.User2Company.user_id == user_id,
+                models.User2Company.role == 'employee'
+            )
+        )
+    ).scalars().first()
+    return role is None
 
-        # проверяем
-        query_user = sqlalchemy.select(models.User).filter(
-            models.User.bank_account_id == worker_bank_account_id)
-        user = env.db.impl().session.execute(query_user).first()
-        if not user:
-            flask.flash('Указан неверный банковский счёт пользователя', category="warning")
-            logger.error('Incorrect user bank_id during employment.')
-            return redirect(url_for("accounts.company_cabinet", company_id=company_id))
-        user = user[0]
 
-        # принимаем на работу
+def info_generation(user_id: int, role: str, role_free: bool) -> (str, str, str):
+    fail_pattern = f"user_id: {current_user.id}. hiring validation failed"
+    if not user_id:
+        return (
+            "Пользователь с указанным счетом не найден. Проверьте данные и попробуйте еще раз.",
+            f"{fail_pattern}: user for work not found",
+            "warning"
+        )
+    elif not role:
+        return (
+            f"Указанная роль ({role}) недопустима.",
+            f"{fail_pattern}: incorrect worker role.",
+            "warning"
+        )
+    elif not role_free:
+        return (
+            "Эта роль уже занята. Выберите другую или освободите текущую.",
+            f"{fail_pattern}: role is inaccessible.",
+            "warning"
+        )
+    return (
+        "Пользователь трудоустроен",
+        f"user_id: {current_user.id}. hiring the user successfully completed",
+        "info"
+    )
+
+
+def set_worker(role: str, company_id: str, worker_account_id: int) -> (str, str, str):
+
+    """ Проверяем условия найма на работу """
+    query_user_id = (sqlalchemy.select(models.User.id)
+                               .filter(models.User.bank_account_id == worker_account_id))
+    user_id = env.db.impl().session.execute(query_user_id).scalars().first()
+    role_is_free = (check_free(role, company_id, user_id) if role != 'employee'
+                    else not_employee(company_id, user_id))
+    if all((user_id, role, role_is_free)):
         env.db.impl().session.add(models.User2Company(
-            user_id=user.id,
+            user_id=user_id,
             company_id=int(company_id),
             role=role,
             ratio=0,
             employed_at=datetime.datetime.now(tz=CurrentTimezone)
         ))
         env.db.impl().session.commit()
-        flask.flash('Пользователь трудоустроен', category="info")
-        return redirect(url_for("accounts.company_cabinet", company_id=company_id))
-    return render_template('main/company_workers_employment.html', company_id=company_id, company=company, form=form)
+    return info_generation(user_id, role, role_is_free)
+
+
+@blueprints.accounts_blueprint.route('/company_worker_employment', methods=['GET', 'POST'])
+@login_required
+def company_worker_employment():
+    form = EmploymentForm()
+
+    company_id = request.args.get("company_id")
+    company_id = request.form.get('company_id') if company_id is None else company_id
+
+    query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
+    db: SQLAlchemy = env.db.impl()
+    company = db.session.execute(query_company).one()
+
+    """ Проверяем, есть ли права на найм каких-либо сотрудников в компании """
+    view_rights = models.company.companyActionPolicy.check_rights(
+        user_id=current_user.id,
+        company_id=company_id,
+        action=models.company.CompanyAction.WORKING_WITH_EMPLOYEES,
+    )
+    if not view_rights:
+        return flask.Response("Доступ к найму в данной фирме запрещен", 403)
+
+    if request.method == 'POST' and form.validate_on_submit():
+        """ Проверяем права на найм на конкретную роль """
+        role_mapper = {
+            'генеральный директор': 'CEO',
+            'финансовый директор': 'CFO',
+            'маркетолог': 'marketing_manager',
+            'заведущий производством': 'production_manager',
+            'рабочий': 'employee'
+        }
+        role = role_mapper[form.role.data]
+        hiring_rights = models.company.companyActionPolicy.check_rights(
+            user_id=current_user.id,
+            company_id=company_id,
+            action=models.company.CompanyAction.HIRING,
+            hire_role=role
+        )
+        if hiring_rights:
+            """ Нанимаем сотрудника фирмы"""
+            mess, log, category = set_worker(role, company_id, int(form.bank_account_id.data))
+            flask.flash(mess, category=category)
+            logger.info(log) if category == 'info' else logger.error(log)
+        else:
+            return flask.Response(f"Доступ к найму {form.role.data} в данной фирме запрещен.", 403)
+    return render_template(
+        'main/company_workers_employment.html',
+        company=company,
+        company_id=company_id,
+        form=form
+    )
 
 
 @blueprints.accounts_blueprint.route('/company_worker_fire')
@@ -80,16 +162,14 @@ def company_worker_fire():
     user_role = request.args.get("user_role", None)
     if not company_id or not user_id:
         return flask.Response("Не указана компания и/или сотрудник", status=404)
-    # проверяем, доступно ли управление фирмой текущему пользователю
-    query_companies = (
-        sqlalchemy.select(
-            models.User2Company.company_id
-        ).filter(sqlalchemy.and_(models.User2Company.user_id == current_user.id,
-                                 models.User2Company.company_id == company_id))
+
+    rights = models.company.companyActionPolicy.check_rights(
+        user_id=current_user.id,
+        company_id=company_id,
+        action=CompanyAction.HIRING,
+        hire_role=user_role
     )
-    company_id = env.db.impl().session.execute(query_companies).scalars().first()
-    # ещё надо сделать проверку, имеет ли право текущий пользователь работать с сотрудниками
-    if company_id:
+    if rights:
         worker_query = (sqlalchemy.select(models.User2Company).
                         filter(sqlalchemy.and_(models.User2Company.user_id == user_id,
                                                models.User2Company.company_id == company_id,
@@ -108,20 +188,12 @@ def company_workers():
     company_id = request.args.get("company_id", None)
     if not company_id:
         return flask.Response("Не указана компания", status=404)
-    # проверяем, доступно ли управление фирмой текущему пользователю
-    query_companies = (
-        sqlalchemy.select(
-            models.User2Company.company_id
-        ).filter(sqlalchemy.and_(models.User2Company.user_id == current_user.id,
-                                 models.User2Company.company_id == company_id,
-                                 models.User2Company.fired_at == None,
-                                 sqlalchemy.or_(models.User2Company.role == 'CEO',
-                                                models.User2Company.role == 'founder'),
-                                 ))
+    rights = models.company.companyActionPolicy.check_rights(
+        user_id=current_user.id,
+        company_id=company_id,
+        action=models.company.CompanyAction.WORKING_WITH_EMPLOYEES
     )
-    company_id = env.db.impl().session.execute(query_companies).scalars().first()
-    # ещё надо сделать проверку, имеет ли право текущий пользователь работать с сотрудниками
-    if company_id:
+    if rights:
         query_company = sqlalchemy.select(models.Company).filter(models.Company.id == company_id)
         company = env.db.impl().session.execute(query_company).first()[0]
         # получаем список всех сотрудников текущей фирмы

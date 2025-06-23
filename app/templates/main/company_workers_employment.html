@@ -4,12 +4,19 @@
 
 {% block content %}
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 
 <div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
     <h3><strong>Фирма "{{ company.name }}"</strong></h3>
 </div>
 
-<form style="display: grid;" action="{{ url_for('accounts.company_worker_employment') }}" method="POST">
+<form style="display: grid;" action="{{ url_for('accounts.company_worker_employment', company_id=company_id) }}" method="POST">
     <input type="hidden" name="company_id" value="{{ company.id }}">
     {{ form.csrf_token }}
     {{ form.bank_account_id.label }}
