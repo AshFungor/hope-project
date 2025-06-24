@@ -44,7 +44,7 @@ def add_product(name: str, level: int, category: str) -> typing.Tuple[bool, str]
     return True, "Товар успешно создан"
 
 
-@blueprints.master_blueprint.route("/new_product", methods=["GET", "POST"])
+@blueprints.master.route("/new_product", methods=["GET", "POST"])
 @flask_login.login_required
 def create_product():
     """Создание нового продукта (только для нужд мастера игры или администратора)"""

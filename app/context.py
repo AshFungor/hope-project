@@ -1,21 +1,20 @@
-import sys
 import logging
-import colorlog
 import logging.handlers
 import multiprocessing
+import sys
 
+from dataclasses import dataclass
+from functools import wraps
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Self, Type, Union
+from zoneinfo import ZoneInfo
+
+import colorlog
 import sqlalchemy as orm
 
-from zoneinfo import ZoneInfo
-from typing import Optional
-from yaml import YAMLObject, load, UnsafeLoader
-from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-
-from pathlib import Path
-from functools import wraps
-from dataclasses import dataclass
-from typing import Union, Callable, Dict, Type, Any, List, Self
+from flask_sqlalchemy import SQLAlchemy
+from yaml import UnsafeLoader, YAMLObject, load, Loader, MappingNode
 
 from app.modules.database import ModelBase
 
@@ -25,28 +24,28 @@ class AppConfig(YAMLObject):
 
     @dataclass
     class Logging(YAMLObject):
-        yaml_tag = '!logging'
+        yaml_tag = "!logging"
 
         stdout: bool = True
         stderr: bool = False
         file: Optional[Path] = None
-        rotation_threshold: int = 1024 * 1024 * 8 # 8 Mib
+        rotation_threshold: int = 1024 * 1024 * 8  # 8 Mib
         backups: int = 2
-        level: str = 'debug'
+        level: str = "debug"
 
     @dataclass
     class Database(YAMLObject):
-        yaml_tag = '!database'
+        yaml_tag = "!database"
 
         @dataclass
         class SQLite(YAMLObject):
-            yaml_tag = '!sqlite'
+            yaml_tag = "!sqlite"
 
             database_name: str
 
         @dataclass
         class Postgres(YAMLObject):
-            yaml_tag = '!postgres'
+            yaml_tag = "!postgres"
 
             directory: Path
             hostname: str
@@ -66,12 +65,33 @@ class AppConfig(YAMLObject):
                 return f[self.SQLite](self.kind)
             if isinstance(self.kind, self.Postgres):
                 return f[self.Postgres](self.kind)
-            
+
             raise ValueError
         
     @dataclass
+    class Consumption(YAMLObject):
+        yaml_tag = "!consumption"
+
+        @dataclass
+        class CategoryInfo:
+            count: int
+            price: int
+            period_days: int
+
+        categories: Dict[str, CategoryInfo]
+
+        @classmethod
+        def from_yaml(cls, loader: Loader, node: MappingNode) -> Self:
+            raw = loader.construct_mapping(node, deep=True)
+            self = cls({
+                category: cls.CategoryInfo(**data) for category, data in raw
+            })
+
+            return self
+
+    @dataclass
     class FlaskExtensions(YAMLObject):
-        yaml_tag = '!flask_extensions'
+        yaml_tag = "!flask_extensions"
 
         csrf: bool = True
         login_manager: bool = True
@@ -84,20 +104,20 @@ class AppConfig(YAMLObject):
 
 
 class AppContext:
-    __instance: 'AppContext' = None
-    __format_str = '[%(asctime)s][%(name)s] %(levelname)s: %(message)s'
-    __colorful_format_str = '[%(log_color)s%(asctime)s][%(name)s] %(levelname)s: %(message)s'
+    __instance: "AppContext" = None
+    __format_str = "[%(asctime)s][%(name)s] %(levelname)s: %(message)s"
+    __colorful_format_str = "[%(log_color)s%(asctime)s][%(name)s] %(levelname)s: %(message)s"
 
     def __new__(cls, *__args, **__kwargs):
         if cls.__instance is None:
             cls.__instance = super().__new__(cls)
         return cls.__instance
-    
+
     def __init__(self, app: Flask, config_path: Path):
         if not config_path.is_file():
             raise FileNotFoundError(config_path)
-        
-        with open(config_path, 'r') as fd:
+
+        with open(config_path, "r") as fd:
             self.__config = AppConfig(**load(fd, UnsafeLoader))
 
         self.__app = app
@@ -108,50 +128,37 @@ class AppContext:
     @classmethod
     def safe_load(cls) -> Self:
         if cls.__instance is None:
-            raise RuntimeError(
-                'App context was not initialized properly, something is wrong'
-                ' with how you manage runtime environment'
-            )
+            raise RuntimeError("App context was not initialized properly, something is wrong" " with how you manage runtime environment")
         return cls.__instance
 
     @property
     def database(self) -> SQLAlchemy:
-        return self.__database_handle.engine
-    
+        return self.__database_handle
+
     @property
     def config(self) -> AppConfig:
         return self.__config
-    
-    @property 
+
+    @property
     def logger(self) -> logging.Logger:
         return self.__logger
-    
+
     @property
     def app(self) -> Flask:
         return self.__app
 
     def __init_database_conn(self):
         def handle_sqlite(conf: AppConfig.Database.SQLite):
-            return orm.URL.create(drivername='sqlite', database=conf.database_name)
-        
+            return orm.URL.create(drivername="sqlite", database=conf.database_name)
+
         def handle_postgres(conf: AppConfig.Database.Postgres):
             return orm.URL.create(
-                'postgresql',
-                username=conf.user,
-                password=conf.password,
-                host=conf.hostname,
-                port=conf.port,
-                database=conf.database_name
+                "postgresql", username=conf.user, password=conf.password, host=conf.hostname, port=conf.port, database=conf.database_name
             )
 
-        uri = self.__config.database.visit({
-            AppConfig.Database.SQLite: handle_sqlite,
-            AppConfig.Database.Postgres: handle_postgres
-        })
+        uri = self.__config.database.visit({AppConfig.Database.SQLite: handle_sqlite, AppConfig.Database.Postgres: handle_postgres})
 
-        self.__app.config.update({
-            'SQLALCHEMY_DATABASE_URI': uri
-        })
+        self.__app.config.update({"SQLALCHEMY_DATABASE_URI": uri})
 
         self.__database_handle = SQLAlchemy(model_class=ModelBase)
         self.__database_handle.init_app(self.__app)
@@ -162,14 +169,7 @@ class AppContext:
         level = self.__validate_logging_level(self.__config.logging.level)
 
         color_formatter = colorlog.ColoredFormatter(
-            self.__colorful_format_str,
-            log_colors={
-                'DEBUG': 'cyan',
-                'INFO': 'green',
-                'WARNING': 'yellow',
-                'ERROR': 'red',
-                'CRITICAL': 'bold_red'
-            }
+            self.__colorful_format_str, log_colors={"DEBUG": "cyan", "INFO": "green", "WARNING": "yellow", "ERROR": "red", "CRITICAL": "bold_red"}
         )
 
         handlers: List[logging.Handler] = []
@@ -184,9 +184,7 @@ class AppContext:
 
         if self.__config.logging.file is not None:
             file_handler = logging.handlers.RotatingFileHandler(
-                filename=self.__config.logging.file,
-                maxBytes=self.__config.logging.rotation_threshold,
-                backupCount=self.__config.logging.backups
+                filename=self.__config.logging.file, maxBytes=self.__config.logging.rotation_threshold, backupCount=self.__config.logging.backups
             )
             handlers.append(file_handler)
 
@@ -194,24 +192,13 @@ class AppContext:
         queue_handler = logging.handlers.QueueHandler(queue)
         self.__listeners = logging.handlers.QueueListener(queue, *handlers)
 
-        logging.basicConfig(
-            level=level,
-            handlers=[queue_handler],
-            format=self.__format_str,
-            force=True
-        )
+        logging.basicConfig(level=level, handlers=[queue_handler], format=self.__format_str, force=True)
 
-        self.__logger = logging.getLogger('app')
-        self.__logger.info(f'Logging initialized with level: {self.__config.logging.level}')
+        self.__logger = logging.getLogger("app")
+        self.__logger.info(f"Logging initialized with level: {self.__config.logging.level}")
 
     def __validate_logging_level(self, level: str) -> int:
-        levels = {
-            'debug': logging.DEBUG,
-            'info': logging.INFO,
-            'warning': logging.WARNING,
-            'error': logging.ERROR,
-            'critical': logging.CRITICAL
-        }
+        levels = {"debug": logging.DEBUG, "info": logging.INFO, "warning": logging.WARNING, "error": logging.ERROR, "critical": logging.CRITICAL}
         return levels.get(level.lower(), logging.DEBUG)
 
 
@@ -221,5 +208,5 @@ def context(f: Callable) -> Callable:
         # safe to call if init() is triggered already
         ctx = AppContext.safe_load()
         return f(*args, ctx, **kwargs)
-    
+
     return wrapper

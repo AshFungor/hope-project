@@ -1,9 +1,11 @@
 import wtforms as wtf
-from flask_wtf import FlaskForm
-from wtforms.validators import InputRequired, NumberRange
+import sqlalchemy as orm
 
-import app.models as models
-from app.env import env
+from flask_wtf import FlaskForm
+from wtforms.validators import InputRequired
+
+from app.models import Prefecture
+from app.context import context, AppContext
 
 
 class NewCompanyForm(FlaskForm):
@@ -13,5 +15,10 @@ class NewCompanyForm(FlaskForm):
     founders = wtf.StringField("Учредитель (учредители):", validators=[InputRequired()], render_kw={"placeholder": "Счета через пробел"})
     submit = wtf.SubmitField("Создать компанию")
 
-    def set_choices_prefectures(self):
-        self.prefecture.choices = [i[0] for i in env.db.impl().session.query(models.Prefecture.name).filter(models.Prefecture.name != "Штаб").all()]
+    @context
+    def set_choices_prefectures(self, ctx: AppContext):
+        self.prefecture.choices = [
+            name for name in ctx.database.session.scalars(
+                orm.select(Prefecture.name)
+            ).all()
+        ]

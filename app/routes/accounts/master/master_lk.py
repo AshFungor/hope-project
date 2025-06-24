@@ -15,21 +15,21 @@ from app.env import env
 from app.modules.database.validators import CurrentTimezone
 
 
-@blueprints.accounts_blueprint.route("/master_lk")
+@blueprints.accounts.route("/master_lk")
 @login_required
 def master_cabinet():
     """Личный кабинет мастера"""
     return render_template("main/master_lk.html")
 
 
-@blueprints.master_blueprint.route("/edit_data")
+@blueprints.master.route("/edit_data")
 @login_required
 def edit_data():
     """Мастер изменяет данные"""
     return render_template("main/master_edit.html")
 
 
-@blueprints.master_blueprint.route("/action_with_resource", methods=["POST"])
+@blueprints.master.route("/action_with_resource", methods=["POST"])
 @login_required
 def action_with_product():
     # check input data
@@ -112,7 +112,7 @@ def action_with_product():
     return render_template("main/add_withdrowal.html", products=models.Product.get_all())
 
 
-@blueprints.master_blueprint.route("/master_add_money", methods=["POST"])
+@blueprints.master.route("/master_add_money", methods=["POST"])
 @login_required
 def add_money():
     try:
@@ -162,7 +162,7 @@ def add_money():
     return render_template("main/add_withdrowal.html", products=models.Product.get_all())
 
 
-@blueprints.master_blueprint.route("/create_office", methods=["POST"])
+@blueprints.master.route("/create_office", methods=["POST"])
 @login_required
 def create_office():
     office_data = {

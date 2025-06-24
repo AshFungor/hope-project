@@ -1,14 +1,11 @@
-import datetime
 import logging
-
-from flask import Flask
-from pathlib import Path
-
 import app.routes.blueprints as blueprints
 
-from app.extensions import FlaskExtensions
-from app.context import AppContext, context
+from pathlib import Path
+from flask import Flask
 
+from app.context import AppContext
+from app.extensions import FlaskExtensions
 
 
 def create_app() -> Flask:
@@ -16,7 +13,7 @@ def create_app() -> Flask:
     ctx = AppContext(app, Path.cwd() / "app/deploy.yaml")
 
     logging.info("setting up blueprints")
-    for bp in blueprints.all_blueprints:
+    for bp in blueprints.Blueprints:
         app.register_blueprint(bp)
 
     FlaskExtensions.setup(ctx.config)

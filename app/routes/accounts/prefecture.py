@@ -1,0 +1,167 @@
+import flask
+import flask_login
+import sqlalchemy as orm
+
+from copy import copy
+from typing import Dict, List
+
+from app.models import CityHall, User, Goal, Prefecture, City
+from app.routes import Blueprints
+from app.context import context, AppContext
+from app.routes.queries import CRUD
+from app.routes.queries.common import get_last
+
+
+@context
+def assistant_visitor(
+    ctx: AppContext, assistants: List[str], prefecture: Prefecture
+) -> Dict[str, User]:
+    result = {}
+    for assistant in assistants:
+        user = ctx.database.session.scalar(
+            orm.select(User).where(User.id == getattr(prefecture, assistant))
+        )
+        result[assistant] = user
+    return result
+
+
+def get_current_roles(assistants: Dict[str, User], soft_names: list[str], current_user: User) -> dict[str, bool]:
+    return {
+        soft: user and current_user.id == user.id for user, soft in zip(assistants.values(), soft_names)
+    }
+
+
+# def decorate_city(city: models.City, prefecture: models.Prefecture, money: models.Product2BankAccount) -> models.City:
+    
+
+
+# @context
+# def get_bankrupt_cities(ctx: AppContext, prefecture: Prefecture) -> List[City]:
+#     city = copy.deepcopy(city)
+#     setattr(city, "minus", abs(money.count))
+#     setattr(city, "prefecture_name", prefecture.name)
+
+#     return [
+#         decorate_city(city, prefecture, money)
+#         for city, prefecture, money in env.db.impl()
+#         .session.query(models.City, models.Prefecture, models.Product2BankAccount)
+#         .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.City.bank_account_id)
+#         .join(models.Prefecture, models.Prefecture.id == models.City.prefecture_id)
+#         .filter(
+#             orm.and_(
+#                 (models.City.prefecture_id == prefecture_id if prefecture_id is not None else True),
+#                 models.Product2BankAccount.count < 0,
+#                 models.Product2BankAccount.product_id == 1,
+#                 models.City.bank_account_id.not_in(excluders.high_rule()),
+#             )
+#         )
+#         .all()
+#     ]
+
+
+# def decorate_company(company: models.Company, money: models.Product2BankAccount) -> models.Company:
+#     company = copy.deepcopy(company)
+#     setattr(company, "minus", abs(money.count))
+#     return company
+
+
+# def get_bankrupt_companies(prefecture_id: int | None = None) -> list[models.Company]:
+#     return [
+#         decorate_company(company, money)
+#         for company, money in env.db.impl()
+#         .session.query(models.Company, models.Product2BankAccount)
+#         .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.Company.bank_account_id)
+#         .filter(
+#             orm.and_(
+#                 (models.Company.prefecture_id == prefecture_id if prefecture_id is not None else True),
+#                 models.Product2BankAccount.count < 0,
+#                 models.Product2BankAccount.product_id == 1,
+#                 models.Company.bank_account_id.not_in(excluders.high_rule()),
+#             )
+#         )
+#         .all()
+#     ]
+
+
+# def decorate_user(user: models.User, city: models.City, money: models.Product2BankAccount) -> models.User:
+#     user = copy.deepcopy(user)
+#     setattr(user, "city_name", city.name)
+#     setattr(user, "city_location", city.location)
+#     setattr(user, "minus", abs(money.count))
+#     return user
+
+
+# def get_bankrupt_users(prefecture_id: int | None = None) -> list[models.User]:
+#     return [
+#         decorate_user(user, city, money)
+#         for user, city, money in env.db.impl()
+#         .session.query(models.User, models.City, models.Product2BankAccount)
+#         .join(models.User, models.City.id == models.User.city_id)
+#         .join(models.Prefecture, models.Prefecture.id == models.City.prefecture_id)
+#         .join(models.Product2BankAccount, models.Product2BankAccount.bank_account_id == models.User.bank_account_id)
+#         .filter(
+#             orm.and_(
+#                 (models.Prefecture.id == prefecture_id if prefecture_id is not None else True),
+#                 models.Product2BankAccount.count < 0,
+#                 models.Product2BankAccount.product_id == 1,
+#                 models.User.bank_account_id.not_in(excluders.high_rule()),
+#             )
+#         )
+#         .all()
+#     ]
+
+
+# def query_bankrupts(territory: str, id: int) -> typing.Tuple[list[models.User], list[models.Company], list[models.City]]:
+#     if territory.lower().startswith("prefecture"):
+#         return (get_bankrupt_users(id), get_bankrupt_companies(id), get_bankrupt_cities(id))
+#     return (get_bankrupt_users(), get_bankrupt_companies(), get_bankrupt_cities())
+
+
+@Blueprints.accounts.route("/prefecture_account")
+@flask_login.login_required
+@context
+def prefecture_account(ctx: AppContext):
+    current_user = copy(flask_login.current_user)
+    city = ctx.database.session.get_one(City, current_user.city_id)
+    prefecture = ctx.database.session.get_one(Prefecture, city.prefecture_id)
+
+    roles = {
+        "economic_assistant": "заместитель по экономической политике",
+        "social_assistant": "заместитель по социальной политике",
+        "prefect": "префект",
+    }
+    visitor = assistant_visitor(["economic_assistant_id", "social_assistant_id", "prefect_id"], prefecture)
+    current_role = get_current_roles(visitor, roles.keys(), current_user)
+
+    goal = get_last(prefecture.bank_account_id, True)
+    if current_role["prefect"] and goal is None:
+        return flask.redirect(flask.url_for("goals.view_create_goal", account=prefecture.bank_account_id))
+
+    if goal:
+        setattr(goal, "rate", goal.get_rate(CRUD.read_money(prefecture.bank_account_id)))
+
+    setattr(prefecture, "money", CRUD.read_money(prefecture.bank_account_id))
+    balance = CRUD.read_money(prefecture.id)
+
+    specs = []
+    for visited, name in zip(visitor, roles.keys()):
+        setattr(prefecture, name, visitor[visited])
+
+    mapper = {"bank_account_id": "номер банковского счета", **roles}
+    for spec in mapper:
+        specs.append({"name": mapper[spec], "value": getattr(prefecture, spec)})
+
+    # bankrupt_users, bankrupt_companies, bankrupt_cities = query_bankrupts("prefecture", prefecture.id)
+    bankrupt_users = bankrupt_companies = bankrupt_cities = []
+
+    return flask.render_template(
+        "main/prefecture_lk_page.html",
+        user_spec=specs,
+        goal=goal,
+        balance=balance,
+        prefecture=prefecture,
+        roles=current_role,
+        bankrupt_users=bankrupt_users,
+        bankrupt_companies=bankrupt_companies,
+        bankrupt_cities=bankrupt_cities,
+    )

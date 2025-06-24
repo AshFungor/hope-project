@@ -1,9 +1,9 @@
 import datetime
 import enum
+from functools import cached_property
 
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey
-from functools import cached_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.modules.database import Datetime, Ints, ModelBase, VarStrings
@@ -61,7 +61,7 @@ class User(ModelBase, UserMixin):
 
     @cached_property
     def full_name_string(self):
-        return f'{self.last_name} {self.name} {self.patronymic}'
+        return f"{self.last_name} {self.name} {self.patronymic}"
 
 
 class Goal(ModelBase):
@@ -96,18 +96,9 @@ class Goal(ModelBase):
     @cached_property
     def empty(self) -> bool:
         return self.value is None
-
-    # def get_rate(self, current: int) -> float:
-    #     distance = max(self.value - current + self.amount_on_setup, 0)
-    #     if distance:
-    #         return max(round((1 - distance / self.value) * 100, 2), 0)
-    #     return 100
-
-    # @staticmethod
-    # def get_last(bank_account: int, limitByCurrentDay: bool = False) -> typing.Union["Goal", None]:
-    #     last = (
-    #         env.db.impl().session.execute(orm.select(Goal).filter_by(bank_account_id=bank_account).order_by(Goal.created_at.desc())).scalars().first()
-    #     )
-    #     if not last or limitByCurrentDay and last.created_at.date() < datetime.datetime.now().date():
-    #         return None
-    #     return last
+    
+    def get_rate(self, current: int) -> float:
+        distance = max(self.value - current + self.amount_on_setup, 0)
+        if distance:
+            return max(round((1 - distance / self.value) * 100, 2), 0)
+        return 100

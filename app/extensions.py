@@ -5,8 +5,7 @@ from flask_wtf import CSRFProtect
 
 import app.models as models
 import app.routes.blueprints as blueprints
-
-from app.context import context, AppContext, AppConfig
+from app.context import AppConfig, AppContext, context
 
 
 class FlaskExtensions:
@@ -22,8 +21,8 @@ class FlaskExtensions:
     def __init_csrf(cls, ctx: AppContext):
         ctx.logger.info("setting up CSRF protection")
         csrf = CSRFProtect(ctx.app)
-        csrf.exempt(blueprints.csv_blueprint)
-        csrf.exempt(blueprints.transaction_blueprint)
+        csrf.exempt(blueprints.csv)
+        csrf.exempt(blueprints.transactions)
 
     @classmethod
     @context

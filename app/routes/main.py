@@ -1,6 +1,5 @@
-from flask import Blueprint, render_template
+from flask import render_template
 
-import app.modules.database.static as static
 import app.routes.blueprints as blueprints
 
 

@@ -1,5 +1,4 @@
 import uuid
-
 from enum import IntEnum
 from typing import Optional
 
@@ -26,7 +25,7 @@ class BankAccount(ModelBase):
         self.id = id
 
     @classmethod
-    def from_type(cls, kind: AccountMapping) -> int:
+    def from_kind(cls, kind: AccountMapping) -> int:
         tail = uuid.uuid4().int
         s = f"{int(kind)}{tail}"[: 1 + cls.__tail_len]
         return int(s)
