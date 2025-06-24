@@ -19,10 +19,10 @@ class Transaction(ModelBase):
     id: Mapped[Ints.Serial]
     product_id: Mapped[Ints.Long] = mapped_column(ForeignKey("product.id"))
     customer_bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
-    seller_bank_account_id: Mapped[Ints.Int] = mapped_column(ForeignKey("bank_account.id"))
+    seller_bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
     count: Mapped[Ints.Long]
-    amount: Mapped[Ints.Int]
-    status: Mapped[VarStrings.Char64]
+    amount: Mapped[Ints.Long]
+    status: Mapped[VarStrings.Char32]
     created_at: Mapped[Datetime.Datetime]
     updated_at: Mapped[Datetime.Datetime] = mapped_column(nullable=True)
     comment: Mapped[VarStrings.Char256] = mapped_column(nullable=True)

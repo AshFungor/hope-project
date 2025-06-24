@@ -25,7 +25,7 @@ class Consumption(ModelBase):
     __tablename__ = "consumption"
 
     id: Mapped[Ints.Serial]
-    bank_account_id: Mapped[Ints.Short] = mapped_column(ForeignKey("bank_account.id"))
+    bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
     product_id: Mapped[Ints.Long] = mapped_column(ForeignKey("product.id"))
     count: Mapped[Ints.Long]
     consumed_at: Mapped[Datetime.Datetime]  # type:ignore

@@ -19,7 +19,7 @@ class User(ModelBase, UserMixin):
 
     id: Mapped[Ints.Serial]
     bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
-    city_id: Mapped[Ints.Int] = mapped_column(ForeignKey("city.id"), nullable=True)
+    city_id: Mapped[Ints.Long] = mapped_column(ForeignKey("city.id"), nullable=True)
     name: Mapped[VarStrings.Char64]
     last_name: Mapped[VarStrings.Char64]
     patronymic: Mapped[VarStrings.Char64]

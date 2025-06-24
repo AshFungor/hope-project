@@ -41,7 +41,7 @@ class User2Company(ModelBase):
     id: Mapped[Ints.Serial]
     user_id: Mapped[Ints.Long] = mapped_column(ForeignKey("users.id"))
     company_id: Mapped[Ints.Long] = mapped_column(ForeignKey("company.id"))
-    role: Mapped[VarStrings.Char64]
+    role: Mapped[VarStrings.Char32]
     ratio: Mapped[Ints.Short]
     fired_at: Mapped[Datetime.DatetimeEmpty]  # type: ignore
     employed_at: Mapped[Datetime.Datetime]  # type: ignore
