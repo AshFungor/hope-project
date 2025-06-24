@@ -1,11 +1,14 @@
+import yaml
+
+from pathlib import Path
+from sqlalchemy import URL
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from app.modules.database.handlers import ModelBase
-
-target_metadata = ModelBase.metadata
+from app.context import AppConfig
+from app.modules.database import ModelBase
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -20,13 +23,27 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+target_metadata = ModelBase.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+with open(Path.cwd() / 'app/deploy.yaml') as fd:
+    app_config = AppConfig(**yaml.load(fd, yaml.UnsafeLoader))
+    if not isinstance(app_config.database.kind, AppConfig.Database.Postgres):
+        raise ValueError
 
+    conf = app_config.database.kind
+    url = URL.create(
+        "postgresql",
+        username=conf.user,
+        password=conf.password,
+        host=conf.hostname,
+        port=conf.port,
+        database=conf.database_name
+    )
+    config.set_main_option("sqlalchemy.url", url.render_as_string(hide_password=False))
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

@@ -20,7 +20,7 @@ def authorization(ctx: AppContext):
             .filter(User.login == request.form.get("Login"))
         )
 
-        if user is None or user.password == request.form["Password"]:
+        if user is None or user.password != request.form["Password"]:
             flask.flash("Неверные данные для входа: проверьте введенный логин или пароль")
 
         login_user(user)
