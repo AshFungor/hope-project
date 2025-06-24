@@ -117,10 +117,10 @@ def get_current_roles(assistants: Dict[str, User], soft_names: list[str], curren
 #     return (get_bankrupt_users(), get_bankrupt_companies(), get_bankrupt_cities())
 
 
-@Blueprints.accounts.route("/prefecture_account")
+@Blueprints.accounts.route("/prefecture")
 @flask_login.login_required
 @context
-def prefecture_account(ctx: AppContext):
+def prefecture(ctx: AppContext):
     current_user = copy(flask_login.current_user)
     city = ctx.database.session.get_one(City, current_user.city_id)
     prefecture = ctx.database.session.get_one(Prefecture, city.prefecture_id)

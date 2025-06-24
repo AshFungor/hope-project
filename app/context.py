@@ -191,6 +191,7 @@ class AppContext:
         queue = multiprocessing.Queue()
         queue_handler = logging.handlers.QueueHandler(queue)
         self.__listeners = logging.handlers.QueueListener(queue, *handlers)
+        self.__listeners.start()
 
         logging.basicConfig(level=level, handlers=[queue_handler], format=self.__format_str, force=True)
 

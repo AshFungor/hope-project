@@ -1,20 +1,22 @@
-import logging
-import app.routes.blueprints as blueprints
-
 from pathlib import Path
-from flask import Flask
+from flask import Flask, Blueprint
 
 from app.context import AppContext
-from app.extensions import FlaskExtensions
 
 
 def create_app() -> Flask:
     app = Flask(__name__)
     ctx = AppContext(app, Path.cwd() / "app/deploy.yaml")
 
-    logging.info("setting up blueprints")
-    for bp in blueprints.Blueprints:
-        app.register_blueprint(bp)
+    ctx.logger.info("setting up blueprints")
+
+    from app.routes import Blueprints
+    from app.extensions import FlaskExtensions
+
+    for bp in vars(Blueprints).values():
+        if isinstance(bp, Blueprint):
+            ctx.logger.debug(f'registering blueprint: {bp.name}')
+            app.register_blueprint(bp)
 
     FlaskExtensions.setup(ctx.config)
     return app

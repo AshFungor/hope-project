@@ -14,23 +14,22 @@ from app.routes import Blueprints
 @context
 def authorization(ctx: AppContext):
     if request.method == "POST":
-        user = ctx.database.session.execute(
+        user = ctx.database.session.scalar(
             orm
             .select(User)
             .filter(User.login == request.form.get("Login"))
-        ).first()
+        )
 
         if user is None or user.password == request.form["Password"]:
             flask.flash("Неверные данные для входа: проверьте введенный логин или пароль")
 
         login_user(user)
-        prefecture = ctx.database.session.execute(
+        session["prefecture_name"] = ctx.database.session.scalar(
             orm
-            .select(Prefecture)
+            .select(Prefecture.name)
             .join(City, Prefecture.id == City.prefecture_id)
             .filter(City.id == user.city_id)
-        ).first()
-        session["prefecture_name"] = prefecture.name
+        )
 
         return redirect(url_for("main.index"))
             

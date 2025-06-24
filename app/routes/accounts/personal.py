@@ -14,10 +14,10 @@ def time_span_formatter(span: datetime.timedelta) -> str:
     return f"{span.days} дней"
 
 
-@Blueprints.accounts.route("/personal_account")
+@Blueprints.accounts.route("/personal")
 @flask_login.login_required
 @context
-def person_account(ctx: AppContext):
+def personal(ctx: AppContext):
     current_user = copy.copy(flask_login.current_user)
     goal = get_last(current_user.bank_account_id, True)
     if goal is None:

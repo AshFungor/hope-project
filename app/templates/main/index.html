@@ -10,17 +10,17 @@
 </div> -->
 
 <div class="d-grid gap-2 d-mb-block mb-4">
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.person_account' ) }}';">Личный кабинет</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.personal' ) }}';">Личный кабинет</button>
 
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company_cabinet' ) }}';">Фирма</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.company' ) }}';">Фирма</button>
 
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.city_cabinet' ) }}';">Город</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.city' ) }}';">Город</button>
 
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.prefecture_cabinet' ) }}';">Префектура</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.prefecture' ) }}';">Префектура</button>
 
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.city_hall_cabinet' ) }}';">Мэрия</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.city_hall' ) }}';">Мэрия</button>
 {% if current_user.is_admin %}
-    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.master_cabinet' ) }}';">Мастер игры</button>
+    <button class="{{ color_for_big_button }} btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.master' ) }}';">Мастер игры</button>
 {% endif %}
 </div>
 

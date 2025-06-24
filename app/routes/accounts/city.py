@@ -12,7 +12,7 @@ from app.models import Product, Product2BankAccount, City, Company, Office, Pref
 @Blueprints.accounts.route("/city")
 @login_required
 @context
-def city_account(ctx: AppContext):
+def city(ctx: AppContext):
     city_id = current_user.city_id
     city: City = ctx.database.session.get_one(city_id)
 

@@ -11,7 +11,7 @@ from app.models import User2Company, Company, User, Role, Office
 from app.routes import Blueprints
 
 
-@Blueprints.accounts.route("/company_account")
+@Blueprints.accounts.route("/company")
 @login_required
 @context
 def company(ctx: AppContext):
