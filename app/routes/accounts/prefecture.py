@@ -7,12 +7,12 @@ from typing import Dict, List
 
 from app.models import CityHall, User, Goal, Prefecture, City
 from app.routes import Blueprints
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.routes.queries import CRUD
 from app.routes.queries.common import get_last
 
 
-@context
+@function_context
 def assistant_visitor(
     ctx: AppContext, assistants: List[str], prefecture: Prefecture
 ) -> Dict[str, User]:
@@ -119,7 +119,7 @@ def get_current_roles(assistants: Dict[str, User], soft_names: list[str], curren
 
 @Blueprints.accounts.route("/prefecture")
 @flask_login.login_required
-@context
+@function_context
 def prefecture(ctx: AppContext):
     current_user = copy(flask_login.current_user)
     city = ctx.database.session.get_one(City, current_user.city_id)
@@ -155,7 +155,7 @@ def prefecture(ctx: AppContext):
     bankrupt_users = bankrupt_companies = bankrupt_cities = []
 
     return flask.render_template(
-        "main/prefecture_lk_page.html",
+        "accounts/prefecture.html",
         user_spec=specs,
         goal=goal,
         balance=balance,

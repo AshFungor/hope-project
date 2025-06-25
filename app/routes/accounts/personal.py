@@ -7,7 +7,7 @@ import flask_login
 from app.routes import Blueprints
 from app.routes.queries.common import get_last
 from app.routes.queries import CRUD
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 
 
 def time_span_formatter(span: datetime.timedelta) -> str:
@@ -16,12 +16,12 @@ def time_span_formatter(span: datetime.timedelta) -> str:
 
 @Blueprints.accounts.route("/personal")
 @flask_login.login_required
-@context
+@function_context
 def personal(ctx: AppContext):
     current_user = copy.copy(flask_login.current_user)
     goal = get_last(current_user.bank_account_id, True)
     if goal is None:
-        return flask.redirect(flask.url_for("goal_view.view_create_goal"))
+        return flask.redirect(flask.url_for("goals.view_create_goal"))
 
     balance = CRUD.read_money(current_user.bank_account_id)
     setattr(goal, "rate", goal.get_rate(CRUD.read_money(current_user.bank_account_id)))
@@ -51,4 +51,4 @@ def personal(ctx: AppContext):
 
     for spec in mapper:
         specs.append({"name": mapper[spec], "value": getattr(current_user, spec)})
-    return flask.render_template("main/person_account_page.html", user_spec=specs, goal=goal, balance=balance, consumption_data=consumption_data)
+    return flask.render_template("main/personal/personal.html", user_spec=specs, goal=goal, balance=balance, consumption_data=consumption_data)

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %} Просмотр потребления {% endblock %}
+
+{% block content %}
+
+{% if message %}
+<p class="text-center"> {{ message }} </p>
+{% endif %}
+
+<div class="mb-2">
+    <form role="form" action="{{ url_for( 'master.view_consumers', _external=True ) }}" method="GET">
+        <div class="container">
+            <div class="row">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="selectors" value="ON"/>
+                <div class="col-sm">
+                    <select name="limits" class="form-select">
+                        <option selected value="all"> Все </option>
+                        <option value="limit-consumers">Только потребившие</option>
+                        <option value="limit-non-consumers">Только не потребившие</option>
+                    </select>
+                </div>
+                <div class="col-sm">
+                    <select name="category" class="form-select">
+                        <option selected value="all"> Все </option>
+                        {% for cat in categories %}
+                            <option value="{{ cat }}"> {{ cat }} </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <p></p>
+            </div>
+            <div class="row"></div>
+                <div class="col-sm">
+                    <button type="submit" class="btn btn-success mb-3"> Просмотреть </button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"> Банковский Счет </th>
+                <th scope="col"> Фамилия </th>
+                <th scope="col"> Имя </th>
+                <th scope="col"> Отчество </th>
+                {% for cat in current %}
+                    <th scope="col"> {{ cat }} </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for user, mapper, color in consumed %}
+                <tr>
+                    <td class="table-light"> {{ user.bank_account_id }} </td>
+                    <td class="table-light"> {{ user.name }} </td>
+                    <td class="table-light"> {{ user.last_name }} </td>
+                    <td class="table-light"> {{ user.patronymic }} </td>
+                    {% for cat in current %}
+                    <td class="table-light"> {{ mapper[cat] }} </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <p> Показано {{ batch_size }} из {{ initial_batch_size }} </p>
+    </div>
+</div>
+
+<div class="mb-2">
+    <form role="form" action="{{ url_for( 'master.view_consumers', _external=True ) }}" method="GET">
+        <div class="container">
+            <div class="row">
+                <input type="hidden" name="collector" value="ON"/>
+                <input type="hidden" name="cut_by" value="ON"/>
+            </div>
+            <div class="row">
+                <label for="collecting-category" class="form-label"><strong>Категория: </strong></label>
+                <select name="collecting-category" class="form-select">
+                    <option selected value="all"> Все </option>
+                    {% for cat in categories %}
+                        <option value="{{ cat }}"> {{ cat }} </option>
+                    {% endfor %}
+                </select>
+                <p></p>
+            </div>
+            <div class="row">
+                    <button type="submit" class="btn btn-success mb-3"> Списать </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}

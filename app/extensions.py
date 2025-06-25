@@ -5,7 +5,7 @@ from flask_wtf import CSRFProtect
 
 from app.models import User
 from app.routes import Blueprints
-from app.context import AppConfig, AppContext, context
+from app.context import AppConfig, AppContext, class_context
 
 
 class FlaskExtensions:
@@ -17,7 +17,7 @@ class FlaskExtensions:
             cls.__init_login_manager()
 
     @classmethod
-    @context
+    @class_context
     def __init_csrf(cls, ctx: AppContext):
         ctx.logger.info("setting up CSRF protection")
         csrf = CSRFProtect(ctx.app)
@@ -25,14 +25,14 @@ class FlaskExtensions:
         csrf.exempt(Blueprints.transactions)
 
     @classmethod
-    @context
+    @class_context
     def __init_login_manager(cls, ctx: AppContext):
         ctx.logger.info("setting up login manager")
         login_manager = LoginManager()
         login_manager.login_view = "session.authorization"
 
         @login_manager.user_loader
-        @context
+        @class_context
         def __load_user(user_id, ctx: AppContext):
             return ctx.database.session.get_one(User, user_id)
 

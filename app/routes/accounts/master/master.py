@@ -18,7 +18,7 @@ from app.routes import Blueprints
 @Blueprints.accounts.route("/master")
 @login_required
 def master():
-    return render_template("main/master_lk.html")
+    return render_template("main/master/master.html")
 
 
 # @blueprints.master.route("/edit_data")

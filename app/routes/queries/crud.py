@@ -4,14 +4,14 @@ from typing import Callable, List, Tuple
 from datetime import datetime
 from functools import wraps
 
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.models import BankAccount, Product2BankAccount, Company, User2Company, Role
 
 
-@context
-def wrap_crud_call(ctx: AppContext, f: Callable):
+def wrap_crud_call(f: Callable):
     @wraps(f)
-    def wrapper(*args, **kwargs):
+    @function_context
+    def wrapper(ctx: AppContext, *args, **kwargs):
         try:
             return f(*args, **kwargs)
         except Exception as err:

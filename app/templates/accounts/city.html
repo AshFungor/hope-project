@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет города{% endblock %}
+
+{% block content %}
+
+<div class="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
+    <h3><strong>Город {{ city.name }}</strong></h3>
+</div>
+
+<style>
+    .blur {
+        position:relative;
+    }
+
+    .blur:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(0deg, rgba(101,195,228,0.6601466992665037) {{ 100 - (balance/1000) }}%, rgba(251,171,0,0.5990220048899755) {{ balance/1000 }}%);
+        filter: blur(16px);
+        z-index:0;
+    }
+
+    .blur span {
+        position:relative;
+        z-index:1;
+    }
+</style>
+
+<div class="text-center mb-3 rounded blur" style="text-align: center;">
+    <span><strong>Баланс: {{ balance }}</strong> Ψ</span>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <td colspan="2">Данные о городе:</td>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Номер банковского счета:</th>
+            <td>{{ city.bank_account_id }}</td>
+        </tr>
+        <tr>
+            <th>Глава города:</th>
+            <td>
+                {% if mayor %}
+                    {{ mayor.last_name }} {{ mayor.name }}
+                {% else %}
+                    У этого города пока нет главы.
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Префектура:</th>
+            <td> {{ prefecture }} </td>
+        </tr>
+        <tr>
+            <th>Адрес:</th>
+            <td> {{ city.location }} </td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="d-grid gap-2 d-mb-block mb-5">
+    <button class="{{ color_for_big_button }} btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#population" aria-expanded="false" aria-controls="population">
+        Жители
+    </button>
+    <div class="collapse" id="population">
+        <div class="card card-body">
+            <ul>
+                {% for resident in residents %}
+                    <li>{{ resident.name }} {{ resident.last_name }} ({{ resident.bank_account_id }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <button class="{{ color_for_big_button }}y btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#offices" aria-expanded="false" aria-controls="offices">Офисы фирм</button>
+    <div class="collapse" id="offices">
+        <div class="card card-body">
+            <ul>
+                {% for company in companies %}
+                    {{ company.name }}
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <button class="{{ color_for_big_button }} btn-lg mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#products" aria-expanded="false" aria-controls="products">Список товаров</button>
+    <div class="collapse" id="products">
+        <div class="card card-body">
+            <ul>
+                {% for product in products %}
+                    <li>{{ product.name }} {{ product.count }} шт.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <p></p>
+    <form action="{{ url_for( 'proposal.view_transaction') }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="account" value="{{ city.bank_account_id }}">
+        <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
+          Счета
+        </button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
+    <form style="width: 100%;" action="{{ url_for( 'proposal.view_history') }}" method="GET">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="account" value="{{ city.bank_account_id }}">
+        <button class="{{ color_for_big_button }} btn-lg mb-3" style="width: 100%;" type="submit">
+          История счетов
+        </button>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
+
+</div>
+
+{% endblock %}

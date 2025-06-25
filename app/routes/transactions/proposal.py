@@ -9,10 +9,10 @@ from typing import List, Optional, Dict
 from app.routes import Blueprints
 from app.models import Transaction, Product, User, Company, City, Office, Status
 from app.routes.queries.common import process, complete_transaction
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 
 
-@context
+@function_context
 def get_transactions_for(ctx: AppContext, id: int, for_seller = True) -> List[Transaction]:
     return ctx.database.session.execute(
         orm
@@ -23,7 +23,7 @@ def get_transactions_for(ctx: AppContext, id: int, for_seller = True) -> List[Tr
 
 
 @Blueprints.transactions.route("/transaction/create", methods=["POST"])
-@context
+@function_context
 def new_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None) -> flask.Response:
     if payload is None:
         payload = flask.request
@@ -88,7 +88,7 @@ def new_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None) -> f
 
 
 @Blueprints.transactions.route("/transaction/money/create", methods=["POST"])
-@context
+@function_context
 def new_money_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None) -> flask.Response:
     if payload is None:
         payload = flask.request
@@ -134,7 +134,7 @@ def new_money_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None
 
 
 @Blueprints.transactions.route("/transaction/view/current", methods=["POST"])
-@context
+@function_context
 def view_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None):
     if payload is None:
         payload = flask.request
@@ -165,7 +165,7 @@ def view_proposal(ctx: AppContext, payload: Optional[Dict[str, str]] = None):
 
 
 @Blueprints.transactions.route("/transaction/view/history", methods=["POST"])
-@context
+@function_context
 def view_proposal_history(ctx: AppContext, payload: dict[str, str] | None = None):
     if payload is None:
         payload = flask.request
@@ -202,7 +202,7 @@ def view_proposal_history(ctx: AppContext, payload: dict[str, str] | None = None
 
 
 @Blueprints.transactions.route("/transaction/decide", methods=["POST"])
-@context
+@function_context
 def decide_on_proposal(ctx: AppContext, payload: dict[str, str] | None = None):
     if payload is None:
         payload = flask.request

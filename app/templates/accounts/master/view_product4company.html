@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %} Продукты {% endblock %}
+
+{% block content %}
+
+{% if message != None %}
+<div class="text-wrap text-start mb-1">
+    <p class="mb-1">{{ message }} </p>
+</div>
+{% endif %}
+
+<table class="table">
+<thead>
+    <tr>
+        <th scope="col"> Название товара </th>
+        <th scope="col"> Количество </th>
+        <th scope="col"> Уровень </th>
+    </tr>
+</thead>
+{% for category in categories %}
+    <thead>
+        <tr>
+            <th scope="col" colspan="3"> {{ category }} </th>
+        </tr>
+    </thead>
+    {% for product in products %}
+        {% if product.category == category %}
+            {% if product.level == 0 %}
+            <tr>
+                <td class="table-light"> {{ product.name }} </td>
+                <td class="table-light"> {{ product.count }} </td>
+                <td class="table-light"> {{ product.level }} </td>
+            </tr>
+            {% elif product.level == 1 %}
+            <tr>
+                <td class="table-info"> {{ product.name }} </td>
+                <td class="table-info"> {{ product.count }} </td>
+                <td class="table-info"> {{ product.level }} </td>
+            </tr>
+            {% elif product.level == 2 %}
+            <tr>
+                <td class="table-primary"> {{ product.name }} </td>
+                <td class="table-primary"> {{ product.count }} </td>
+                <td class="table-primary"> {{ product.level }} </td>
+            </tr>
+            {% elif product.level == 4 %}
+            <tr>
+                <td class="table-warning"> {{ product.name }} </td>
+                <td class="table-warning"> {{ product.count }} </td>
+                <td class="table-warning"> {{ product.level }} </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td class="table-light"> {{ product.name }} </td>
+                <td class="table-light"> {{ product.count }} </td>
+                <td class="table-light"> {{ product.level }} </td>
+            </tr>
+            {% endif %}
+            {% if product.consumable %}
+            <td colspan="4">
+                <form role="form" action="{{ url_for( 'product.consume', for=account_id, _external=True ) }}" method="POST" id="form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="product" value="{{ product.id }}"/>
+                    <input type="hidden" name="account" value="{{ account_id }}"/>
+                    <button type="submit" class="btn btn-success">Потребить</button>
+                </form>
+            </td>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+{% endfor %}
+</tbody>
+</table>
+
+{% endblock %}

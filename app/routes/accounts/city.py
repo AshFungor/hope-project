@@ -5,13 +5,13 @@ from flask import render_template
 from flask_login import current_user, login_required
 
 from app.routes import Blueprints
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.models import Product, Product2BankAccount, City, Company, Office, Prefecture
 
 
 @Blueprints.accounts.route("/city")
 @login_required
-@context
+@function_context
 def city(ctx: AppContext):
     city_id = current_user.city_id
     city: City = ctx.database.session.get_one(city_id)
@@ -52,7 +52,7 @@ def city(ctx: AppContext):
     balance = products[0].count
 
     return render_template(
-        "main/city_lk_page.html",
+        "accounts/city.html",
         balance=balance,
         city=city,
         mayor=city.mayor,

@@ -11,7 +11,7 @@ logging: !logging
 database: !database
   kind: !postgres
     directory: ./data/postgres
-    hostname: pg_db
+    hostname: postgres
     port: 5432
     user: hope
     password: somepasswd
@@ -20,3 +20,6 @@ database: !database
 flask_extensions: !flask_extensions
   csrf: true
   login_manager: true
+
+consumption:
+  null

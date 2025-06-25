@@ -10,12 +10,12 @@ from flask import redirect, render_template, request, url_for
 
 from app.models import Company, Prefecture, User
 from app.routes.forms import NewCompanyForm
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.routes.queries import CRUD
 from app.routes import Blueprints
 
 
-@context
+@function_context
 def make_company(
     ctx: AppContext, name: str, about: str, prefecture_name: str, user_id: int
 ) -> Optional[Company]:
@@ -28,7 +28,7 @@ def make_company(
     return Company(bank_account, prefecture.id, name, about)
 
 
-@context
+@function_context
 def add_company(
     ctx: AppContext, name: str, about: str, founders: List[int], prefecture_name: str
 ) -> Tuple[bool, str]:
@@ -66,9 +66,9 @@ def add_company(
     return True, "Фирма успешно создана"
 
 
-@Blueprints.accounts.route("/new_company", methods=["GET", "POST"])
+@Blueprints.accounts.route("/master/create/company", methods=["GET", "POST"])
 @login_required
-@context
+@function_context
 def create_company(ctx: AppContext):
     form = NewCompanyForm()
     form.set_choices_prefectures()
@@ -86,4 +86,4 @@ def create_company(ctx: AppContext):
         else:
             flask.flash(message, category="warning")
 
-    return render_template("main/new_company.html", form=form)
+    return render_template("accounts/master/new_company.html", form=form)

@@ -1,36 +1,32 @@
 services:
   webapp:
     build: .
-    container_name: backend
-    env_file:
-      - path: .env
+    container_name: webapp
     volumes:
       - ./data/app_logs:/var/log:w
       - .:/hope-project:rw
     restart: always
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
-  database:
+  postgres:
     image: postgres:16.3
-    container_name: pg_db
-    env_file:
-      - path: .env
-        required: false
+    container_name: postgres
     environment:
-      - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
-      - PGUSER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=somepasswd
+      - PGDATA=/var/lib/pgsql/data
+      - PGUSER=hope
     volumes:
-      - ./data/database_data:${SERVER_POSTGRES_DIRECTORY}/data:rw
+      - ./data/database_data:/var/lib/pgsql/data:rw
     ports:
-      - ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
+      - 6000:5432
     restart: always
     healthcheck:
       test: pg_isready
       interval: 5s
       timeout: 5s
       retries: 10
-  reverse-proxy:
+  nginx:
     image: nginx:mainline
     container_name: nginx
     volumes:

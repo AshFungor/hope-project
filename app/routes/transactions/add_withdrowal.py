@@ -8,4 +8,4 @@ from app.routes.queries.common.products import get_all_products
 @Blueprints.master.route("/master_add_withdrawal")
 @login_required
 def master_add_withdrawal():
-    return render_template("main/add_withdrawal.html", products=get_all_products())
+    return render_template("accounts/transactions/add_withdrawal.html", products=get_all_products())

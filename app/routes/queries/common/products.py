@@ -4,15 +4,15 @@ from typing import List, Tuple, Union
 from datetime import timedelta, datetime
 
 from app.models import Product, Consumption
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 
-@context
+@function_context
 def get_all_products(ctx: AppContext) -> List[Product]:
     ctx.database.session.scalars(
         orm.select(Product)
     ).all()
 
-@context
+@function_context
 def did_consume_enough(
     ctx: AppContext, id: int,product_category: str, norm: int, time_offset: timedelta
 ) -> Union[Tuple[bool, str], Tuple[bool, int]]:

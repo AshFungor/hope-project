@@ -5,4 +5,4 @@ from app.routes import Blueprints
 @Blueprints.main.route("/")
 @Blueprints.main.route("/index")
 def index():
-    return render_template("main/index.html")
+    return render_template("index.html")

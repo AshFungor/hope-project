@@ -5,7 +5,7 @@ from flask import render_template, request
 from flask_login import current_user, login_required
 
 from app.routes.queries import CRUD
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.routes.queries.common import get_last
 from app.models import User2Company, Company, User, Role, Office
 from app.routes import Blueprints
@@ -13,7 +13,7 @@ from app.routes import Blueprints
 
 @Blueprints.accounts.route("/company")
 @login_required
-@context
+@function_context
 def company(ctx: AppContext):
     company_id = request.args.get("company_id", None)
     if not company_id:
@@ -23,7 +23,7 @@ def company(ctx: AppContext):
             .join(Company, User2Company.company_id == Company.id)
             .filter(User2Company.user_id == current_user.id)
         ).all())
-        return render_template("main/companies.html", companies=companies)
+        return render_template("accounts/company/companies.html", companies=companies)
 
     company_id = ctx.database.session.scalars(
         orm
@@ -45,7 +45,7 @@ def company(ctx: AppContext):
 
         goal = get_last(company.bank_account_id, True)
         if goal is None:
-            return flask.redirect(flask.url_for("goal_view.view_create_goal", account=company.bank_account_id))
+            return flask.redirect(flask.url_for("goals.view_create_goal", account=company.bank_account_id))
 
         balance = CRUD.read_money(company.bank_account_id)
         setattr(goal, "rate", goal.get_rate(balance))
@@ -90,7 +90,7 @@ def company(ctx: AppContext):
         ).all()
     
         return render_template(
-            "main/company.html",
+            "accounts/company/company.html",
             company=company,
             CEO=CEO,
             balance=balance,

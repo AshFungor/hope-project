@@ -4,10 +4,10 @@ from typing import Tuple, Union
 
 from app.models import Product2BankAccount, Transaction
 from app.models import Status
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 
 
-@context
+@function_context
 def get_products_for(ctx: AppContext, transaction: Transaction, account: int) -> Union[Tuple[Product2BankAccount, Product2BankAccount], str]:
     try:
         query = ctx.database.session.execute(
@@ -36,7 +36,7 @@ def get_products_for(ctx: AppContext, transaction: Transaction, account: int) ->
 
     return list(query) + [None for _ in range(max(0, 2 - len(query)))]
 
-@context
+@function_context
 def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[str, bool]:
     if transaction.status != Status.CREATED:
         return "transaction is already processed", False
@@ -100,7 +100,7 @@ def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[
 
     return "transaction accepted", True
 
-@context
+@function_context
 def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> Tuple[str, bool]:
     transaction = ctx.database.session.get(Transaction, transaction_id)
     if not transaction:

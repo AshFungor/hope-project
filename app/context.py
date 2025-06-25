@@ -101,6 +101,7 @@ class AppConfig(YAMLObject):
     database: Database
     logging: Logging
     flask_extensions: FlaskExtensions
+    consumption: Consumption
 
 
 class AppContext:
@@ -203,11 +204,20 @@ class AppContext:
         return levels.get(level.lower(), logging.DEBUG)
 
 
-def context(f: Callable) -> Callable:
+def class_context(f: Callable) -> Callable:
     @wraps(f)
     def wrapper(*args, **kwargs):
         # safe to call if init() is triggered already
         ctx = AppContext.safe_load()
-        return f(*args, ctx, **kwargs)
+        return f(*args, ctx=ctx, **kwargs)
+
+    return wrapper
+
+
+def function_context(f: Callable) -> Callable:
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        ctx = AppContext.safe_load()
+        return f(ctx, *args, **kwargs)
 
     return wrapper

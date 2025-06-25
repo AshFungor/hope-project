@@ -6,12 +6,12 @@ from flask import redirect, render_template, request, session, url_for
 from flask_login import login_user
 
 from app.models import Prefecture, City, User
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.routes import Blueprints
 
 
 @Blueprints.session.route("/login", methods=["POST", "GET"])
-@context
+@function_context
 def authorization(ctx: AppContext):
     if request.method == "POST":
         user = ctx.database.session.scalar(

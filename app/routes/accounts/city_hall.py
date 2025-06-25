@@ -6,14 +6,14 @@ import sqlalchemy as orm
 
 from app.models import CityHall, User, Goal
 from app.routes import Blueprints
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.routes.queries import CRUD
 from app.routes.queries.common import get_last
 
 
 @Blueprints.accounts.route("/city_hall")
 @flask_login.login_required
-@context
+@function_context
 def city_hall(ctx: AppContext):
     current_user = copy.copy(flask_login.current_user)
     hall = ctx.database.session.scalar(orm.select(CityHall))
@@ -49,7 +49,7 @@ def city_hall(ctx: AppContext):
     bankrupt_users = bankrupt_companies = bankrupt_cities = []
 
     return flask.render_template(
-        "main/city_hall.html",
+        "accounts/city_hall.html",
         balance=CRUD.read_money(bank_account),
         bank_account=bank_account,
         goal=goal,

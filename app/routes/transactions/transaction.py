@@ -7,14 +7,14 @@ import flask_login
 import sqlalchemy as orm
 
 from app.routes import Blueprints
-from app.context import context, AppContext
+from app.context import function_context, AppContext
 from app.models import Product2BankAccount, Product
 from app.routes.transactions.proposal import view_proposal, view_proposal_history, new_proposal, new_money_proposal
 
 
 @Blueprints.proposals.route("/view_transactions", methods=["GET"])
 @flask_login.login_required
-@context
+@function_context
 def view_transaction(ctx: AppContext):
     user_id = flask.request.args.get("account", None)
     if user_id is None:
@@ -23,12 +23,12 @@ def view_transaction(ctx: AppContext):
     payload = {"user": user_id}
 
     response = json.loads(view_proposal(payload).data)
-    return flask.render_template("main/view_transaction.html", transactions=response)
+    return flask.render_template("account/transaction/view_transaction.html", transactions=response)
 
 
 @Blueprints.proposals.route("/history", methods=["GET"])
 @flask_login.login_required
-@context
+@function_context
 def view_history(ctx: AppContext):
     offset = max(int(flask.request.args.get("offset", 0)), 0)
     length = max(int(flask.request.args.get("length", 7)), 1)
@@ -48,7 +48,7 @@ def view_history(ctx: AppContext):
         selected.append(transaction)
 
     return flask.render_template(
-        "main/view_all_transactions.html",
+        "account/common/view_all_transactions.html",
         transactions=selected,
         prev_offset=max(offset - length, 0),
         prev_length=length,
@@ -61,7 +61,7 @@ def view_history(ctx: AppContext):
 
 @Blueprints.proposals.route("/new_transaction", methods=["GET"])
 @flask_login.login_required
-@context
+@function_context
 def new_transaction(ctx: AppContext):
     user_id = flask.request.args.get("account", None)
     if user_id is None:
@@ -78,21 +78,21 @@ def new_transaction(ctx: AppContext):
     for number, product in zip(range(len(products)), products):
         data.append({"name": product.name, "number": number})
 
-    return flask.render_template("main/make_transaction.html", user_bank_account=user_id, products=data)
+    return flask.render_template("accounts/transaction/make_transaction.html", user_bank_account=user_id, products=data)
 
 
 @Blueprints.proposals.route("/new_money_transaction", methods=["GET"])
 @flask_login.login_required
-@context
+@function_context
 def new_money_transaction(ctx: AppContext):
     user_id = flask.request.args.get("account", None)
     if user_id is None:
         user_id = flask_login.current_user.bank_account_id
-    return flask.render_template("main/make_money_transaction.html", user_bank_account=user_id)
+    return flask.render_template("accounts/transaction/make_money_transaction.html", user_bank_account=user_id)
 
 
 @Blueprints.transactions.route("/transaction/parse/create", methods=["POST"])
-@context
+@function_context
 def parse_new_transaction(ctx: AppContext):
     mapper = {
         "seller-account": "customer_account",
@@ -124,7 +124,7 @@ def parse_new_transaction(ctx: AppContext):
 
 
 @Blueprints.transactions.route("/transaction/parse/money/create", methods=["POST"])
-@context
+@function_context
 def parse_new_money_transaction(ctx: AppContext):
     mapper = {
         "seller-account": "customer_account",
