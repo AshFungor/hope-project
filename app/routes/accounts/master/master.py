@@ -18,17 +18,16 @@ from app.routes import Blueprints
 @Blueprints.accounts.route("/master")
 @login_required
 def master():
-    return render_template("main/master/master.html")
+    return render_template("accounts/master/master.html")
 
 
-# @blueprints.master.route("/edit_data")
+# @Blueprints.master.route("/update/data")
 # @login_required
 # def edit_data():
-#     """Мастер изменяет данные"""
-#     return render_template("main/master_edit.html")
+#     return render_template("accounts/master/master_edit.html")
 
 
-# @blueprints.master.route("/action_with_resource", methods=["POST"])
+# @Blueprints.master.route("/action_with_resource", methods=["POST"])
 # @login_required
 # def action_with_product():
 #     # check input data

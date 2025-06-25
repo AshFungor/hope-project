@@ -70,7 +70,7 @@ class Goal(ModelBase):
     id: Mapped[Ints.Serial]
     bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
     created_at: Mapped[Datetime.Datetime]
-    amount_on_setup: Mapped[Ints.Long] = mapped_column(nullable=False)
+    amount_on_setup: Mapped[Ints.Long] = mapped_column(nullable=True)
     value: Mapped[Ints.Long] = mapped_column(nullable=True)
     amount_on_validate: Mapped[Ints.Long] = mapped_column(nullable=True)
     complete: Mapped[bool] = mapped_column(default=False)

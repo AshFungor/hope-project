@@ -57,6 +57,8 @@ class CRUD:
         ).all()
 
         if len(query) != 1:
-            return f"internal error: query returned more than 1 or less than 1 position: {len(query)}"
+            raise RuntimeError(
+                f"internal error: query returned more than 1 or less than 1 position: {len(query)}"
+            )
 
         return query[0].count

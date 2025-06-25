@@ -29,7 +29,6 @@ class FlaskExtensions:
     def __init_login_manager(cls, ctx: AppContext):
         ctx.logger.info("setting up login manager")
         login_manager = LoginManager()
-        login_manager.login_view = "session.authorization"
 
         @login_manager.user_loader
         @class_context

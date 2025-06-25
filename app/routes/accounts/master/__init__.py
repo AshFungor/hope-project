@@ -1,2 +1,2 @@
-from .master import *
-from .new_product import *
+from . import master
+from . import new_product

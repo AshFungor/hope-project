@@ -18,7 +18,7 @@ database: !database
     database_name: hope
 
 flask_extensions: !flask_extensions
-  csrf: true
+  csrf: false
   login_manager: true
 
 consumption:

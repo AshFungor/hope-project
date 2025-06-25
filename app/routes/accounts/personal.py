@@ -2,7 +2,8 @@ import copy
 import datetime
 
 import flask
-import flask_login
+
+from flask_login import current_user, login_required
 
 from app.routes import Blueprints
 from app.routes.queries.common import get_last
@@ -10,15 +11,10 @@ from app.routes.queries import CRUD
 from app.context import function_context, AppContext
 
 
-def time_span_formatter(span: datetime.timedelta) -> str:
-    return f"{span.days} дней"
-
-
-@Blueprints.accounts.route("/personal")
-@flask_login.login_required
+@Blueprints.accounts.route("/api/personal/dashboard")
+@login_required
 @function_context
 def personal(ctx: AppContext):
-    current_user = copy.copy(flask_login.current_user)
     goal = get_last(current_user.bank_account_id, True)
     if goal is None:
         return flask.redirect(flask.url_for("goals.view_create_goal"))

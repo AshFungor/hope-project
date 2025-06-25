@@ -1,1 +1,1 @@
-from .crud import CRUD
+from .crud import CRUD, wrap_crud_call
