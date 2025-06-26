@@ -2,19 +2,13 @@
 
 import argparse
 import subprocess
-
 from pathlib import Path
 
 
 def generate_python_protobufs(proto_dir: Path, py_out_dir: Path):
     print("Generating Python protobufs...")
     proto_files = list(proto_dir.rglob("*.proto"))
-    subprocess.run([
-        "protoc",
-        f"--proto_path={proto_dir}",
-        f"--python_betterproto_out={py_out_dir}",
-        *map(str, proto_files)
-    ], check=True)
+    subprocess.run(["protoc", f"--proto_path={proto_dir}", f"--python_betterproto_out={py_out_dir}", *map(str, proto_files)], check=True)
 
 
 def generate_ts_protobufs(proto_dir: Path, ts_out_dir: Path):
@@ -26,13 +20,16 @@ def generate_ts_protobufs(proto_dir: Path, ts_out_dir: Path):
         raise FileNotFoundError(f"Plugin not found: {plugin_path}")
 
     proto_files = list(proto_dir.rglob("*.proto"))
-    subprocess.run([
-        "protoc",
-        f"--proto_path={proto_dir}",
-        f"--plugin=protoc-gen-ts_proto={plugin_path}",
-        f"--ts_proto_out={ts_out_dir}",
-        *map(str, proto_files)
-    ], check=True)
+    subprocess.run(
+        [
+            "protoc",
+            f"--proto_path={proto_dir}",
+            f"--plugin=protoc-gen-ts_proto={plugin_path}",
+            f"--ts_proto_out={ts_out_dir}",
+            *map(str, proto_files),
+        ],
+        check=True,
+    )
 
 
 def main():

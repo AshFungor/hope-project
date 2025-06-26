@@ -1,19 +1,18 @@
 import datetime
-import flask
 import json
-
-import sqlalchemy as orm
-
 from http import HTTPStatus
-from flask import request, jsonify
 from typing import List
+
+import flask
+import sqlalchemy as orm
+from flask import jsonify, request
 from flask_login import login_required
 
 from app.api import Blueprints
+from app.api.transactions.processor import complete_transaction, process
+from app.context import AppContext, function_context
+from app.models import Company, Product, Transaction, TransactionStatus, User
 from app.models.queries import wrap_crud_call
-from app.models import Transaction, Product, User, Company, TransactionStatus
-from app.api.transactions.processor import process, complete_transaction
-from app.context import function_context, AppContext
 
 
 @Blueprints.transactions.route("/api/transaction/product/create", methods=["POST"])
@@ -21,21 +20,19 @@ from app.context import function_context, AppContext
 @function_context
 def new_proposal(ctx: AppContext):
     try:
-        seller_account = int(request.json["seller_account"]) 
+        seller_account = int(request.json["seller_account"])
         customer_account = int(request.json["customer_account"])
         product_name = request.json["product"]
         count = int(request.json["count"])
         amount = int(request.json["amount"])
     except (ValueError, KeyError):
         return "Parameters are missing or their types are mismatched", HTTPStatus.BAD_REQUEST
-    
-    product = ctx.database.session.execute(
-        orm.select(Product).filter_by(Product.name == product_name)
-    ).all()
+
+    product = ctx.database.session.execute(orm.select(Product).filter_by(Product.name == product_name)).all()
 
     if len(product) != 1:
         return f"Could not resolve product name: {product_name}", HTTPStatus.BAD_REQUEST
-        
+
     @wrap_crud_call
     def __create():
         transaction = Transaction(
@@ -61,7 +58,7 @@ def new_proposal(ctx: AppContext):
 @function_context
 def new_money_proposal(ctx: AppContext) -> flask.Response:
     try:
-        seller_account = int(request.json["seller_account"]) 
+        seller_account = int(request.json["seller_account"])
         customer_account = int(request.json["customer_account"])
         amount = int(request.json["amount"])
     except (ValueError, KeyError):
@@ -86,9 +83,9 @@ def new_money_proposal(ctx: AppContext) -> flask.Response:
         if not status:
             ctx.logger.warning(message)
             return "could add money transaction", HTTPStatus.BAD_REQUEST
-        
+
         return "Transaction added", HTTPStatus.OK
-    
+
     retval = __create()
     if retval is not None:
         return retval
@@ -105,8 +102,7 @@ def active_proposals(ctx: AppContext):
         return "Parameters are missing or their types are mismatched", HTTPStatus.BAD_REQUEST
 
     proposals = ctx.database.session.execute(
-        orm
-        .select(Transaction, Product)
+        orm.select(Transaction, Product)
         .filter(orm.and_(Transaction.status == TransactionStatus.CREATED, Transaction.customer_bank_account_id == account))
         .join(Product, Product.id == Transaction.product_id)
     ).all()
@@ -119,7 +115,8 @@ def active_proposals(ctx: AppContext):
                 "count": transaction.count,
                 "product": product.name,
                 "second_side": transaction.seller_bank_account_id,
-            } for transaction, product in proposals
+            }
+            for transaction, product in proposals
         ]
     )
 
@@ -132,12 +129,11 @@ def view_proposal_history(ctx: AppContext):
     except (ValueError, KeyError):
         return "Parameters are missing or their types are mismatched", HTTPStatus.BAD_REQUEST
 
-    def get_transactions_for(ctx: AppContext, id: int, for_seller = True) -> List[Transaction]:
+    def get_transactions_for(ctx: AppContext, id: int, for_seller=True) -> List[Transaction]:
         return ctx.database.session.execute(
-            orm
-            .select(Transaction, Product)
+            orm.select(Transaction, Product)
             .filter((Transaction.seller_bank_account_id if for_seller else Transaction.customer_bank_account_id) == id)
-            .join(Product, Product.id == Transaction.product_id)        
+            .join(Product, Product.id == Transaction.product_id)
         ).all()
 
     seller_proposals = get_transactions_for(ctx, account, True)
@@ -156,14 +152,12 @@ def view_proposal_history(ctx: AppContext):
                 "side": side,
                 "second_side": transaction.customer_bank_account_id if side == "seller" else transaction.seller_bank_account_id,
                 "is_money": product.id == 1,
-            } for transaction, product in proposals
+            }
+            for transaction, product in proposals
         )
 
     return jsonify(
-        sorted(
-            response,
-            key=lambda entry: datetime.datetime.strptime(entry["updated_at"], "%d/%m/%Y %H:%M:%S"), reverse=True
-        ),
+        sorted(response, key=lambda entry: datetime.datetime.strptime(entry["updated_at"], "%d/%m/%Y %H:%M:%S"), reverse=True),
     )
 
 

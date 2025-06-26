@@ -1,8 +1,7 @@
-import sys
 import logging
 import logging.handlers
 import multiprocessing
-
+import sys
 from dataclasses import dataclass
 from functools import wraps
 from pathlib import Path
@@ -11,10 +10,9 @@ from zoneinfo import ZoneInfo
 
 import colorlog
 import sqlalchemy as orm
-
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from yaml import UnsafeLoader, YAMLObject, load, Loader, MappingNode
+from yaml import Loader, MappingNode, UnsafeLoader, YAMLObject, load
 
 from app.models.types import ModelBase
 
@@ -67,7 +65,7 @@ class AppConfig(YAMLObject):
                 return f[self.Postgres](self.kind)
 
             raise ValueError
-        
+
     @dataclass
     class Consumption(YAMLObject):
         yaml_tag = "!consumption"
@@ -83,10 +81,7 @@ class AppConfig(YAMLObject):
         @classmethod
         def from_yaml(cls, loader: Loader, node: MappingNode) -> Self:
             raw_dict = loader.construct_mapping(node, deep=True)
-            return cls({
-                category: cls.CategoryInfo(**data)
-                for category, data in raw_dict.items()
-            })
+            return cls({category: cls.CategoryInfo(**data) for category, data in raw_dict.items()})
 
     @dataclass
     class FlaskExtensions(YAMLObject):

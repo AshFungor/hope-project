@@ -1,41 +1,29 @@
+from datetime import datetime, timedelta
+
 import sqlalchemy as orm
 
-from typing import Tuple, Union
-from datetime import timedelta, datetime
-
-from app.models import Product, Consumption
-from app.context import function_context, AppContext
+from app.context import AppContext, function_context
+from app.models import Consumption, Product
 
 
 @function_context
-def did_consume_enough(
-    ctx: AppContext, id: int,product_category: str, norm: int, time_offset: timedelta
-) -> Union[Tuple[bool, str], Tuple[bool, int]]:
-    suitable_products = ctx.database.session.scalars(
-        orm
-        .select(Product.id)
-        .filter(Product.category == product_category)
-    ).all()
+def needs_to_consume(
+    ctx: AppContext, id: int, product_category: str, norm: int, time_offset: timedelta
+) -> int:
+    suitable_products = ctx.database.session.scalars(orm.select(Product.id).filter(Product.category == product_category)).all()
 
     consumed = ctx.database.session.scalars(
-        orm
-        .select(Consumption)
-        .filter(
-            orm.and_(
-                Consumption.bank_account_id == id,
-                Consumption.product_id.in_(suitable_products)
-            )
-        )
+        orm.select(Consumption).filter(orm.and_(Consumption.bank_account_id == id, Consumption.product_id.in_(suitable_products)))
     ).all()
 
     if consumed is None:
-        return False, f'в этот день категория {product_category} не употреблялся'
-    
+        return norm
+
     total = 0
     for entry in consumed:
         if (entry.consumed_at + time_offset).date() > datetime.now().date():
             total += entry.count
 
     if total < norm:
-        return False, norm - total
-    return True, 0
+        return norm - total
+    return 0

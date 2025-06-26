@@ -1,10 +1,10 @@
 import types
 
-from .user import User
-from .goal import Goal
+from .bank_account import BankAccount, Product2BankAccount
 from .city import CityHall
+from .company import Company, Role, User2Company
+from .goal import Goal
 from .prefecture import Prefecture
 from .product import Consumption, Product
-from .company import Company, User2Company, Role
 from .transaction import Transaction, TransactionStatus
-from .bank_account import BankAccount, Product2BankAccount
+from .user import User

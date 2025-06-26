@@ -9,16 +9,11 @@ message ConsumeProductRequest {
 
 message ConsumeProductResponse {
     enum Status {
-        SUCCESS = 0;
-        MISSING_PARAMETERS = 1;
-        TYPE_MISMATCH = 2;
-        NOT_CONSUMABLE = 3;
-        ERROR = 4;
-        NOT_ACCEPTABLE = 5;
-        ALREADY_CONSUMED = 6;
-        CONFLICT = 7;
+        OK = 0;
+        NOT_CONSUMABLE = 1;
+        ALREADY_CONSUMED = 2;
+        NOT_ENOUGH = 3;
     }
 
     Status status = 1;
-    string message = 2;
 }

@@ -22,5 +22,10 @@ message CreateGoalRequest {
 }
 
 message CreateGoalResponse {
-    string status = 1;
+    enum Status {
+        OK = 0;
+        ALREADY_EXISTS = 1;
+    }
+
+    Status status = 1;
 }

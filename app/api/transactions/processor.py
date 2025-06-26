@@ -1,20 +1,19 @@
 from enum import StrEnum
 from typing import Tuple, Union
 
+from app.context import AppContext, function_context
+from app.models import Product2BankAccount, Transaction, TransactionStatus
 from app.models.queries import CRUD
-from app.models import Product2BankAccount, Transaction
-from app.models import TransactionStatus
-from app.context import function_context, AppContext
 
 
 class ProcessingStatus(StrEnum):
-    ALREADY_PROCESSED = 'already_processed'
-    REJECTED = 'rejected'
-    VALUE_OUT_OF_BOUNDS = 'value_out_of_bounds'
-    MISSING_PRODUCTS = 'missing_products'
-    MISSING_MONEY = 'missing_money'
-    MISSING_ACCOUNT = 'missing_account'
-    
+    ALREADY_PROCESSED = "already_processed"
+    REJECTED = "rejected"
+    VALUE_OUT_OF_BOUNDS = "value_out_of_bounds"
+    MISSING_PRODUCTS = "missing_products"
+    MISSING_MONEY = "missing_money"
+    MISSING_ACCOUNT = "missing_account"
+
 
 @function_context
 def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[str, bool]:
@@ -62,7 +61,10 @@ def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[
             customer_products = Product2BankAccount(transaction.customer_bank_account_id, transaction.product_id, 0)
             ctx.database.session.add(customer_products)
         except Exception as error:
-            return f"failed to create product account with id {transaction.product_id} for user {transaction.customer_bank_account_id}; error {error}", False
+            return (
+                f"failed to create product account with id {transaction.product_id} for user {transaction.customer_bank_account_id}; error {error}",
+                False,
+            )
 
     ctx.logger.log(transaction)
     if customer_wallet.count < transaction.amount:
@@ -80,6 +82,7 @@ def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[
     transaction.status = TransactionStatus.APPROVED
 
     return "transaction accepted", True
+
 
 @function_context
 def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> Tuple[str, bool]:

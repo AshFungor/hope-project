@@ -5,7 +5,7 @@ import { useUser } from '@app/contexts/user';
 
 const HomePage = () => {
 	const navigate = useNavigate();
-	const { currentUser } = useUser(); 
+	const { currentUser } = useUser();
 
 	const go = (path: string) => navigate(path);
 

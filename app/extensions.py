@@ -2,8 +2,8 @@ from datetime import timedelta
 
 from flask_login import LoginManager
 
-from app.models import User
 from app.context import AppConfig, AppContext, class_context
+from app.models import User
 
 
 class FlaskExtensions:

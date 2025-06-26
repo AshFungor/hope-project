@@ -1,5 +1,6 @@
 from pathlib import Path
-from flask import Flask, Blueprint
+
+from flask import Blueprint, Flask
 
 from app.context import AppContext
 
@@ -15,7 +16,7 @@ def create_app() -> Flask:
 
     for bp in vars(Blueprints).values():
         if isinstance(bp, Blueprint):
-            ctx.logger.debug(f'registering blueprint: {bp.name}')
+            ctx.logger.debug(f"registering blueprint: {bp.name}")
             app.register_blueprint(bp)
 
     FlaskExtensions.setup(ctx.config)

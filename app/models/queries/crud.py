@@ -1,12 +1,12 @@
+from contextlib import contextmanager
+from datetime import datetime
+from functools import wraps
+from typing import Callable, List, Tuple
+
 import sqlalchemy as orm
 
-from typing import Callable, List, Tuple
-from datetime import datetime
-from contextlib import contextmanager
-from functools import wraps
-
-from app.context import function_context, AppContext
-from app.models import BankAccount, Product2BankAccount, Company, User2Company, Role
+from app.context import AppContext, function_context
+from app.models import BankAccount, Company, Product2BankAccount, Role, User2Company
 
 
 def wrap_crud_call(f: Callable):
@@ -17,7 +17,7 @@ def wrap_crud_call(f: Callable):
             return f(*args, **kwargs)
         except ValueError as err:
             ctx.database.session.rollback()
-            ctx.logger.error(f'CRUD failed for method {f.__name__}: {err}')
+            ctx.logger.error(f"CRUD failed for method {f.__name__}: {err}")
 
     return wrapper
 
@@ -29,7 +29,7 @@ def wrap_crud_context(ctx: AppContext):
         yield
     except ValueError as err:
         ctx.database.session.rollback()
-        ctx.logger.error(f'CRUD failed for method: {err}')
+        ctx.logger.error(f"CRUD failed for method: {err}")
 
 
 class CRUD:
@@ -42,7 +42,7 @@ class CRUD:
         bind_account = Product2BankAccount(bank_account.id, 1, 0)
         cls.__ctx.database.session.add_all(bank_account, bind_account)
         return bank_account.id
-    
+
     @classmethod
     @wrap_crud_call
     def create_company(cls, company: Company, founders: List[Tuple[int, float]]):
@@ -55,11 +55,9 @@ class CRUD:
 
     @classmethod
     @wrap_crud_call
-    def read_product(cls, account: int, product_id: int) -> int:
+    def query_money(cls, account: int, product_id: int) -> int:
         query = cls.__ctx.database.session.scalars(
-            orm
-            .select(Product2BankAccount)
-            .filter(
+            orm.select(Product2BankAccount).filter(
                 orm.and_(
                     Product2BankAccount.bank_account_id == account,
                     Product2BankAccount.product_id == product_id,
@@ -68,13 +66,11 @@ class CRUD:
         ).all()
 
         if len(query) != 1:
-            raise RuntimeError(
-                f"internal error: query returned more than 1 or less than 1 position: {len(query)}"
-            )
+            raise RuntimeError(f"internal error: query returned more than 1 or less than 1 position: {len(query)}")
 
         return query[0].count
 
     @classmethod
     @wrap_crud_call
-    def read_money(cls, account: int) -> int:
-        return cls.read_product(account, 1)
+    def query_money(cls, account: int) -> int:
+        return cls.query_money(account, 1)
