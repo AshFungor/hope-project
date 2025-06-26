@@ -21,5 +21,18 @@ flask_extensions: !flask_extensions
   csrf: false
   login_manager: true
 
-consumption:
-  null
+consumption: !consumption
+  food:
+    count: 1
+    price: 80
+    period_days: 1
+
+  clothes:
+    count: 1
+    price: 120
+    period_days: 2
+
+  technic:
+    count: 1
+    price: 150
+    period_days: 4

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import type { CurrentUser } from '../types/user';
-import { getColorForBigButton } from '../utils/color';
+import type { CurrentUser } from '@app/types/user';
+import { getColorForBigButton } from '@app/utils/color';
 
 const HomePage = () => {
 	const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-	const [colorForBigButton, setColorForBigButton] = useState<string>('btn btn-outline-dark');
+	const [colorForBigButton, setColorForBigButton] = useState<string>(getColorForBigButton(null));
 
 	const navigate = useNavigate();
 

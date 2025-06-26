@@ -33,7 +33,7 @@ export class Auth {
 				return null;
 
 			case StatusCodes.OK:
-                let json = await response.json();
+				let json = await response.json();
 				return CurrentUser.fromJson(json);
 
 			default:

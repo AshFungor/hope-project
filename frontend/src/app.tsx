@@ -1,24 +1,26 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import AuthLayout from '@app/layouts/auth';
-import GreetingsLayout from '@app/layouts/main';
+import MainLayout from '@app/layouts/main';
 
 import { UserProvider } from '@app/contexts/user';
 
-import HomePage from '@app/pages/home_page';
+import HomePage from '@app/pages/home-page';
 import LoginPage from '@app/pages/auth/login';
 import PersonalPage from '@app/pages/accounts/personal';
-import GoalPage from '@app/pages/auxiliary/new_goal';
+import GoalPage from '@app/pages/shared/views/new-goal';
+import ProductsPage from '@app/pages/shared/views/available-products';
 
 function App() {
 	return (
 		<BrowserRouter>
 			<UserProvider>
 				<Routes>
-					<Route element={<GreetingsLayout />}>
+					<Route element={<MainLayout />}>
 						<Route path="/" element={<HomePage />} />
 						<Route path="/personal" element={<PersonalPage />} />
 						<Route path="/goal/new" element={<GoalPage />} />
+						<Route path="/products" element={<ProductsPage />} />
 					</Route>
 
 					<Route element={<AuthLayout />}>

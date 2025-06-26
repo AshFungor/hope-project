@@ -82,12 +82,11 @@ class AppConfig(YAMLObject):
 
         @classmethod
         def from_yaml(cls, loader: Loader, node: MappingNode) -> Self:
-            raw = loader.construct_mapping(node, deep=True)
-            self = cls({
-                category: cls.CategoryInfo(**data) for category, data in raw
+            raw_dict = loader.construct_mapping(node, deep=True)
+            return cls({
+                category: cls.CategoryInfo(**data)
+                for category, data in raw_dict.items()
             })
-
-            return self
 
     @dataclass
     class FlaskExtensions(YAMLObject):

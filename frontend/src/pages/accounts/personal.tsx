@@ -3,9 +3,12 @@ import { Accordion, Table, ProgressBar } from 'react-bootstrap';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useUser } from '@app/contexts/user';
 import { Goal } from '@app/utils/goal';
-import { Product } from '@app/utils/products';
+import { Product, ProductAPI } from '@app/utils/product';
 
-export default function Dashboard() {
+import BalanceSection from '@app/pages/shared/widgets/balance';
+import GoalSection from '@app/pages/shared/widgets/goal';
+
+export default function PersonalPage() {
 	const { currentUser } = useUser();
 	const { color } = useOutletContext<{ color: string }>();
 	const navigate = useNavigate();
@@ -27,10 +30,14 @@ export default function Dashboard() {
 			}
 			setGoal(lastGoal);
 
-			const balance = await Product.getProductCount(currentUser.bank_account_id, 'money');
+			const balance = await ProductAPI.counts(currentUser.bank_account_id, 'надик');
 			setBalance(balance);
 		})();
 	}, [currentUser, navigate]);
+
+	const goToProducts = () => {
+		navigate(`/products?bank_account_id=${currentUser?.bank_account_id}`);
+	};
 
 	if (!goal) return null;
 
@@ -47,24 +54,10 @@ export default function Dashboard() {
 			<Accordion.Item eventKey="0">
 				<Accordion.Header>Профиль</Accordion.Header>
 				<Accordion.Body>
-					<div className="goal-section text-center border-bottom pb-3 mb-3">
-						<p className="mb-1">
-							<strong>Цель по доходу в день:</strong> <b>{goal.value}</b> Ψ
-						</p>
-						<ProgressBar
-							now={goal.getProgressRate(balance)}
-							label={`${goal.getProgressRate(balance)}%`}
-							animated
-							striped
-							variant="success"
-						/>
-					</div>
-
-					<div className="balance-blur text-center mb-3 rounded">
-						<span>
-							<strong>Баланс: {balance}</strong> Ψ
-						</span>
-					</div>
+					<GoalSection goal={goal} balance={balance} />
+                    <div className="text-center mb-3 rounded blur" style={{ textAlign: 'center' }}>
+					    <BalanceSection current={balance} />
+                    </div>
 
 					<Table striped>
 						<thead>
@@ -83,9 +76,9 @@ export default function Dashboard() {
 					</Table>
 
 					<div className="d-grid">
-						<a className={`${color} btn-lg`} href="/api/user/products">
-							Ваши продукты
-						</a>
+						<button className={`${color} btn-lg`} onClick={goToProducts}>
+							Перейти к продуктам
+						</button>
 					</div>
 				</Accordion.Body>
 			</Accordion.Item>

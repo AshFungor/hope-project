@@ -1,5 +1,5 @@
 import '@app/styles/bootstrap.min.css';
-import '@app/styles/greeting.css';
+import '@app/styles/main.css';
 import '@app/styles/auth.css';
 
 import React from 'react';

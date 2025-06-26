@@ -42,6 +42,9 @@ export class Goal {
 	}
 
 	getProgressRate(currentBalance: number): number {
+		if (this.value === null) {
+			return 0;
+		}
 		return Math.min(100, Math.floor((currentBalance / this.value!) * 100));
 	}
 }
