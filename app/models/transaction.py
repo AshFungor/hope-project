@@ -4,10 +4,10 @@ import enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.modules.database import Datetime, Ints, ModelBase, VarStrings
+from app.models.types import Datetime, Ints, ModelBase, VarStrings
 
 
-class Status(enum.StrEnum):
+class TransactionStatus(enum.StrEnum):
     CREATED = "created"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -34,7 +34,7 @@ class Transaction(ModelBase):
         seller_bank_account_id: int,  # seller's account
         count: int,  # number of products
         amount: int,  # money
-        status: str | Status,  # transaction status
+        status: str | TransactionStatus,  # transaction status
         created_at: datetime.datetime,  # creation time
         updated_at: datetime.datetime,  # ???
         comment: str | None,  # our data

@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Accordion, Table, ProgressBar } from 'react-bootstrap';
-import { useNavigate, useOutletContext } from 'react-router-dom';
+import { Accordion, Table } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@app/contexts/user';
-import { Goal } from '@app/utils/goal';
-import { Product, ProductAPI } from '@app/utils/product';
+import { GoalAPI } from '@app/types/goal';
+import { ProductAPI } from '@app/types/product';
 
 import BalanceSection from '@app/pages/shared/widgets/balance';
 import GoalSection from '@app/pages/shared/widgets/goal';
+import ProposalLinks from '@app/pages/shared/widgets/proposals';
+
+import { Goal } from '@app/codegen/goal'
 
 export default function PersonalPage() {
-	const { currentUser } = useUser();
-	const { color } = useOutletContext<{ color: string }>();
+	const { currentUser, refreshUser } = useUser();
 	const navigate = useNavigate();
 
 	const [goal, setGoal] = useState<Goal | null>(null);
@@ -18,32 +20,32 @@ export default function PersonalPage() {
 
 	useEffect(() => {
 		if (currentUser === null) {
-			navigate('/auth/login');
+			refreshUser();
 			return;
 		}
 
 		(async () => {
-			const lastGoal = await Goal.getLastGoal(currentUser.bank_account_id);
+			const lastGoal = await GoalAPI.getLastGoal(currentUser.bankAccountId);
 			if (!lastGoal) {
-				navigate(`/goal/new?bank_account_id=${currentUser.bank_account_id}`);
+				navigate(`/goal/new?bank_account_id=${currentUser.bankAccountId}`);
 				return;
 			}
 			setGoal(lastGoal);
 
-			const balance = await ProductAPI.counts(currentUser.bank_account_id, 'надик');
+			const balance = await ProductAPI.count(currentUser.bankAccountId, 'надик');
 			setBalance(balance);
 		})();
 	}, [currentUser, navigate]);
 
 	const goToProducts = () => {
-		navigate(`/products?bank_account_id=${currentUser?.bank_account_id}`);
+		navigate(`/products?bank_account_id=${currentUser?.bankAccountId}`);
 	};
 
 	if (!goal) return null;
 
 	const userSpec = [
-		{ name: 'номер банковского счета', value: currentUser?.bank_account_id.toString() ?? '' },
-		{ name: 'полное имя', value: currentUser?.full_name ?? '' },
+		{ name: 'номер банковского счета', value: currentUser?.bankAccountId.toString() ?? '' },
+		{ name: 'полное имя', value: currentUser?.name ?? '' },
 		{ name: 'логин', value: currentUser?.login ?? '' },
 		{ name: 'день рождения', value: currentUser?.birthday ?? '' },
 		{ name: 'бонус', value: currentUser?.bonus?.toString() ?? '' },
@@ -76,7 +78,7 @@ export default function PersonalPage() {
 					</Table>
 
 					<div className="d-grid">
-						<button className={`${color} btn-lg`} onClick={goToProducts}>
+						<button className="btn btn-outline-dark btn-lg mb-3" onClick={goToProducts}>
 							Перейти к продуктам
 						</button>
 					</div>
@@ -86,18 +88,7 @@ export default function PersonalPage() {
 			<Accordion.Item eventKey="1">
 				<Accordion.Header>Операции со счетом</Accordion.Header>
 				<Accordion.Body className="d-grid gap-3">
-					<a className={`${color} btn-lg`} href="/api/proposal/money">
-						Перевод
-					</a>
-					<a className={`${color} btn-lg`} href="/api/proposal/bill">
-						Выставить счет
-					</a>
-					<a className={`${color} btn-lg`} href="/api/proposal/unpaid">
-						Неоплаченные счета
-					</a>
-					<a className={`${color} btn-lg`} href="/api/proposal/history">
-						История транзакций
-					</a>
+					<ProposalLinks accountId={currentUser?.bankAccountId}/>
 				</Accordion.Body>
 			</Accordion.Item>
 		</Accordion>

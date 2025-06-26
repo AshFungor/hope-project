@@ -17,15 +17,16 @@ services:
     container_name: postgres
     environment:
       - POSTGRES_PASSWORD=somepasswd
+      - POSTGRES_USER=hope
+      - POSTGRES_DB=hope
       - PGDATA=/var/lib/pgsql/data
-      - PGUSER=hope
     volumes:
       - ./data/database_data:/var/lib/pgsql/data:rw
     ports:
       - 6000:5432
     restart: always
     healthcheck:
-      test: pg_isready
+      test: pg_isready -U hope -d hope
       interval: 5s
       timeout: 5s
       retries: 10

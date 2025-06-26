@@ -1,11 +1,13 @@
 import React from 'react';
-import { AvailableProduct, ProductAPI } from '@app/utils/product';
+
+import { types, ProductAPI } from '@app/types/product';
+import { ConsumeProductResponse } from '@app/codegen/products/consume'
 
 interface ProductRowProperties {
-	product: AvailableProduct;
+	product: types.AvailableProduct;
 	effectiveAccountId: number;
 	getRowClass: (level: number) => string;
-	onConsumed: (response: Response, bank_account_id: number, product: string) => void;
+	onConsumed: (response: ConsumeProductResponse, bank_account_id: number, product: string) => void;
 	showConsumeButton: boolean;
 }
 

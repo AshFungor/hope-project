@@ -1,11 +1,13 @@
 import React from 'react';
 
-import { AvailableProduct } from '@app/utils/product';
+import { types } from '@app/types/product';
 import { StatusCodes } from 'http-status-codes';
+import { ConsumeProductResponse, ConsumeProductResponse_Status } from '@app/codegen/products/consume'
+
 import ProductRow from '@app/pages/shared/widgets/product-item';
 
 interface ProductTableProperties {
-	products: AvailableProduct[];
+	products: types.AvailableProduct[];
 	effectiveAccountId: number;
 	showConsumeButton: boolean;
 }
@@ -25,10 +27,10 @@ const getRowClass = (level: number): string => {
 
 const ProductCategorySection: React.FC<{
 	category: string;
-	products: AvailableProduct[];
+	products: types.AvailableProduct[];
 	effectiveAccountId: number;
 	showConsumeButton: boolean;
-	onConsume: (response: Response, bank_account_id: number, product: string) => void;
+	onConsume: (response: ConsumeProductResponse, bank_account_id: number, product: string) => void;
 }> = ({ category, products, effectiveAccountId, showConsumeButton, onConsume }) => {
 	return (
 		<React.Fragment key={category}>
@@ -63,12 +65,12 @@ const ProductTable: React.FC<ProductTableProperties> = ({
 	const [message, setMessage] = React.useState<string | null>(null);
 	const categories = Array.from(new Set(products.map((p) => p.category)));
 
-	const visitConsumeResponse = (response: Response, bank_account_id: number, product: string) => {
-		if (response.status == StatusCodes.CONFLICT) {
+	const visitConsumeResponse = (response: ConsumeProductResponse, bank_account_id: number, product: string) => {
+		if (response.status == ConsumeProductResponse_Status.ALREADY_CONSUMED) {
 			setMessage(`продукт ${product} уже употреблялся`)
-		} else if (response.status == StatusCodes.NOT_ACCEPTABLE) {
+		} else if (response.status == ConsumeProductResponse_Status.NOT_ACCEPTABLE) {
 			setMessage(`на аккаунте ${bank_account_id} не хватает продуктов для потребления`)
-		} else if (response.status == StatusCodes.OK) {
+		} else if (response.status == ConsumeProductResponse_Status.SUCCESS)  {
 			setMessage(`продукт ${product} успешно употреблен`)
 		}
 	}

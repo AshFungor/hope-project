@@ -8,7 +8,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.context import AppConfig
-from app.modules.database import ModelBase
+from app.models.types import ModelBase
 
 # initialize all model classes
 import app.models

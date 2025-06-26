@@ -10,7 +10,7 @@ def create_app() -> Flask:
 
     ctx.logger.info("setting up blueprints")
 
-    from app.routes import Blueprints
+    from app.api import Blueprints
     from app.extensions import FlaskExtensions
 
     for bp in vars(Blueprints).values():

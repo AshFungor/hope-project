@@ -1,6 +1,10 @@
-from app.models.bank_account import BankAccount, Product2BankAccount
-from app.models.city import City, CityHall, Infrastructure, Office, Prefecture
-from app.models.company import Company, User2Company, Role
-from app.models.product import Consumption, Product
-from app.models.transaction import Transaction, Status
-from app.models.user import Goal, User
+import types
+
+from .user import User
+from .goal import Goal
+from .city import CityHall
+from .prefecture import Prefecture
+from .product import Consumption, Product
+from .company import Company, User2Company, Role
+from .transaction import Transaction, TransactionStatus
+from .bank_account import BankAccount, Product2BankAccount

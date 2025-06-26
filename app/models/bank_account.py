@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.modules.database import Ints, ModelBase
+from app.models.types import Ints, ModelBase
 
 
 class BankAccount(ModelBase):
@@ -15,7 +15,6 @@ class BankAccount(ModelBase):
     class AccountMapping(IntEnum):
         USER = 1
         COMPANY = 2
-        CITY = 3
         PREFECTURE = 4
         CITY_HALL = 5
 

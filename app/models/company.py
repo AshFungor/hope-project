@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.modules.database import Datetime, Ints, ModelBase, VarStrings
+from app.models.types import Datetime, Ints, ModelBase, VarStrings
 
 
 class Role(enum.StrEnum):
@@ -26,7 +26,6 @@ class Company(ModelBase):
     about: Mapped[VarStrings.Char256]
 
     prefecture = relationship("Prefecture", foreign_keys=prefecture_id)
-    offices = relationship("Office", back_populates="company")
 
     def __init__(self, bank_account_id: int, prefecture_id: int, name: str, about: str):
         self.bank_account_id = bank_account_id

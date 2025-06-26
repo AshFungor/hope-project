@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Goal } from '@app/utils/goal';
+import { GoalAPI } from '@app/types/goal';
 
 import BalanceSection from '@app/pages/shared/widgets/balance';
 
@@ -17,12 +17,12 @@ export default function GoalFormPage() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await Goal.createGoal(bankAccountId, value ?? null);
+		await GoalAPI.createGoal(bankAccountId, value ?? null);
 		navigate(-1);
 	};
 
 	const handleSkip = async () => {
-		await Goal.createGoal(bankAccountId, null);
+		await GoalAPI.createGoal(bankAccountId, null);
 		navigate(-1);
 	};
 

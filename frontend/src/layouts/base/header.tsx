@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import { Auth } from '@app/utils/auth';
+import { SessionAPI } from '@app/types/user';
 
 export default function Header({ showLogout = false }: { showLogout?: boolean }) {
 	const navigate = useNavigate();
 
 	const handleLogout = () => {
-		Auth.logout();
+		SessionAPI.logout();
 		navigate('/auth/login');
 	};
 

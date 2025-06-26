@@ -1,7 +1,7 @@
+import sys
 import logging
 import logging.handlers
 import multiprocessing
-import sys
 
 from dataclasses import dataclass
 from functools import wraps
@@ -16,7 +16,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from yaml import UnsafeLoader, YAMLObject, load, Loader, MappingNode
 
-from app.modules.database import ModelBase
+from app.models.types import ModelBase
 
 
 @dataclass
