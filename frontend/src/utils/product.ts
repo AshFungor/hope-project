@@ -100,8 +100,8 @@ export class ProductAPI {
 		return result;
 	}
 
-	static async consume(bank_account_id: number, product_name: string): Promise<void> {
-		const response = await fetch('/api/product/consume', {
+	static async consume(bank_account_id: number, product_name: string): Promise<Response> {
+		const response = await fetch('/api/products/consume', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -112,10 +112,7 @@ export class ProductAPI {
 				account: bank_account_id,
 			}),
 		});
-	
-		if (!response.ok) {
-			const text = await response.text();
-			throw new Error(`failed to consume product: ${text}`);
-		}
+
+		return response
 	}	
 }

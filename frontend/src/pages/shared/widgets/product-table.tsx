@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { AvailableProduct } from '@app/utils/product';
+import { StatusCodes } from 'http-status-codes';
 import ProductRow from '@app/pages/shared/widgets/product-item';
 
 interface ProductTableProperties {
@@ -26,7 +28,8 @@ const ProductCategorySection: React.FC<{
 	products: AvailableProduct[];
 	effectiveAccountId: number;
 	showConsumeButton: boolean;
-}> = ({ category, products, effectiveAccountId, showConsumeButton }) => {
+	onConsume: (response: Response, bank_account_id: number, product: string) => void;
+}> = ({ category, products, effectiveAccountId, showConsumeButton, onConsume }) => {
 	return (
 		<React.Fragment key={category}>
 			<thead>
@@ -44,6 +47,7 @@ const ProductCategorySection: React.FC<{
 							effectiveAccountId={effectiveAccountId}
 							getRowClass={getRowClass}
 							showConsumeButton={showConsumeButton}
+							onConsumed={onConsume}
 						/>
 					))}
 			</tbody>
@@ -56,29 +60,48 @@ const ProductTable: React.FC<ProductTableProperties> = ({
 	effectiveAccountId,
 	showConsumeButton,
 }) => {
+	const [message, setMessage] = React.useState<string | null>(null);
 	const categories = Array.from(new Set(products.map((p) => p.category)));
 
-	return (
-		<table className="table">
-			<thead>
-				<tr>
-					<th>Название товара</th>
-					<th>Количество</th>
-					<th>Уровень</th>
-					<th></th>
-				</tr>
-			</thead>
+	const visitConsumeResponse = (response: Response, bank_account_id: number, product: string) => {
+		if (response.status == StatusCodes.CONFLICT) {
+			setMessage(`продукт ${product} уже употреблялся`)
+		} else if (response.status == StatusCodes.NOT_ACCEPTABLE) {
+			setMessage(`на аккаунте ${bank_account_id} не хватает продуктов для потребления`)
+		} else if (response.status == StatusCodes.OK) {
+			setMessage(`продукт ${product} успешно употреблен`)
+		}
+	}
 
-			{categories.map((category) => (
-				<ProductCategorySection
-					key={category}
-					category={category}
-					products={products}
-					effectiveAccountId={effectiveAccountId}
-					showConsumeButton={showConsumeButton}
-				/>
-			))}
-		</table>
+	return (
+		<>
+			{message && (
+				<div className="alert alert-success text-center" role="alert">
+					{message}
+				</div>
+			)}
+			<table className="table">
+				<thead>
+					<tr>
+						<th>Название товара</th>
+						<th>Количество</th>
+						<th>Уровень</th>
+						<th></th>
+					</tr>
+				</thead>
+
+				{categories.map((category) => (
+					<ProductCategorySection
+						key={category}
+						category={category}
+						products={products}
+						effectiveAccountId={effectiveAccountId}
+						showConsumeButton={showConsumeButton}
+						onConsume={visitConsumeResponse}
+					/>
+				))}
+			</table>
+		</>
 	);
 };
 

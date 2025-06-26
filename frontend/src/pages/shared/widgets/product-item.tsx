@@ -1,10 +1,11 @@
 import React from 'react';
-import { AvailableProduct } from '@app/utils/product';
+import { AvailableProduct, ProductAPI } from '@app/utils/product';
 
 interface ProductRowProperties {
 	product: AvailableProduct;
 	effectiveAccountId: number;
 	getRowClass: (level: number) => string;
+	onConsumed: (response: Response, bank_account_id: number, product: string) => void;
 	showConsumeButton: boolean;
 }
 
@@ -12,8 +13,14 @@ const ProductRow: React.FC<ProductRowProperties> = ({
 	product,
 	effectiveAccountId,
 	getRowClass,
+	onConsumed,
 	showConsumeButton,
 }) => {
+	const onConsumePressed = async (bank_account_id: number, product: string) => {
+		let response = await ProductAPI.consume(bank_account_id, product)
+		onConsumed(response, bank_account_id, product)
+	}
+
 	return (
 		<tr className={getRowClass(product.level)}>
 			<td>{product.name}</td>
@@ -21,16 +28,14 @@ const ProductRow: React.FC<ProductRowProperties> = ({
 			<td>{product.level}</td>
 			<td>
 				{product.consumable && showConsumeButton && (
-					<form
-						action={`/api/product/consume?account=${effectiveAccountId}`}
-						method="POST"
+					<button
+						className="btn btn-success btn-sm"
+						onClick={() => {
+							onConsumePressed(effectiveAccountId, product.name)
+						}}
 					>
-						<input type="hidden" name="product" value={product.name} />
-						<input type="hidden" name="account" value={effectiveAccountId} />
-						<button type="submit" className="btn btn-success btn-sm">
-							Потребить
-						</button>
-					</form>
+						Потребить
+					</button>
 				)}
 			</td>
 		</tr>

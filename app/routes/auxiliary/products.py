@@ -1,12 +1,15 @@
 import sqlalchemy as orm
 
 from http import HTTPStatus
+from datetime import timedelta, datetime
 from flask import jsonify, request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from app.routes import Blueprints
-from app.models import Product, Product2BankAccount
+from app.routes.queries import wrap_crud_call
 from app.context import function_context, AppContext
+from app.routes.queries.common import did_consume_enough
+from app.models import Product, Product2BankAccount, Consumption
 
 
 @Blueprints.product.route("/api/products/all", methods=["GET"])
@@ -81,58 +84,72 @@ def get_consumable_categories(ctx: AppContext):
     })
 
 
-@Blueprints.product.route("/api/products/consumable")
+@Blueprints.product.route("/api/products/consume", methods=["POST"])
 @login_required
 @function_context
 def consume(ctx: AppContext):
-    data = []
-    for field in ["product", "account"]:
-        if field not in flask.request.form:
-            return flask.Response(f"missing form field: {field}")
-        data.append(flask.request.form[field])
+    product_name = request.json.get("product")
+    bank_account_id = request.json.get("account")
+    if any(param is None for param in (product_name, bank_account_id)):
+        return "Missing parameters", HTTPStatus.BAD_REQUEST
+    
+    try:
+        bank_account_id = int(bank_account_id)
+    except ValueError:
+        return "Type mismatch for parameters", HTTPStatus.BAD_REQUEST
 
-    product, account = map(int, data)
-    named = env.db.impl().session.query(models.Product).get(product)
+    product = ctx.database.session.scalar(
+        orm
+        .select(Product)
+        .filter(Product.name == product_name)
+    )
 
-    if named.category not in norms:
-        return flask.Response(f"продукт {named.name} не может быть употреблен", status=443)
+    consumable_categories = [category.upper() for category in ctx.config.consumption.categories]
+    if product.category not in consumable_categories:
+        return f"product {product.name} cannot be consumed", HTTPStatus.BAD_REQUEST
 
-    status, payload = models.Consumption.did_consume_enough(
-        account, named.category, norms.get(named.category, 0), time_accounted.get(named.category, datetime.timedelta(days=1))
+    consumption_info = ctx.config.consumption.categories[product.category.lower()]
+    status, payload = did_consume_enough(
+        bank_account_id,
+        product.category,
+        consumption_info.count,
+        timedelta(days=consumption_info.period_days)
     )
 
     if isinstance(payload, str):
-        logging.warning(f"internal error: {payload}")
-        return flask.Response(status=500)
+        return f"error: {payload}", HTTPStatus.NOT_ACCEPTABLE
 
     # payload shows how much more we need to consume
-    products = (
-        env.db.impl()
-        .session.execute(
-            orm.select(models.Product2BankAccount).filter(
-                orm.and_(models.Product2BankAccount.bank_account_id == account, models.Product2BankAccount.product_id == product)
+    products = ctx.database.session.scalar(
+        orm
+        .select(Product2BankAccount)
+        .filter(orm
+            .and_(
+                Product2BankAccount.bank_account_id == bank_account_id,
+                Product2BankAccount.product_id == product.id
             )
         )
-        .first()[0]
     )
+
     has = products.count
+    if status:
+        return "already consumed enough", HTTPStatus.CONFLICT
 
-    original = flask.request.args.get("for", None)
-    if not status:
-        try:
-            products.count -= min(has, payload)
-            env.db.impl().session.add(models.Consumption(account, product, payload, datetime.datetime.now(tz=CurrentTimezone)))
+    @wrap_crud_call
+    def __create():
+        products.count -= min(has, payload)
+        ctx.database.session.add(Consumption(bank_account_id, product.id, payload, datetime.now()))
 
-            if original is None or original.startswith("5"):
-                flask_login.current_user.bonus += get_current_user_bonus(named.level)
+        if str(bank_account_id).startswith("5"):
+            bonus = product.level
+            if product.level <= 3:
+                bonus -= 1
+            current_user.bonus += bonus
 
-            env.db.impl().session.commit()
-        except Exception as error:
-            logging.warning(f"error on consumption: {error}")
-            return redirect_to_original(original, "ошибка потребления")
-    else:
-        return redirect_to_original(original, "норма товара уже употреблена")
+        ctx.database.session.commit()
 
     if has < payload:
-        return redirect_to_original(original, f"недостаточно товаров на счету: {payload - has}")
-    return redirect_to_original(original, "потребление успешно")
+        return f"missing products: {abs(payload - has)}", HTTPStatus.NOT_ACCEPTABLE
+    
+    __create()
+    return "successful", HTTPStatus.OK
