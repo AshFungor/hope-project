@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package transaction;
+
+message CreateProductTransactionRequest {
+    int32 seller_account = 1;
+    int32 customer_account = 2;
+    string product = 3;
+    int32 count = 4;
+    int32 amount = 5;
+}
+
+message CreateMoneyTransactionRequest {
+    int32 seller_account = 1;
+    int32 customer_account = 2;
+    int32 amount = 3;
+}
+
+message CreateTransactionResponse {
+    enum CreationStatus {
+        OK = 0;
+        MULTIPLE_PRODUCTS = 1;
+    };
+
+    CreationStatus status = 1;
+}

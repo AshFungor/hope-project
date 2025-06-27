@@ -1,0 +1,38 @@
+secret: "my-super-secret-key"
+timezone: "Europe/Moscow"
+
+logging: !logging
+  stdout: true
+  stderr: false
+  file: /var/log/server.log
+  rotation_threshold: 8388608
+  backups: 2
+
+database: !database
+  kind: !postgres
+    directory: ./data/postgres
+    hostname: postgres
+    port: 5432
+    user: hope
+    password: somepasswd
+    database_name: hope
+
+flask_extensions: !flask_extensions
+  csrf: false
+  login_manager: true
+
+consumption: !consumption
+  food:
+    count: 1
+    price: 80
+    period_days: 1
+
+  clothes:
+    count: 1
+    price: 120
+    period_days: 2
+
+  technic:
+    count: 1
+    price: 150
+    period_days: 4

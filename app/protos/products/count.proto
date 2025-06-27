@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package product;
+
+message ProductCountRequest {
+    int64 bank_account_id = 1;
+    string product_name = 2;
+}
+
+message ProductCountResponse {
+    int64 count = 1;
+}
