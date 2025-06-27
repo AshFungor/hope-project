@@ -174,7 +174,7 @@ class DatetimeValidator:
 
 
 GenericTextValidator = StringValidator(
-    ValidationPolicy.ABORT, 
+    ValidationPolicy.IGNORE, 
     allow_numbers=True,
     allow_punctuation=True,
     allow_whitespaces=True,
@@ -186,7 +186,7 @@ GenericTextValidator = StringValidator(
 )
 
 PureRussianTextValidator = StringValidator(
-    ValidationPolicy.ABORT, 
+    ValidationPolicy.IGNORE, 
     allow_numbers=True,
     allow_punctuation=False,
     allow_whitespaces=False,
@@ -198,7 +198,7 @@ PureRussianTextValidator = StringValidator(
 )
 
 NoWhitespaceGenericTextValidator = StringValidator(
-    ValidationPolicy.ABORT, 
+    ValidationPolicy.IGNORE, 
     allow_numbers=True,
     allow_punctuation=True,
     allow_whitespaces=False,
@@ -210,7 +210,7 @@ NoWhitespaceGenericTextValidator = StringValidator(
 )
 
 NoPunctuationGenericTextValidator = StringValidator(
-    ValidationPolicy.ABORT, 
+    ValidationPolicy.IGNORE, 
     allow_numbers=True,
     allow_punctuation=False,
     allow_whitespaces=False,
@@ -222,14 +222,14 @@ NoPunctuationGenericTextValidator = StringValidator(
 )
 
 IntValidator = IntegerValidator(
-    ValidationPolicy.ABORT
+    ValidationPolicy.IGNORE
 )
 
 EnumValidator = EnumerationValidator(
-    ValidationPolicy.ABORT
+    ValidationPolicy.IGNORE
 )
 
 DtValidator = DatetimeValidator(
-    ValidationPolicy.ABORT
+    ValidationPolicy.IGNORE
 )
 

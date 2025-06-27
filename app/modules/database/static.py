@@ -26,16 +26,12 @@ class StaticTablesHandler:
 
     @staticmethod
     def prepare_bank_account(**kwargs: dict[str, object]) -> int | None:
-        try:
             bank_account = roller(**kwargs)
             # to try transactions
             bind_account = models.Product2BankAccount(bank_account.id, 1, 200 if env.debug else 0)
             env.db.impl().session.add(bank_account)
             env.db.impl().session.add(bind_account)
             return bank_account.id
-        except Exception as error:
-            env.db.impl().session.rollback()
-            logging.warning(f'static models handling failed; error: {error}')
 
     @staticmethod
     def __parse_prefectures(prefectures: pd.DataFrame) -> list[models.Prefecture] | str:
@@ -140,7 +136,6 @@ class StaticTablesHandler:
             np.ones(0),
             np.ones(0),
             np.asarray(env.db.impl().session.query(models.User.login).all()),
-            np.ones(0), # filler for City
             np.ones(0), # filler for password
             np.ones(0), # filler for sex
             np.ones(0), # filler for birthday
@@ -149,15 +144,15 @@ class StaticTablesHandler:
         parsed = []
 
         for index, user in users.iterrows():
-            user_name, user_surname, user_patronymic, user_login, user_city, user_password, user_sex, user_birthday, user_bonus, user_admin =   \
+            user_name, user_surname, user_patronymic, user_login, user_password, user_sex, user_birthday, user_bonus, user_admin =   \
                 user.get('Name', None), user.get('Surname', None), user.get('Patronymic', None), user.get('Login', None),                       \
-                user.get('City', None).strip(), user.get('Password', None), user.get('Sex', None), user.get('Birthday', None),                          \
+                user.get('Password', None), user.get('Sex', None), user.get('Birthday', None),                          \
                 user.get('Bonus', None), user.get('IsAdmin', None)
 
             # fuck, this gets to me...
             for feature, lookup, objects in zip(
-                ['name', 'surname', 'patronymic', 'login', 'city', 'password', 'sex', 'birthday', 'bonus', 'is_admin'], 
-                [user_name, user_surname, user_patronymic, user_login, user_city, user_password, user_sex, user_birthday, user_bonus, user_admin], 
+                ['name', 'surname', 'patronymic', 'login', 'password', 'sex', 'birthday', 'bonus', 'is_admin'], 
+                [user_name, user_surname, user_patronymic, user_login, user_password, user_sex, user_birthday, user_bonus, user_admin], 
                 existing
             ):
                 if lookup is None:
@@ -167,12 +162,12 @@ class StaticTablesHandler:
                 
             user_birthday = datetime.date(*reversed(list(map(int, user_birthday.split('.')))))
 
-            user_city_obj = env.db.impl().session.query(models.City.id).filter(
-                models.City.name == user_city
-            ).first()
-            if user_city_obj is None:
-                return f'failed to find city with name {user_city}'
-            user_city_id = user_city_obj.id
+            # user_city_obj = env.db.impl().session.query(models.City.id).filter(
+            #     models.City.name == user_city
+            # ).first()
+            # if user_city_obj is None:
+            #     return f'failed to find city with name {user_city}'
+            # user_city_id = user_city_obj.id
             
             bank_account = StaticTablesHandler.prepare_bank_account(**models.BankAccount.make_spec(
                 'user', user
@@ -182,7 +177,8 @@ class StaticTablesHandler:
 
             parsed.append(models.User(
                 bank_account,
-                user_city_id,
+                # user_city_id,
+                None,
                 user_name.strip(),
                 user_surname.strip(),
                 user_patronymic.strip(),
@@ -199,15 +195,12 @@ class StaticTablesHandler:
     @staticmethod
     def prepare_users(users: pd.DataFrame) -> int | str:
         parsed = []
-        try:
-            parsed = StaticTablesHandler.__prepare_users(users)
-            if isinstance(parsed, str):
-                return parsed
-            env.db.impl().session.add_all(parsed)
-            return len(parsed)
-        except Exception as error:
-            env.db.impl().session.rollback()
-            return f'error parsing users: {error}'
+        parsed = StaticTablesHandler.__prepare_users(users)
+        if isinstance(parsed, str):
+            return parsed
+        env.db.impl().session.add_all(parsed)
+        return len(parsed)
+
 
     @staticmethod
     def prepare_products_to_bank_account(

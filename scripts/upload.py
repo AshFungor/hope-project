@@ -9,7 +9,7 @@ import sys
 def upload(url: str, filepath: str, is_header_preset: bool = True):
     print(f'reading data from {filepath}')
     header = 0 if is_header_preset else None
-    frame = pandas.read_csv(filepath, header=header)
+    frame = pandas.read_csv(filepath, header=header, delimiter=';')
     print(f'receiving data: \n{frame}')
     print(f'sending to {url}')
     response = requests.post(url, data=frame.to_csv().encode('UTF-8'))
