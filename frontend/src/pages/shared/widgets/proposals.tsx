@@ -24,7 +24,7 @@ const ProposalLinks: React.FC<ProposalLinksProperties> = ({
 				</Link>
 			)}
 			{showInvoice && (
-				<Link className="btn btn-outline-dark btn-lg mb-3" to="/proposal/bill">
+				<Link className="btn btn-outline-dark btn-lg mb-3" to={`/proposal/product/${accountId}`}>
 					Выставить счет
 				</Link>
 			)}

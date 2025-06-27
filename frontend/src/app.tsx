@@ -13,6 +13,7 @@ import ProductsPage from '@app/pages/shared/views/available-products';
 import TransactionDecisionPage from '@app/pages/shared/views/transactions/unpaid'
 import TransactionHistory from '@app/pages/shared/views/transactions/history'
 import MoneyTransferForm from '@app/pages/shared/views/transactions/transaction'
+import NewTransactionForm from '@app/pages/shared/views/transactions/proposal'
 
 function App() {
 	return (
@@ -27,6 +28,7 @@ function App() {
 						<Route path="/proposal/history/:accountId" element={<TransactionHistory />} />
 						<Route path="/proposal/unpaid/:accountId" element={<TransactionDecisionPage />} />
 						<Route path="/proposal/money/:accountId" element={<MoneyTransferForm />} />
+						<Route path="/proposal/product/:accountId" element={<NewTransactionForm />} />
 					</Route>
 
 					<Route element={<AuthLayout />}>

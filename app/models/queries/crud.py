@@ -6,7 +6,7 @@ from typing import Callable, List, Tuple
 import sqlalchemy as orm
 
 from app.context import AppContext, function_context
-from app.models import BankAccount, Company, Product2BankAccount, Role, User2Company
+from app.models import BankAccount, Company, Product2BankAccount, Role, User2Company, User, Product
 
 
 def wrap_crud_call(f: Callable):
@@ -33,12 +33,14 @@ def wrap_crud_context(ctx: AppContext):
 
 
 class CRUD:
+    """Simple CRUD methods, built to be reusable"""
+
     __ctx = AppContext.safe_load()
 
     @classmethod
     @wrap_crud_call
-    def create_bank_account(cls) -> int:
-        bank_account = BankAccount.from_kind(BankAccount.AccountMapping.COMPANY)
+    def create_bank_account(cls, kind: BankAccount.AccountMapping) -> int:
+        bank_account = BankAccount.from_kind(kind)
         bind_account = Product2BankAccount(bank_account.id, 1, 0)
         cls.__ctx.database.session.add_all(bank_account, bind_account)
         return bank_account.id
@@ -52,6 +54,13 @@ class CRUD:
         )
 
         cls.__ctx.database.session.commit()
+
+    @classmethod
+    @wrap_crud_call
+    def create_user(cls, user: User):
+        account = cls.create_bank_account(BankAccount.AccountMapping.USER)
+        user.bank_account_id = account
+        cls.__ctx.database.session.add(user)
 
     @classmethod
     @wrap_crud_call
@@ -74,3 +83,10 @@ class CRUD:
     @wrap_crud_call
     def query_money(cls, account: int) -> int:
         return cls.query_product(account, 1)
+    
+    @classmethod
+    @wrap_crud_call
+    def query_product_by_name(cls, name: str) -> Product:
+        return cls.__ctx.database.session.execute(
+            orm.select(Product).filter(Product.name == name)
+        ).first()

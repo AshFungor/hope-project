@@ -9,7 +9,13 @@ message DecideTransactionRequest {
 
 message DecideTransactionResponse {
     enum Status {
-        OK = 0;
+        ACCEPTED = 0;
+        REJECTED = 1;
+        ALREADY_PROCESSED = 2;
+        COUNT_OUT_OF_BOUNDS = 3;
+        AMOUNT_OUT_OF_BOUNDS = 4;
+        SELLER_MISSING_GOODS = 5;
+        CUSTOMER_MISSING_MONEY = 6;
     }
 
     Status status = 1;

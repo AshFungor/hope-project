@@ -24,6 +24,7 @@ from app.codegen.transaction import (
 	ViewTransactionsResponse,
 	DecideTransactionRequest,
 	DecideTransactionResponse,
+	DecideTransactionResponseStatus
 )
 from app.codegen.transaction import TransactionEntry as EntryProto
 
@@ -73,6 +74,7 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
 @function_context
 def new_money_proposal(ctx: AppContext, req: CreateMoneyTransactionRequest):
 	with wrap_crud_context():
+		ctx.logger.info(req)
 		tx = Transaction(
 			1,
 			req.customer_account,
@@ -85,11 +87,10 @@ def new_money_proposal(ctx: AppContext, req: CreateMoneyTransactionRequest):
 			"",
 		)
 		ctx.database.session.add(tx)
-		message, ok = process(tx, is_money=True)
+		message: DecideTransactionResponse = process(tx, True)
 
-		if not ok:
-			ctx.logger.warning(message)
-			return Response(message, status=HTTPStatus.BAD_REQUEST)
+		if message.status != DecideTransactionResponseStatus.ACCEPTED:
+			raise ValueError
 
 		return protobufify(
 			CreateTransactionResponse(
@@ -170,10 +171,7 @@ def view_proposal_history(ctx: AppContext, req: ViewHistoryRequest):
 @preprocess(DecideTransactionRequest)
 @function_context
 def decide_on_proposal(ctx: AppContext, req: DecideTransactionRequest):
-	message, ok = complete_transaction(req.account, req.status)
-	ctx.logger.info(f"transaction {req.account} decision={req.status} success={ok}: {message}")
+	message = complete_transaction(req.account, req.status)
+	ctx.logger.info(f"transaction {req.account} decision={req.status}: {message}")
 
-	if not ok:
-		return Response(message, status=HTTPStatus.BAD_REQUEST)
-
-	return protobufify(DecideTransactionResponse(status=DecideTransactionResponse.Status.OK))
+	return protobufify(message)
