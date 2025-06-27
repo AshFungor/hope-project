@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package transaction;
+
+message DecideTransactionRequest {
+    string status = 1;
+    int32 account = 2;
+}
+
+message DecideTransactionResponse {
+    enum Status {
+        OK = 0;
+    }
+
+    Status status = 1;
+}

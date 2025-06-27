@@ -1,6 +1,6 @@
-import uuid
 from enum import IntEnum
-from typing import Optional
+from random import randint
+from typing import Optional, Self
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
@@ -13,10 +13,10 @@ class BankAccount(ModelBase):
     __tail_len = 4
 
     class AccountMapping(IntEnum):
-        USER = 1
+        CITY_HALL = 1
         COMPANY = 2
-        PREFECTURE = 4
-        CITY_HALL = 5
+        PREFECTURE = 3
+        USER = 5
 
     id: Mapped[Ints.Serial] = mapped_column(primary_key=True)
 
@@ -25,8 +25,8 @@ class BankAccount(ModelBase):
 
     @classmethod
     def from_kind(cls, kind: AccountMapping) -> int:
-        tail = uuid.uuid4().int
-        s = f"{int(kind)}{tail}"[: 1 + cls.__tail_len]
+        tail = randint(10 ** cls.__tail_len, 10 ** (cls.__tail_len + 1) - 1)
+        s = f"{int(kind)}{tail}"[:1 + cls.__tail_len]
         return int(s)
 
 

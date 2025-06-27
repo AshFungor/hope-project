@@ -55,7 +55,7 @@ class CRUD:
 
     @classmethod
     @wrap_crud_call
-    def query_money(cls, account: int, product_id: int) -> int:
+    def query_product(cls, account: int, product_id: int) -> int:
         query = cls.__ctx.database.session.scalars(
             orm.select(Product2BankAccount).filter(
                 orm.and_(
@@ -73,4 +73,4 @@ class CRUD:
     @classmethod
     @wrap_crud_call
     def query_money(cls, account: int) -> int:
-        return cls.query_money(account, 1)
+        return cls.query_product(account, 1)

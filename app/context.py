@@ -2,7 +2,7 @@ import logging
 import logging.handlers
 import multiprocessing
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Self, Type, Union
@@ -89,6 +89,9 @@ class AppConfig(YAMLObject):
 
         csrf: bool = True
         login_manager: bool = True
+
+    def __post_init__(self):
+        self.timezone = ZoneInfo(self.timezone)
 
     secret: str
     timezone: ZoneInfo
