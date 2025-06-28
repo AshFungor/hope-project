@@ -1,22 +1,34 @@
 import { useEffect, useState } from 'react';
 import { useUser } from '@app/contexts/user';
-import { ProductAPI, types } from '@app/types/product';
+
+import { Hope } from "@app/api/api";
+import { Request } from "@app/codegen/app/protos/request";
+import { ProductCountsRequest, ProductCountsResponse_ProductWithCount } from '@app/codegen/app/protos/products/count';
+
 import ProductTable from '@app/pages/shared/widgets/product-table';
 
 export default function AvailableProductsPage() {
 	const { currentUser } = useUser();
-	const [products, setProducts] = useState<types.AvailableProduct[]>([]);
+	const [products, setProducts] = useState<ProductCountsResponse_ProductWithCount[]>([]);
 
 	useEffect(() => {
 		(async () => {
 			if (!currentUser) return;
 
-			try {
-				const data = await ProductAPI.available(currentUser.bankAccountId);
-				setProducts(data);
-			} catch (err) {
-				console.error('Failed to load products:', err);
+			const countReq = ProductCountsRequest.create({
+				bankAccountId: currentUser.bankAccountId
+			});
+			const countResponse = await Hope.send(
+				Request.create({ productCounts: countReq })
+			);
+
+			// should move to separate context
+			const counts = countResponse?.productCounts?.products ?? null
+			if (counts === null) {
+				throw Error("failed to fetch products: could not complete request")
 			}
+
+			setProducts(counts);
 		})();
 	}, [currentUser]);
 

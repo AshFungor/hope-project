@@ -1,10 +1,13 @@
 import React from 'react';
 
-import { types, ProductAPI } from '@app/types/product';
-import { ConsumeProductResponse } from '@app/codegen/products/consume'
+import { Hope } from "@app/api/api";
+
+import { ProductCountsResponse_ProductWithCount } from '@app/codegen/app/protos/products/count';
+import { ConsumeProductRequest, ConsumeProductResponse } from '@app/codegen/app/protos/products/consume';
+import { Request } from '@app/codegen/app/protos/request';
 
 interface ProductRowProperties {
-	product: types.AvailableProduct;
+	product: ProductCountsResponse_ProductWithCount;
 	effectiveAccountId: number;
 	getRowClass: (level: number) => string;
 	onConsumed: (response: ConsumeProductResponse, bank_account_id: number, product: string) => void;
@@ -19,21 +22,27 @@ const ProductRow: React.FC<ProductRowProperties> = ({
 	showConsumeButton,
 }) => {
 	const onConsumePressed = async (bank_account_id: number, product: string) => {
-		let response = await ProductAPI.consume(bank_account_id, product)
-		onConsumed(response, bank_account_id, product)
+		const request = ConsumeProductRequest.create({ product: product, account: bank_account_id })
+		let response = await Hope.send(Request.create({ consumeProduct: request }))
+
+		if (!response.consumeProduct) {
+			throw Error("failed to consume: request failed")
+		}
+
+		onConsumed(response.consumeProduct, bank_account_id, product)
 	}
 
 	return (
-		<tr className={getRowClass(product.level)}>
-			<td>{product.name}</td>
+		<tr className={getRowClass(product.product?.level ?? 0)}>
+			<td>{product.product?.name}</td>
 			<td>{product.count}</td>
-			<td>{product.level}</td>
+			<td>{product.product?.level}</td>
 			<td>
-				{product.consumable && showConsumeButton && (
+				{product.product?.consumable && showConsumeButton && (
 					<button
 						className="btn btn-success btn-sm"
 						onClick={() => {
-							onConsumePressed(effectiveAccountId, product.name)
+							onConsumePressed(effectiveAccountId, product.product?.name ?? '')
 						}}
 					>
 						Потребить

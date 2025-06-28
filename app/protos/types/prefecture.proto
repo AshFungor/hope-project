@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package types;
+
+message Prefecture {
+    string name = 2;
+    int64 bank_account_id = 3;
+    int64 prefect_id = 4;
+    int64 economic_assistant_id = 5;
+    int64 social_assistant_id = 6;
+}

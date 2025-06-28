@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package hope;
+
+import "app/protos/session/login.proto";
+import "app/protos/session/logout.proto";
+import "app/protos/session/user-info.proto";
+
+import "app/protos/products/all.proto";
+import "app/protos/products/consume.proto";
+import "app/protos/products/count.proto";
+import "app/protos/products/create.proto";
+import "app/protos/products/available.proto";
+
+import "app/protos/transaction/create.proto";
+import "app/protos/transaction/history.proto";
+import "app/protos/transaction/decide.proto";
+import "app/protos/transaction/unpaid.proto";
+
+import "app/protos/goal/create.proto";
+import "app/protos/goal/last.proto";
+
+import "app/protos/prefecture/all.proto";
+import "app/protos/prefecture/link.proto";
+
+
+message Response {
+    oneof payload {
+        session.LoginResponse login = 1;
+        session.LogoutResponse logout = 2;
+        session.UserResponse user = 3;
+
+        product.AllProductsResponse all_products = 4;
+        product.AvailableProductsResponse available_products = 5;
+        product.ConsumeProductResponse consume_product = 6;
+        product.ProductCountsResponse product_counts = 7;
+        product.CreateProductRequest create_product = 8;
+
+        transaction.CreateTransactionResponse create_transaction = 9;
+        transaction.DecideOnTransactionResponse decide_on_transaction = 10;
+        transaction.ViewTransactionsResponse view_transaction_history = 11;
+        transaction.CurrentTransactionsResponse current_transactions = 12;
+
+        goal.CreateGoalResponse crete_goal = 13;
+        goal.GetLastGoalResponse last_goal = 14;
+
+        prefecture.UpdateLinkResponse update_prefecture_link = 15;
+        prefecture.AllPrefecturesResponse all_prefectures = 16;
+    }
+}

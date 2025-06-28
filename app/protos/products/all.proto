@@ -2,17 +2,10 @@ syntax = "proto3";
 
 package product;
 
-message ProductInfo {
-  int64 id = 1;
-  string name = 2;
-  string category = 3;
-  int32 level = 4;
-}
+import "app/protos/types/product.proto";
 
-message ProductListResponse {
-  repeated ProductInfo products = 1;
-}
+message AllProductsRequest {}
 
-message ConsumableCategoriesResponse {
-  repeated string consumables = 1;
+message AllProductsResponse {
+	repeated types.Product products = 1;
 }

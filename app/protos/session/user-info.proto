@@ -2,15 +2,10 @@ syntax = "proto3";
 
 package session;
 
-message UserInfo {
-    string name = 1;
-    string last_name = 2;
-    string patronymic = 3;
-    string login = 4;
-    string sex = 5;
-    int64 bonus = 6;
-    string birthday = 7;
-    int64 bank_account_id = 8;
-    string prefecture_name = 9;
-    bool is_admin = 10;
+import "app/protos/types/user.proto";
+
+message UserRequest {}
+
+message UserResponse {
+    types.User info = 1;
 }

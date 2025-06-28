@@ -1,107 +1,133 @@
 import sqlalchemy as orm
 
-from typing import Tuple
-
 from app.context import AppContext, function_context
-from app.models import Product2BankAccount, Transaction, TransactionStatus
-from app.codegen.transaction import (
-	DecideTransactionResponse,
-    DecideTransactionResponseStatus
-)
+from app.models import Product2BankAccount, Transaction, TransactionStatus, BankAccount
+from app.codegen.transaction import DecideOnTransactionResponse
+from app.codegen.types import TransactionStatusReason
 
 
-def get_products(ctx: AppContext, account: int, product_id: int) -> Product2BankAccount:
-    return ctx.database.session.execute(
+class Processor:
+    __ctx: AppContext = AppContext.safe_load()
+
+    @classmethod
+    def check_seller_not_customer(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.customer_bank_account_id == transaction.seller_bank_account_id:
+            return TransactionStatusReason.CUSTOMER_IS_SELLER
+        return cls.ok()
+
+    @classmethod
+    def check_seller_exists(cls, ctx: AppContext, transaction: Transaction) -> TransactionStatusReason:
+        if not ctx.database.session.get(BankAccount, transaction.seller_bank_account_id):
+            return TransactionStatusReason.SELLER_MISSING
+        return cls.ok()
+
+    @classmethod
+    def check_customer_exists(cls, ctx: AppContext, transaction: Transaction) -> TransactionStatusReason:
+        if not ctx.database.session.get(BankAccount, transaction.customer_bank_account_id):
+            return TransactionStatusReason.CUSTOMER_MISSING
+        return cls.ok()
+
+    @classmethod
+    def check_not_processed(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.status != TransactionStatus.CREATED:
+            return TransactionStatusReason.ALREADY_PROCESSED
+        return cls.ok()
+
+    @classmethod
+    def check_bounds(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.amount <= 0:
+            return TransactionStatusReason.AMOUNT_OUT_OF_BOUNDS
+        if transaction.count <= 0:
+            return TransactionStatusReason.COUNT_OUT_OF_BOUNDS
+        return cls.ok()
+
+    @staticmethod
+    def ok() -> TransactionStatusReason:
+        return TransactionStatusReason.OK
+
+    @classmethod
+    def process(cls, ctx: AppContext, transaction: Transaction, approved: bool) -> TransactionStatusReason:
+        if (result := cls.check_not_processed(transaction)) != TransactionStatusReason.OK:
+            return result
+
+        if not approved:
+            transaction.status = TransactionStatus.REJECTED
+            return cls.ok()
+
+        if (result := cls.check_seller_exists(ctx, transaction)) != TransactionStatusReason.OK:
+            return result
+
+        if (result := cls.check_customer_exists(ctx, transaction)) != TransactionStatusReason.OK:
+            return result
+
+        if (result := cls.check_seller_not_customer(transaction)) != TransactionStatusReason.OK:
+            return result
+
+        if (result := cls.check_bounds(transaction)) != TransactionStatusReason.OK:
+            return result
+
+        customer_wallet = get_products(ctx, transaction.customer_bank_account_id, 1)
+        seller_wallet = get_products(ctx, transaction.seller_bank_account_id, 1)
+        customer_products = get_products(ctx, transaction.customer_bank_account_id, transaction.product_id)
+        seller_products = get_products(ctx, transaction.seller_bank_account_id, transaction.product_id)
+
+        if transaction.product_id == 1:
+            if not seller_wallet or seller_wallet.count < transaction.count:
+                return TransactionStatusReason.SELLER_MISSING_GOODS
+            if not customer_wallet:
+                return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+            customer_wallet.count += transaction.amount
+            seller_wallet.count -= transaction.amount
+            transaction.status = TransactionStatus.ACCEPTED
+            return cls.ok()
+
+        if not seller_products or seller_products.count < transaction.count:
+            return TransactionStatusReason.SELLER_MISSING_GOODS
+
+        if not customer_wallet or customer_wallet.count < transaction.amount:
+            return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+
+        if not customer_products:
+            customer_products = Product2BankAccount(
+                bank_account_id=transaction.customer_bank_account_id,
+                product_id=transaction.product_id,
+                count=0
+            )
+            ctx.database.session.add(customer_products)
+
+        customer_wallet.count -= transaction.amount
+        seller_wallet.count += transaction.amount
+        seller_products.count -= transaction.count
+        customer_products.count += transaction.count
+        transaction.status = TransactionStatus.ACCEPTED
+        ctx.database.session.commit()
+
+        return cls.ok()
+
+
+def get_products(ctx: AppContext, account: int, product_id: int) -> Product2BankAccount | None:
+    return ctx.database.session.scalar(
         orm.select(Product2BankAccount).filter(
             orm.and_(
                 Product2BankAccount.bank_account_id == account,
-                Product2BankAccount.product_id == product_id
+                Product2BankAccount.product_id == product_id,
             )
         )
-    ).first()
-
-
-@function_context
-def process(ctx: AppContext, transaction: Transaction, approved: bool) -> DecideTransactionResponse:
-    if transaction.status != TransactionStatus.CREATED:
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.ALREADY_PROCESSED
-        )
-
-    if not approved:
-        transaction.status = TransactionStatus.REJECTED
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.REJECTED
-        )
-
-    customer_wallet = get_products(ctx, transaction.customer_bank_account_id, 1)
-    seller_wallet = get_products(ctx, transaction.seller_bank_account_id, 1)
-    customer_products = get_products(transaction, transaction.customer_bank_account_id, transaction.product_id)
-    seller_products = get_products(transaction, transaction.seller_bank_account_id, transaction.product_id)
-
-    if transaction.amount <= 0:
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.AMOUNT_OUT_OF_BOUNDS
-        )
-    if transaction.count <= 0:
-        DecideTransactionResponse(
-            DecideTransactionResponseStatus.COUNT_OUT_OF_BOUNDS
-        )
-
-    if transaction.product_id == 1:
-        if seller_wallet.count < transaction.count:
-            return DecideTransactionResponse(
-                DecideTransactionResponseStatus.SELLER_MISSING_GOODS
-            )
-        customer_wallet.count += transaction.amount
-        seller_wallet.count -= transaction.amount
-        transaction.status = TransactionStatus.APPROVED
-
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.ACCEPTED
-        )
-
-    if seller_products is None:
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.SELLER_MISSING_GOODS
-        )
-
-    if customer_products is None:
-        # create customer's relation if does not exist
-        customer_products = Product2BankAccount(transaction.customer_bank_account_id, transaction.product_id, 0)
-        ctx.database.session.add(customer_products)
-
-    if customer_wallet.count < transaction.amount:
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.CUSTOMER_MISSING_MONEY
-        )
-
-    if seller_products.count < transaction.count:
-        return DecideTransactionResponse(
-            DecideTransactionResponseStatus.SELLER_MISSING_GOODS
-        )
-
-    customer_wallet.count -= transaction.amount
-    customer_products.count += transaction.count
-    seller_wallet.count += transaction.amount
-    seller_products.count -= transaction.count
-    transaction.status = TransactionStatus.APPROVED
-
-    return DecideTransactionResponse(
-        DecideTransactionResponseStatus.ACCEPTED
     )
 
 
 @function_context
-def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> DecideTransactionResponse:
+def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> DecideOnTransactionResponse:
     transaction = ctx.database.session.get(Transaction, transaction_id)
     if not transaction:
-        raise ValueError
+        raise ValueError(f"Transaction {transaction_id} not found")
 
-    status = process(with_status == TransactionStatus.APPROVED)
-    if not status:
+    result = Processor.process(ctx, transaction, with_status == TransactionStatus.ACCEPTED)
+
+    if result != TransactionStatusReason.OK:
         ctx.database.session.rollback()
-        ctx.logger.warning(f"failed to complete transaction {transaction_id}: status {status}")
+        ctx.logger.warning(f"Failed to complete transaction {transaction_id}: {result.status}")
+    else:
+        ctx.database.session.commit()
 
-    ctx.database.session.session.commit()
-    return status
+    return DecideOnTransactionResponse(status=result)

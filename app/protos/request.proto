@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package hope;
+
+import "app/protos/session/login.proto";
+import "app/protos/session/logout.proto";
+import "app/protos/session/user-info.proto";
+
+import "app/protos/products/all.proto";
+import "app/protos/products/consume.proto";
+import "app/protos/products/count.proto";
+import "app/protos/products/create.proto";
+import "app/protos/products/available.proto";
+
+import "app/protos/transaction/create.proto";
+import "app/protos/transaction/history.proto";
+import "app/protos/transaction/decide.proto";
+import "app/protos/transaction/unpaid.proto";
+
+import "app/protos/goal/create.proto";
+import "app/protos/goal/last.proto";
+
+import "app/protos/prefecture/all.proto";
+import "app/protos/prefecture/link.proto";
+
+
+message Request {
+    oneof payload {
+        session.LoginRequest login = 1;
+        session.LogoutRequest logout = 2;
+        session.UserRequest user = 3;
+
+        product.AllProductsRequest all_products = 4;
+        product.AvailableProductsRequest available_products = 5;
+        product.ConsumeProductRequest consume_product = 6;
+        product.ProductCountsRequest product_counts = 7;
+        product.CreateProductRequest create_product = 8;
+
+        transaction.CreateProductTransactionRequest create_product_transaction = 9;
+        transaction.CreateMoneyTransactionRequest create_money_transaction = 10;
+        transaction.DecideOnTransactionRequest decide_on_transaction = 11;
+        transaction.ViewTransactionsRequest view_transaction_history = 12;
+        transaction.CurrentTransactionsRequest current_transactions = 13;
+
+        goal.CreateGoalRequest create_goal = 14;
+        goal.GetLastGoalRequest last_goal = 15;
+        
+        prefecture.UpdateLinkRequest update_prefecture_link = 16;
+        prefecture.AllPrefecturesRequest all_prefectures = 17;
+    }
+}

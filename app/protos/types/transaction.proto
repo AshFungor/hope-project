@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package types;
+
+enum TransactionStatusReason {
+    OK = 0;
+    CUSTOMER_IS_SELLER = 1;
+    ALREADY_PROCESSED = 2;
+    COUNT_OUT_OF_BOUNDS = 3;
+    AMOUNT_OUT_OF_BOUNDS = 4;
+    SELLER_MISSING_GOODS = 5;
+    CUSTOMER_MISSING_MONEY = 6;
+    CUSTOMER_MISSING = 7;
+    SELLER_MISSING = 8;
+    MULTIPLE_PRODUCTS = 9;
+}
+
+message Transaction {
+    int32 seller_account = 1;
+    int32 customer_account = 2;
+
+    string product = 3;
+    int32 count = 4;
+    int32 amount = 5;
+
+    enum Status {
+        CREATED = 0;
+        REJECTED = 1;
+        ACCEPTED = 2;
+    }
+    Status status = 6;
+
+    int32 transaction_id = 7;
+    string updated_at = 9;
+    string side = 10;      // "buyer" | "seller" or so
+    bool is_money = 11;
+}

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package session;
+
+message LogoutRequest {}
+
+message LogoutResponse {}

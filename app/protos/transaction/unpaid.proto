@@ -2,18 +2,12 @@ syntax = "proto3";
 
 package transaction;
 
-message ViewCurrentTransactionsRequest {
+import "app/protos/types/transaction.proto";
+
+message CurrentTransactionsRequest {
     int32 account = 1;
 }
 
-message CurrentTransactionEntry {
-	int32 transaction_id = 1;
-	int32 amount = 2;
-	int32 count = 3;
-	string product = 4;
-	int32 second_side = 5;
-}
-
 message CurrentTransactionsResponse {
-	repeated CurrentTransactionEntry transactions = 1;
+	repeated types.Transaction transactions = 1;
 }

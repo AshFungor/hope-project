@@ -1,6 +1,5 @@
+import { Goal } from '@app/api/sub/goal';
 import { ProgressBar } from 'react-bootstrap';
-import { Goal } from '@app/codegen/goal'
-import { GoalAPI } from '@app/types/goal';
 
 interface GoalSelectionProperties {
 	goal: Goal | null;
@@ -16,7 +15,7 @@ export default function GoalSection({ goal, balance }: GoalSelectionProperties) 
 		);
 	}
 
-	const progress = GoalAPI.getProgressRate(goal, balance);
+	const progress = goal.getRate(balance);
 	return (
 		<div className="goal-section text-center border-bottom pb-3 mb-3">
 			<p className="mb-1">

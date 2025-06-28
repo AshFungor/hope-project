@@ -1,13 +1,12 @@
 import React from 'react';
 
-import { types } from '@app/types/product';
-import { StatusCodes } from 'http-status-codes';
-import { ConsumeProductResponse, ConsumeProductResponse_Status } from '@app/codegen/products/consume'
-
 import ProductRow from '@app/pages/shared/widgets/product-item';
 
+import { ProductCountsResponse_ProductWithCount } from '@app/codegen/app/protos/products/count';
+import { ConsumeProductResponse, ConsumeProductResponse_Status } from '@app/codegen/app/protos/products/consume'
+
 interface ProductTableProperties {
-	products: types.AvailableProduct[];
+	products: ProductCountsResponse_ProductWithCount[];
 	effectiveAccountId: number;
 	showConsumeButton: boolean;
 }
@@ -27,7 +26,7 @@ const getRowClass = (level: number): string => {
 
 const ProductCategorySection: React.FC<{
 	category: string;
-	products: types.AvailableProduct[];
+	products: ProductCountsResponse_ProductWithCount[];
 	effectiveAccountId: number;
 	showConsumeButton: boolean;
 	onConsume: (response: ConsumeProductResponse, bank_account_id: number, product: string) => void;
@@ -41,11 +40,11 @@ const ProductCategorySection: React.FC<{
 			</thead>
 			<tbody>
 				{products
-					.filter((p) => p.category === category)
-					.map((product) => (
+					.filter((e) => e.product?.category === category)
+					.map((e) => (
 						<ProductRow
-							key={product.name}
-							product={product}
+							key={e.product?.name}
+							product={e}
 							effectiveAccountId={effectiveAccountId}
 							getRowClass={getRowClass}
 							showConsumeButton={showConsumeButton}
@@ -63,14 +62,14 @@ const ProductTable: React.FC<ProductTableProperties> = ({
 	showConsumeButton,
 }) => {
 	const [message, setMessage] = React.useState<string | null>(null);
-	const categories = Array.from(new Set(products.map((p) => p.category)));
+	const categories = Array.from(new Set(products.map((p) => p.product?.category)));
 
 	const visitConsumeResponse = (response: ConsumeProductResponse, bank_account_id: number, product: string) => {
 		if (response.status == ConsumeProductResponse_Status.ALREADY_CONSUMED) {
 			setMessage(`продукт ${product} уже употреблялся`)
-		} else if (response.status == ConsumeProductResponse_Status.NOT_ACCEPTABLE) {
+		} else if (response.status == ConsumeProductResponse_Status.NOT_ENOUGH) {
 			setMessage(`на аккаунте ${bank_account_id} не хватает продуктов для потребления`)
-		} else if (response.status == ConsumeProductResponse_Status.SUCCESS)  {
+		} else if (response.status == ConsumeProductResponse_Status.OK)  {
 			setMessage(`продукт ${product} успешно употреблен`)
 		}
 	}
@@ -95,7 +94,7 @@ const ProductTable: React.FC<ProductTableProperties> = ({
 				{categories.map((category) => (
 					<ProductCategorySection
 						key={category}
-						category={category}
+						category={category ?? ''}
 						products={products}
 						effectiveAccountId={effectiveAccountId}
 						showConsumeButton={showConsumeButton}

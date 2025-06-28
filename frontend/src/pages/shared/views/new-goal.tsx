@@ -1,28 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { useLocation, useNavigate } from 'react-router-dom';
-import { GoalAPI } from '@app/types/goal';
+import { Hope } from "@app/api/api";
+import { Request } from "@app/codegen/app/protos/request";
 
-import BalanceSection from '@app/pages/shared/widgets/balance';
+import BalanceSection from "@app/pages/shared/widgets/balance";
+import { Goal } from "@app/codegen/app/protos/types/goal";
+import { CreateGoalRequest } from "@app/codegen/app/protos/goal/create";
 
 export default function GoalFormPage() {
 	const location = useLocation();
 	const navigate = useNavigate();
 
 	const params = new URLSearchParams(location.search);
-	const current = Number(params.get('current'));
-	const bankAccountId = Number(params.get('bank_account_id'));
+	const current = Number(params.get("current"));
+	const bankAccountId = Number(params.get("bank_account_id"));
 
 	const [value, setValue] = useState<number | undefined>();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await GoalAPI.createGoal(bankAccountId, value ?? null);
+
+		let goal = Goal.create({ bankAccountId: bankAccountId, value: value })
+		const createGoalReq = CreateGoalRequest.create({ goal })
+
+		await Hope.send(Request.create({ createGoal: createGoalReq }));
 		navigate(-1);
 	};
 
 	const handleSkip = async () => {
-		await GoalAPI.createGoal(bankAccountId, null);
+		let goal = Goal.create({ bankAccountId: bankAccountId, value: 0 })
+		const createGoalReq = CreateGoalRequest.create({ goal })
+
+		await Hope.send(Request.create({ createGoal: createGoalReq }));
 		navigate(-1);
 	};
 
@@ -43,7 +53,7 @@ export default function GoalFormPage() {
 					name="value"
 					min="1"
 					placeholder="Введите цель на сегодня (в надиках)"
-					value={value ?? ''}
+					value={value ?? ""}
 					onChange={(e) => setValue(Number(e.target.value))}
 				/>
 			</div>

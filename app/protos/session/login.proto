@@ -3,17 +3,16 @@ syntax = "proto3";
 package session;
 
 message LoginRequest {
-  string login = 1;
-  string password = 2;
+	string login = 1;
+	string password = 2;
 }
 
 message LoginResponse {
     enum LoginStatus {
-        OK = 0;
-        UNAUTHORIZED = 1;
-        ERROR = 2;
+		OK = 0;
+		UNAUTHORIZED = 1;
+		ERROR = 2;
     };
 
     LoginStatus status = 1;
-    string message = 2;
 }

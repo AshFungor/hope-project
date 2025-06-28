@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package goal;
+
+import "app/protos/types/goal.proto";
+
+message GetLastGoalRequest {
+    int32 bank_account_id = 1;
+}
+
+message GetLastGoalResponse {
+    types.Goal goal = 1;
+    string created_at = 2;
+}

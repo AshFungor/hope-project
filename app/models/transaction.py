@@ -9,7 +9,7 @@ from app.models.types import Datetime, Ints, ModelBase, VarStrings
 
 class TransactionStatus(enum.StrEnum):
     CREATED = "created"
-    APPROVED = "approved"
+    ACCEPTED = "accepted"
     REJECTED = "rejected"
 
 

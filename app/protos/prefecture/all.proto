@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package prefecture;
+
+import "app/protos/types/prefecture.proto";
+
+message AllPrefecturesRequest {}
+
+message AllPrefecturesResponse {
+    repeated types.Prefecture prefectures = 1;
+}
