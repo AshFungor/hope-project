@@ -24,7 +24,8 @@ export default function PersonalPage() {
     useEffect(() => {
         if (currentUser === null) {
             refreshUser();
-            return;
+            navigate(-1);
+			return;
         }
 
         (async () => {

@@ -32,6 +32,8 @@ message Transaction {
 
     int32 transaction_id = 7;
     string updated_at = 9;
-    string side = 10;      // "buyer" | "seller" or so
+    string side = 10;
+
     bool is_money = 11;
+    bool is_light = 12;
 }

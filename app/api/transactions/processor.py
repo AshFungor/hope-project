@@ -46,7 +46,7 @@ class Processor:
         return TransactionStatusReason.OK
 
     @classmethod
-    def process(cls, ctx: AppContext, transaction: Transaction, approved: bool) -> TransactionStatusReason:
+    def process(cls, ctx: AppContext, transaction: Transaction, approved: bool, light: bool) -> TransactionStatusReason:
         if (result := cls.check_not_processed(transaction)) != TransactionStatusReason.OK:
             return result
 
@@ -72,20 +72,25 @@ class Processor:
         seller_products = get_products(ctx, transaction.seller_bank_account_id, transaction.product_id)
 
         if transaction.product_id == 1:
-            if not seller_wallet or seller_wallet.count < transaction.count:
-                return TransactionStatusReason.SELLER_MISSING_GOODS
-            if not customer_wallet:
-                return TransactionStatusReason.CUSTOMER_MISSING_MONEY
-            customer_wallet.count += transaction.amount
-            seller_wallet.count -= transaction.amount
+            if not light:
+                if not seller_wallet or seller_wallet.count < transaction.count:
+                    return TransactionStatusReason.SELLER_MISSING_GOODS
+                if not customer_wallet:
+                    return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+                customer_wallet.count += transaction.amount
+                seller_wallet.count -= transaction.amount
+
+            else:
+                customer_wallet.count += transaction.amount
+
             transaction.status = TransactionStatus.ACCEPTED
             return cls.ok()
 
-        if not seller_products or seller_products.count < transaction.count:
-            return TransactionStatusReason.SELLER_MISSING_GOODS
-
-        if not customer_wallet or customer_wallet.count < transaction.amount:
-            return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+        if not light:
+            if not seller_products or seller_products.count < transaction.count:
+                return TransactionStatusReason.SELLER_MISSING_GOODS
+            if not customer_wallet or customer_wallet.count < transaction.amount:
+                return TransactionStatusReason.CUSTOMER_MISSING_MONEY
 
         if not customer_products:
             customer_products = Product2BankAccount(
@@ -99,6 +104,7 @@ class Processor:
         seller_wallet.count += transaction.amount
         seller_products.count -= transaction.count
         customer_products.count += transaction.count
+
         transaction.status = TransactionStatus.ACCEPTED
         ctx.database.session.commit()
 
