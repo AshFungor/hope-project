@@ -23,7 +23,7 @@
                         {{ worker.bank_account_id }}
                     </div>
                     <div class="col">
-                        {% if role != 'founder' %}
+                        {% if role != 'founder' and role != 'CEO' %}
                         <button class="btn btn-sm btn-danger" onclick="window.location.href='{{ url_for( 'accounts.company_worker_fire', company_id=company.id, user_id=worker.id, user_role=role) }}'">Уволить</button>
                         {% endif %}
                     </div>

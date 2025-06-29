@@ -22,7 +22,7 @@ def authorization():
                 models.City, models.Prefecture.id == models.City.prefecture_id).filter(
                 models.City.id == user.city_id
             ).first()
-            session["prefecture_name"] = prefecture.name
+            session["prefecture_name"] = ''
             return redirect(url_for('main.index'))
         else:
             flask.flash('Неверные данные для входа: проверьте введенный логин или пароль')

@@ -18,6 +18,22 @@ from app.modules.database.validators import CurrentTimezone
 
 logger = env.logger.getChild(__name__)
 
+def check_free(role: str, company_id: str, user_id: int) -> bool:
+    role = env.db.impl().session.execute(
+        sqlalchemy.select(
+            models.User2Company.role
+        ).filter(
+            sqlalchemy.and_(
+                sqlalchemy.or_(
+                    models.User2Company.role == role,
+                    models.User2Company.user_id == user_id,
+                ),
+                models.User2Company.fired_at == sqlalchemy.null(),
+                models.User2Company.company_id == company_id,
+            )
+        )
+    ).scalars().first()
+    return role is None or role == 'employee'
 
 @blueprints.accounts_blueprint.route('/company_worker_employment', methods=['GET', 'POST'])
 @login_required
@@ -51,11 +67,18 @@ def company_worker_employment():
         query_user = sqlalchemy.select(models.User).filter(
             models.User.bank_account_id == worker_bank_account_id)
         user = env.db.impl().session.execute(query_user).first()
+
         if not user:
             flask.flash('Указан неверный банковский счёт пользователя', category="warning")
             logger.error('Incorrect user bank_id during employment.')
             return redirect(url_for("accounts.company_cabinet", company_id=company_id))
+
         user = user[0]
+
+        if not check_free(role, company_id, user.id):
+            flask.flash('Указан неверный банковский счёт пользователя', category="warning")
+            logger.error('Incorrect user bank_id during employment.')
+            return redirect(url_for("accounts.company_cabinet", company_id=company_id))
 
         # принимаем на работу
         env.db.impl().session.add(models.User2Company(
