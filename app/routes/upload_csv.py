@@ -14,7 +14,7 @@ import app.modules.database.static as static
 
 
 def parse(payload: bytes) -> pd.DataFrame | flask.Response:
-    frame = pd.read_csv(io.StringIO(payload.decode('UTF-8')), index_col=0)
+    frame = pd.read_csv(io.StringIO(payload.decode('UTF-8')), sep=';')
     if frame.isnull().any(axis=None):
         logging.warning(f'received unparsed objects: \n{frame}')
         return flask.Response(status=443)
@@ -95,3 +95,37 @@ def lol_kek_azaza():
 
     env.db.impl().session.commit()
     return flask.Response(status=200)
+
+
+@blueprints.csv_blueprint.route('/kek_lol', methods=['POST'])
+def kek_lol():
+    result: pd.DataFrame = parse(flask.request.files['file'].read())
+    if isinstance(result, flask.Response):
+        return result
+    
+    users = env.db.impl().session.query(models.User).all()
+    cities = env.db.impl().session.query(models.City).all()
+
+    logging.info(result.shape, result.sample(1))
+
+    count = 0
+    for login, prefecture in result.itertuples(index=False):
+        p = False
+        count += 1
+        for user in users:
+            if user.login != login:
+                continue
+
+            m_city = None
+            for city in cities:
+                if city.name == prefecture:
+                    m_city = city
+
+            user.city_id = m_city.id
+            p = True
+
+        if not p:
+            return f'kek lol failed: {login} not found', 400
+
+    env.db.impl().session.commit() 
+    return f"ok, updated: {count}", 200

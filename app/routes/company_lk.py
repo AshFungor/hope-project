@@ -63,7 +63,7 @@ def company_cabinet():
                 models.User2Company.fired_at == None
             ))
         ).scalars().all()
-        f_ceo, f_cfo, f_mark, f_prod, f_found = False, False, False, False, False
+        f_ceo, f_cfo, f_mark, f_prod = False, False, False, False
         for role in user2company:
             if role.role == 'CEO':
                 f_ceo = True
@@ -73,23 +73,13 @@ def company_cabinet():
                 f_mark = True
             if role.role == 'production_manager':
                 f_prod = True
-            if role.role == 'founder':
-                f_found = True
-        offices = env.db.impl().session.execute(
-            sqlalchemy.select(
-                models.Office
-            )
-            .filter(models.Office.company_id == company_id)
-        ).scalars().all()
         return render_template('main/company.html',
                                company=company,
                                CEO=CEO,
                                balance=balance,
-                               offices=offices,
                                f_ceo=f_ceo,
                                f_cfo=f_cfo,
                                f_mark=f_mark,
                                f_prod=f_prod,
-                               f_found=f_found,
                                goal=goal)
     return flask.Response("Доступ к запрошенной фирме запрещён", status=403)

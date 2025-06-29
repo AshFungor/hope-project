@@ -1,0 +1,47 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Смена префектуры{% endblock %}
+
+{% block content %}
+
+<div class="d-grid gap-2 d-mb-block mb-4">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form role="form" action="{{ url_for('master.switch_prefecture') }}" method="POST" id="switch-prefecture-form">
+        {{ form.csrf_token }}
+
+        <div class="mb-5">
+            <label for="{{ form.company_bank_account.id }}" class="form-label"><strong>{{ form.company_bank_account.label.text }}</strong></label>
+            {{ form.company_bank_account(class="form-control text-center", placeholder="Введите счет фирмы") }}
+            {% if form.company_bank_account.errors %}
+                <div class="text-danger mt-1">{{ form.company_bank_account.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-5">
+            <label for="{{ form.new_prefecture_name.id }}" class="form-label"><strong>{{ form.new_prefecture_name.label.text }}</strong></label>
+            {{ form.new_prefecture_name(class="form-select text-center") }}
+            {% if form.new_prefecture_name.errors %}
+                <div class="text-danger mt-1">{{ form.new_prefecture_name.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <div class="d-grid gap-2 d-mb-block mb-4">
+            {{ form.submit(class="btn btn-primary btn-lg mb-3") }}
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
