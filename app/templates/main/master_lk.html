@@ -5,21 +5,26 @@
 {% block content %}
 
 <div class="d-grid gap-2 d-mb-block mb-4">
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_all_products' ) }}';"">Просмотреть все товары</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'product.get_all_products' ) }}';">Просмотреть все товары</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.view_consumers' ) }}';"">Просмотреть статистику потребления</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.view_consumers' ) }}';">Просмотреть статистику потребления</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'statistics.view_statistics' ) }}';"">Просмотреть валютную статистику</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'statistics.view_statistics' ) }}';">Просмотреть валютную статистику</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.view_goals' ) }}';"">Просмотреть цели</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.view_goals' ) }}';">Просмотреть цели</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.create_product' ) }}';"">Зарегистрировать товар</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.create_product' ) }}';">Зарегистрировать товар</button>
 
     <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_add_withdrowal' ) }}';">Про ресурсы/товары/энергию</button>
 
     <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'accounts.create_company' ) }}';">Добавить фирму</button>
 
-    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_add_office' ) }}';"">Добавить офис для фирмы</button>
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.master_add_office' ) }}';">Добавить офис для фирмы</button>
+
+    <!-- Новая кнопка для смены генерального директора -->
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.change_ceo_view' ) }}';">Смена генерального директора</button>
+
+    <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.switch_prefecture' ) }}';"">Сменить префектуру для фирмы</button>
 
     <button class="btn btn-outline-dark btn-lg mb-3" onclick="window.location.href='{{ url_for( 'master.switch_prefecture' ) }}';"">Сменить префектуру для фирмы</button>
 

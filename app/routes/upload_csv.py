@@ -13,6 +13,9 @@ import app.routes.blueprints as blueprints
 import app.modules.database.static as static
 
 
+logger = logging.Logger(__name__)
+
+
 def parse(payload: bytes) -> pd.DataFrame | flask.Response:
     frame = pd.read_csv(io.StringIO(payload.decode('UTF-8')), sep=';')
     if frame.isnull().any(axis=None):

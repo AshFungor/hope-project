@@ -97,7 +97,6 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
             )
             return flask.Response('prefectures do not match', status=443)
 
-
     # check office
     # if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
     #     user = env.db.impl().session.execute(

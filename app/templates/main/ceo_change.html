@@ -1,0 +1,51 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Смена CEO{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <form method="POST" action="{{ url_for('master.change_ceo_view') }}" class="account-management">
+            {{ form.hidden_tag() }}
+
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <div class="flashes mb-3">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <h3 class="mb-3">Смена CEO</h3>
+
+            <div class="mb-3">
+                {{ form.company_id.label(class="form-label fw-bold") }}
+                {{ form.company_id(class="form-control text-center") }}
+                {% if form.company_id.errors %}
+                    <div class="text-danger">{{ form.company_id.errors[0] }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.new_ceo_id.label(class="form-label fw-bold") }}
+                {{ form.new_ceo_id(class="form-control text-center") }}
+                {% if form.new_ceo_id.errors %}
+                    <div class="text-danger">{{ form.new_ceo_id.errors[0] }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3 form-check">
+                {{ form.confirm_change(class="form-check-input") }}
+                {{ form.confirm_change.label(class="form-check-label fw-bold") }}
+                {% if form.confirm_change.errors %}
+                    <div class="text-danger">{{ form.confirm_change.errors[0] }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mt-4">
+                {{ form.submit(class="btn btn-success w-100") }}
+            </div>
+        </form>
+    </div>
+{% endblock %}
