@@ -172,15 +172,37 @@ def create_goal():
     data = []
     for field in ['bank_account_id', 'value', 'amount_on_setup']:
         if field not in flask.request.form:
-            return flask.abort(443, description=f'missing field: {field}')
+            return flask.abort(409, description=f'missing field: {field}')
         data.append(flask.request.form[field])
+    
+    prefecture = flask.request.form.get('prefecture', '').strip()
+
     account, target, current = data
     last = models.Goal.get_last(int(account), True)
     if last:
-        return flask.abort(443, description=f'goal for today is already present')
+        return flask.abort(409, description=f'goal for today is already present')
     try:
         env.db.impl().session.add(models.Goal(account, target, current))
+
+        if prefecture:
+            prefecture_obj = env.db.impl().session.execute(
+                orm.select(models.Prefecture).where(models.Prefecture.name == prefecture)
+            ).scalars().first()
+            
+            if not prefecture_obj:
+                return flask.abort(404, description=f'Префектура "{prefecture}" не найдена')
+            
+            company = env.db.impl().session.execute(
+                orm.select(models.Company).filter_by(bank_account_id=account)
+            ).scalars().first()
+
+            if not company:
+                return flask.abort(404, description='Компания не найдена')
+
+            company.prefecture_id = prefecture_obj.id
+
         env.db.impl().session.commit()
+
     except Exception as error:
         env.db.impl().session.rollback()
         error_message = 'Something went wrong during goal creation. Error: %s' % error
@@ -188,18 +210,19 @@ def create_goal():
         return flask.abort(400, description=error_message)
     return flask.redirect(flask.url_for('main.index'))
 
-
 @blueprints.goal_view.route('/make_goal', methods=['GET'])
 @flask_login.login_required
 def view_create_goal():
     account = flask.request.args.get('account', None)
     if account is None:
         account = flask_login.current_user.bank_account_id
-
+    show_prefecture = str(account)[0] == '4'
+        
     return flask.render_template(
         'main/goal.html',
         bank_account_id=account,
-        current=accounts.get_money(account)
+        current=accounts.get_money(account),
+        show_prefecture=show_prefecture
     )
 
 

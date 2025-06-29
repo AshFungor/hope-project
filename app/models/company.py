@@ -2,7 +2,9 @@ from app.env import env
 
 import enum
 import datetime
+from typing import Optional
 
+import sqlalchemy as orm
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
@@ -52,6 +54,20 @@ class Company(ModelBase):
 
     def __repr__(self) -> str:
         return '<Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+    
+    def get_prefecture(bank_account: int, limitByCurrentDay: bool = False) ->  Optional['Company']:
+        company = env.db.impl().session.execute(
+            orm.select(Company)
+            .filter_by(bank_account_id=bank_account)
+        ).scalars().first()
+
+        if not company or not company.prefecture:
+            return None
+
+        if limitByCurrentDay:
+            return None
+
+        return company.prefecture
 
 
 class User2Company(ModelBase):
@@ -83,3 +99,4 @@ class User2Company(ModelBase):
 
     def __repr__(self) -> str:
         return '<User2Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+
