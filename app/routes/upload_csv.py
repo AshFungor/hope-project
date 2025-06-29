@@ -13,6 +13,9 @@ import app.routes.blueprints as blueprints
 import app.modules.database.static as static
 
 
+logger = logging.Logger(__name__)
+
+
 def parse(payload: bytes) -> pd.DataFrame | flask.Response:
     frame = pd.read_csv(io.StringIO(payload.decode('UTF-8')), index_col=0)
     if frame.isnull().any(axis=None):
@@ -95,3 +98,29 @@ def lol_kek_azaza():
 
     env.db.impl().session.commit()
     return flask.Response(status=200)
+
+
+@blueprints.csv_blueprint.route('/kek_lol', methods=['GET'])
+def kek_lol():
+    result: pd.DataFrame = parse(flask.request.date)
+    if isinstance(result, flask.Response):
+        return result
+    
+    users = env.db.impl().session.query(models.User).all()
+    cities = env.db.impl().session.query(models.City).all()
+    for login, prefecture in result.iterrows(index=False):
+        p = False
+        for user in users:
+            if user.login != login:
+                continue
+
+            m_city = None
+            for city in cities:
+                if city.name == prefecture:
+                    m_city = city
+
+            user.city_id = m_city.id
+            p = True
+
+        if not p:
+            return f'kek lol failed: {login} not found'

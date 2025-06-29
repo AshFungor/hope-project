@@ -54,30 +54,30 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
     product_entry = product_entries.first()
 
     # check office
-    if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
-        user = env.db.impl().session.execute(
-            orm.select(
-                models.User
-            )
-            .filter((models.User.bank_account_id == int(customer_account))
-        )).scalars().first()
-        if user is None:
-            logging.warning(f'error while adding new transaction: not found user ({customer_account})')
-            return flask.Response(f'incorrect input', status=443)
-        office = env.db.impl().session.execute(
-            orm.select(
-                models.Office
-            )
-            .join(models.Company, models.Company.id == models.Office.company_id)
-            .join(models.City, models.City.id == models.Office.city_id)
-            .filter(orm.and_(
-                models.Company.bank_account_id == int(seller_account),
-                models.City.id == user.city_id
-            ))
-        ).scalars().first()
-        if office is None:
-            logging.warning(f'error while adding new transaction: this company ({seller_account}) does not have an office in the buyers city')
-            return flask.Response(f'у данной компании нет офиса в городе покупателя', status=443)
+    # if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
+    #     user = env.db.impl().session.execute(
+    #         orm.select(
+    #             models.User
+    #         )
+    #         .filter((models.User.bank_account_id == int(customer_account))
+    #     )).scalars().first()
+    #     if user is None:
+    #         logging.warning(f'error while adding new transaction: not found user ({customer_account})')
+    #         return flask.Response(f'incorrect input', status=443)
+    #     office = env.db.impl().session.execute(
+    #         orm.select(
+    #             models.Office
+    #         )
+    #         .join(models.Company, models.Company.id == models.Office.company_id)
+    #         .join(models.City, models.City.id == models.Office.city_id)
+    #         .filter(orm.and_(
+    #             models.Company.bank_account_id == int(seller_account),
+    #             models.City.id == user.city_id
+    #         ))
+    #     ).scalars().first()
+    #     if office is None:
+    #         logging.warning(f'error while adding new transaction: this company ({seller_account}) does not have an office in the buyers city')
+    #         return flask.Response(f'у данной компании нет офиса в городе покупателя', status=443)
 
 
     try:
