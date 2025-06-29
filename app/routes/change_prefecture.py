@@ -1,18 +1,10 @@
 import logging
 
-<<<<<<< HEAD
 from flask import Blueprint, render_template, request, url_for, redirect, flash
 from flask_login import login_required, current_user
 
 import app.models as models
 from app.forms.change_prefecture import SwitchPrefectureForm
-=======
-from flask import render_template, request, url_for, redirect, flash
-from flask_login import login_required, current_user
-
-import app.models as models
-from app.forms.change_ceo import SwitchPrefectureForm
->>>>>>> be0b272 (lol kek added change ceo)
 from app.env import env
 
 import app.routes.blueprints as blueprints

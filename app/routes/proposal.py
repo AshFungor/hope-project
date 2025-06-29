@@ -53,6 +53,50 @@ def new_proposal(payload: dict[str, str] | None = None) -> flask.Response:
         return flask.Response(f'product with name = {product} not found', status=443)
     product_entry = product_entries.first()
 
+    if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
+        session = env.db.impl().session
+
+        user = session.execute(
+            orm.select(models.User).filter(
+                models.User.bank_account_id == int(customer_account)
+            )
+        ).scalars().first()
+
+        if user is None:
+            logging.warning(f'error while adding new transaction: user not found ({customer_account})')
+            return flask.Response('incorrect input', status=443)
+
+        city = session.execute(
+            orm.select(models.City).filter(
+                models.City.id == user.city_id
+            )
+        ).scalars().first()
+
+        if city is None:
+            logging.warning(f'error while adding new transaction: city not found for user {user.id}')
+            return flask.Response('city not found', status=443)
+
+        prefecture_id_user = city.prefecture_id
+
+        company = session.execute(
+            orm.select(models.Company).filter(
+                models.Company.bank_account_id == int(seller_account)
+            )
+        ).scalars().first()
+
+        if company is None:
+            logging.warning(f'error while adding new transaction: company not found ({seller_account})')
+            return flask.Response('incorrect input', status=443)
+
+        prefecture_id_company = company.prefecture_id
+
+        if prefecture_id_user != prefecture_id_company:
+            logging.warning(
+                f'error while adding new transaction: prefectures do not match '
+                f'(user prefecture {prefecture_id_user}, company prefecture {prefecture_id_company})'
+            )
+            return flask.Response('prefectures do not match', status=443)
+
     # check office
     # if str(customer_account).startswith('5') and str(seller_account).startswith('4'):
     #     user = env.db.impl().session.execute(
