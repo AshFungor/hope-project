@@ -1,86 +1,86 @@
 from datetime import datetime
 import pytz
 import flask
-import flask_login
 import sqlalchemy
 
-from flask import Blueprint, render_template, request, url_for, redirect
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, request, url_for, redirect, flash
+from flask_login import login_required
 
 import app.models as models
 from app.env import env
-from app.forms.change_ceo import CompanyAccountsForm
+from app.forms.change_ceo import ChangeCeoForm
 
 import app.routes.blueprints as blueprints
 
 
-@blueprints.accounts_blueprint.route('change_ceo_view', method=['GET', 'POST'])
-def change_ceo():
-    form = CompanyAccountsForm()
+@blueprints.master_blueprint.route('/change_ceo_view', methods=['GET', 'POST'])
+@login_required
+def change_ceo_view():
+    form = ChangeCeoForm()
 
     if request.method == 'POST' and form.validate_on_submit():
-        company_id = form.company_account.data
-        worker_bank_account = form.employee_account.data
-        ceo_bank_account = form.ceo_account.data
-        role = form.employee_role.data
+        company_account_id = form.company_id.data
+        new_ceo_bank_account_id = form.new_ceo_id.data
 
-        # Получаем пользователей из базы
-        worker = env.db.impl().session().execute(
-            sqlalchemy.select(models.User).filter_by(bank_account_id=worker_bank_account)
+        session = env.db.impl().session()
+
+        company = session.execute(
+            sqlalchemy.select(models.Company).filter(
+                models.Company.bank_account_id == company_account_id
+            )
         ).scalar_one_or_none()
 
-        ceo = env.db.impl().session().execute(
-            sqlalchemy.select(models.User).filter_by(bank_account_id=ceo_bank_account)
+        if company is None:
+            flash('Компания не найдена', category='warning')
+            return render_template('main/ceo_change.html', form=form)
+
+        real_company_id = company.id
+
+        new_ceo = session.execute(
+            sqlalchemy.select(models.User).filter(
+                models.User.bank_account_id == new_ceo_bank_account_id
+            )
         ).scalar_one_or_none()
 
-        if worker is None or ceo is None:
-            return flask.Response("Пользователя с таким банковским счетом не существует.", status=404)
+        if new_ceo is None:
+            flash('Пользователь (новый генеральный директор) не найден', category='warning')
+            return render_template('main/ceo_change.html', form=form)
 
-        # Проверяем наличие CEO в компании
-        ceo_in_company = env.db.impl().session().execute(
+        old_ceo = session.execute(
             sqlalchemy.select(models.User2Company).filter_by(
-                user_id=ceo.id,
-                company_id=company_id,
+                company_id=real_company_id,
                 role='CEO'
             )
         ).scalar_one_or_none()
 
-        # Если CEO нет в компании - регистрируем его
-        if ceo_in_company is None:
-            new_ceo = models.User2Company(
-                user_id=ceo.id,
-                company_id=company_id,
+        new_ceo_link = session.execute(
+            sqlalchemy.select(models.User2Company).filter_by(
+                company_id=real_company_id,
+                user_id=new_ceo.id
+            )
+        ).scalar_one_or_none()
+
+        if new_ceo_link is None:
+            new_ceo_link = models.User2Company(
+                user_id=new_ceo.id,
+                company_id=real_company_id,
                 role='CEO',
                 ratio=0,
                 employed_at=datetime.now(pytz.timezone('Europe/Moscow'))
             )
-            env.db.impl().session().add(new_ceo)
-            try:
-                env.db.impl().session().commit()
-            except Exception as ex:
-                return flask.Response(f'Ошибка при регистрации CEO: {ex}', status=500)
+            session.add(new_ceo_link)
+        else:
+            new_ceo_link.role = 'CEO'
 
-            ceo_in_company = new_ceo
-
-        # Проверяем наличие работника в компании
-        worker_in_company = env.db.impl().session().execute(
-            sqlalchemy.select(models.User2Company).filter_by(
-                user_id=worker.id,
-                company_id=company_id
-            )
-        ).scalar_one_or_none()
-
-        if worker_in_company is None:
-            return flask.Response(f"Работник с таким счетом не существует в данной компании", status=404)
-
-        # Меняем роли
-        ceo_in_company.role = role
-        worker_in_company.role = 'CEO'
+        if old_ceo and old_ceo.user_id != new_ceo.id:
+            session.delete(old_ceo)
 
         try:
-            env.db.impl().session().commit()
-            flask.flash("Роли успешно изменены", category='info')
+            session.commit()
+            flash('Генеральный директор успешно обновлён', category='info')
+            return redirect(url_for('master.change_ceo_view'))
         except Exception as ex:
-            env.db.impl().session().rollback()
-            flask.flash("Ошибка при смене ролей", category='warning')
-    return render_template('ceo_change.html', form=form)
+            session.rollback()
+            flash(f'Ошибка при обновлении CEO: {ex}', category='warning')
+
+    return render_template('main/ceo_change.html', form=form)

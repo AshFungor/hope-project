@@ -1,50 +1,30 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, BooleanField, SubmitField
-from wtforms.validators import DataRequired
+import wtforms as wtf
+from wtforms.validators import InputRequired, NumberRange
 
 
-class CompanyAccountsForm(FlaskForm):
-    # Счета
-    company_account = StringField(
-        'Счет компании',
-        validators=[DataRequired(message="Обязательное поле")],
-        render_kw={"class": "form-control text-center", "placeholder": "Введите номер счета компании"}
-    )
-
-    ceo_account = StringField(
-        'Счет ген. директора',
-        validators=[DataRequired(message="Обязательное поле")],
-        render_kw={"class": "form-control text-center", "placeholder": "Введите номер счета ген. директора"}
-    )
-
-    employee_account = StringField(
-        'Счет работника',
-        validators=[DataRequired(message="Обязательное поле")],
-        render_kw={"class": "form-control text-center", "placeholder": "Введите номер счета работника"}
-    )
-
-    # Роли (используем ваш маппер)
-    employee_role = SelectField(
-        'Роль работника',
-        choices=[
-            ('', 'Выберите новую роль'),
-            ('CEO', 'генеральный директор'),
-            ('CFO', 'финансовый директор'),
-            ('marketing_manager', 'маркетолог'),
-            ('production_manager', 'заведущий производством'),
-            ('employee', 'рабочий')
+class ChangeCeoForm(FlaskForm):
+    company_id = wtf.IntegerField(
+        'Номер банковского счета компании:',
+        validators=[
+            InputRequired(),
+            NumberRange(min=1, message='Должен быть положительным числом')
         ],
-        validators=[DataRequired(message="Выберите роль")],
-        render_kw={"class": "form-select text-center"}
+        render_kw={'placeholder': 'Введите номер банковского счета компании'}
     )
 
-    confirm_change = BooleanField(
-        'Подтверждаю смену ролей',
-        validators=[DataRequired(message="Требуется подтверждение")],
-        render_kw={"class": "form-check-input"}
+    new_ceo_id = wtf.IntegerField(
+        'Номер банковского счета нового генерального директора:',
+        validators=[
+            InputRequired(),
+            NumberRange(min=1, message='Должен быть положительным числом')
+        ],
+        render_kw={'placeholder': 'Введите номер банковского счета нового генерального директора'}
     )
 
-    submit = SubmitField(
-        'Сохранить изменения',
-        render_kw={"class": "btn btn-success w-100"}
+    confirm_change = wtf.BooleanField(
+        'Подтверждаю смену генерального директора',
+        validators=[InputRequired()]
     )
+
+    submit = wtf.SubmitField('Изменить генерального директора')

@@ -1,13 +1,12 @@
 {% extends 'main/base.html' %}
 
-{% block title %}Управление счетами и ролями{% endblock %}
+{% block title %}Смена CEO{% endblock %}
 
 {% block content %}
     <div class="container mt-4">
-        <form method="POST" action="{{ url_for('manage_accounts') }}" class="account-management">
+        <form method="POST" action="{{ url_for('master.change_ceo_view') }}" class="account-management">
             {{ form.hidden_tag() }}
 
-            <!-- Flash-сообщения -->
             {% with messages = get_flashed_messages(with_categories=True) %}
                 {% if messages %}
                     <div class="flashes mb-3">
@@ -18,42 +17,21 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Счета компании -->
-            <h3 class="mb-3">Счета компании</h3>
-            <div class="mb-3">
-                {{ form.company_account.label(class="form-label fw-bold") }}
-                {{ form.company_account(class="form-control text-center") }}
-                {% if form.company_account.errors %}
-                    <div class="text-danger">{{ form.company_account.errors[0] }}</div>
-                {% endif %}
-            </div>
+            <h3 class="mb-3">Смена CEO</h3>
 
-            <!-- Счета сотрудников -->
-            <h3 class="mt-4 mb-3">Счета сотрудников</h3>
             <div class="mb-3">
-                {{ form.ceo_account.label(class="form-label fw-bold") }}
-                {{ form.ceo_account(class="form-control text-center") }}
-                {% if form.ceo_account.errors %}
-                    <div class="text-danger">{{ form.ceo_account.errors[0] }}</div>
+                {{ form.company_id.label(class="form-label fw-bold") }}
+                {{ form.company_id(class="form-control text-center") }}
+                {% if form.company_id.errors %}
+                    <div class="text-danger">{{ form.company_id.errors[0] }}</div>
                 {% endif %}
             </div>
 
             <div class="mb-3">
-                {{ form.employee_account.label(class="form-label fw-bold") }}
-                {{ form.employee_account(class="form-control text-center") }}
-                {% if form.employee_account.errors %}
-                    <div class="text-danger">{{ form.employee_account.errors[0] }}</div>
-                {% endif %}
-            </div>
-
-            <!-- Смена ролей -->
-            <h3 class="mt-4 mb-3">Смена ролей</h3>
-            <div class="mb-3">
-                {{ form.employee_role.label(class="form-label fw-bold") }}
-                {{ form.employee_role(class="form-select text-center") }}
-                <small class="text-muted">Выберите новую роль для сотрудника</small>
-                {% if form.employee_role.errors %}
-                    <div class="text-danger">{{ form.employee_role.errors[0] }}</div>
+                {{ form.new_ceo_id.label(class="form-label fw-bold") }}
+                {{ form.new_ceo_id(class="form-control text-center") }}
+                {% if form.new_ceo_id.errors %}
+                    <div class="text-danger">{{ form.new_ceo_id.errors[0] }}</div>
                 {% endif %}
             </div>
 
