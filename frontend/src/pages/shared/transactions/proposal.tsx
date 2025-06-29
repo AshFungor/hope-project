@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
 import { Product } from "@app/codegen/app/protos/types/product";
-import { CreateProductTransactionRequest, } from "@app/codegen/app/protos/transaction/create";
+import { CreateProductTransactionRequest } from "@app/codegen/app/protos/transaction/create";
 import { TransactionStatusReason as TxStatus } from "@app/codegen/app/protos/types/transaction";
 
+import { useEffectiveId } from "@app/contexts/abstract/current-bank-account";
+import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+
 const NewTransactionForm: React.FC = () => {
-    const { accountId } = useParams<{ accountId: string }>();
+    const { id: effectiveAccountId } = useEffectiveId();
     const navigate = useNavigate();
 
     const [sellerAccount, setSellerAccount] = useState("");
@@ -16,9 +19,7 @@ const NewTransactionForm: React.FC = () => {
     const [count, setCount] = useState("");
     const [amount, setAmount] = useState("");
     const [products, setProducts] = useState<Product[]>([]);
-    const [messages, setMessages] = useState<string[]>([]);
-
-    const buyerAccount = Number(accountId);
+    const [message, setMessage] = useState<{ text: string; status: AlertStatus } | null>(null);
 
     const getCreateTransactionMessage = (status: TxStatus | undefined): string => {
         switch (status) {
@@ -46,51 +47,59 @@ const NewTransactionForm: React.FC = () => {
     };
 
     useEffect(() => {
-        (async () => {
-            const response = await Hope.send(Request.create({ allProducts: {} }));
-            setProducts(response.allProducts?.products ?? []);
-        })();
+        const fetchProducts = async () => {
+            const result = await Hope.sendTyped(
+                Request.create({ allProducts: {} }),
+                "allProducts"
+            );
+            setProducts(result.products ?? []);
+        };
+
+        fetchProducts();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!effectiveAccountId) {
+            setMessage({ text: "Ошибка: не определён аккаунт", status: AlertStatus.Error });
+            return;
+        }
+
         const createTxReq = CreateProductTransactionRequest.create({
-            sellerAccount: buyerAccount,
-            customerAccount: Number(sellerAccount),
+            sellerAccount: Number(sellerAccount),
+            customerAccount: effectiveAccountId,
             product: productName,
             count: Number(count),
             amount: Number(amount),
         });
 
-        const response = await Hope.send(
-            Request.create({ createProductTransaction: createTxReq })
+        const result = await Hope.sendTyped(
+            Request.create({ createProductTransaction: createTxReq }),
+            "createTransaction"
         );
 
-        const status = response.createTransaction?.status as TxStatus | undefined;
+        const status = result.status as TxStatus | undefined;
 
         if (status === TxStatus.OK) {
-            setMessages(["success: " + getCreateTransactionMessage(status)]);
+            setMessage({ text: getCreateTransactionMessage(status), status: AlertStatus.Info });
             setTimeout(() => navigate(-1), 1000);
         } else {
-            setMessages(["danger: " + getCreateTransactionMessage(status)]);
+            setMessage({ text: getCreateTransactionMessage(status), status: AlertStatus.Error });
         }
     };
 
+    if (!effectiveAccountId) {
+        return <MessageAlert message="Не удалось определить аккаунт" status={AlertStatus.Error} />;
+    }
+
     return (
         <form role="form" onSubmit={handleSubmit}>
-            {messages.map((msg, i) => {
-                const [type, text] = msg.split(": ");
-                return (
-                    <div key={i} className={`alert alert-${type.trim()} fade-in`} role="alert">
-                        {text.trim()}
-                    </div>
-                );
-            })}
+            <MessageAlert message={message?.text ?? ""} status={message?.status} />
 
             <div className="mb-4">
                 <p className="mb-1">
-                    <strong>Ваш счёт:</strong> {buyerAccount}
+                    <strong>Ваш счёт:</strong> {effectiveAccountId}
                 </p>
             </div>
 

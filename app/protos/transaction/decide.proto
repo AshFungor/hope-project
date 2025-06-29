@@ -6,7 +6,7 @@ import "app/protos/types/transaction.proto";
 
 message DecideOnTransactionRequest {
     string status = 1;
-    int32 account = 2;
+    int32 id = 2;
 }
 
 message DecideOnTransactionResponse {

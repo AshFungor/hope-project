@@ -1,1 +1,1 @@
-from . import prefecture, product, transaction
+from . import prefecture

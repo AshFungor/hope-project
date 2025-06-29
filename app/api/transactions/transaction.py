@@ -171,8 +171,8 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
 @login_required
 @pythonify(DecideOnTransactionRequest)
 def decide_on_proposal(ctx: AppContext, req: DecideOnTransactionRequest):
-    result = complete_transaction(req.account, req.status)
-    ctx.logger.info(f"transaction {req.account} decision={req.status}: {result}")
+    result = complete_transaction(req.id, req.status)
+    ctx.logger.info(f"transaction {req.id} decision={req.status}: {result}")
 
     return protobufify(APIResponse(
         decide_on_transaction=result

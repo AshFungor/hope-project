@@ -44,4 +44,18 @@ export namespace Hope {
 
         return response;
     }
+
+    export async function sendTyped<K extends keyof Response>(
+        request: Request,
+        field: K
+    ): Promise<NonNullable<Response[K]>> {
+        const response = await send(request);
+        const data = response[field];
+
+        if (!data) {
+            throw new Error(`Expected Response to contain '${field}' but got: ${JSON.stringify(response)}`);
+        }
+
+        return data;
+    }
 }

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,10 +25,10 @@ class Prefecture(ModelBase):
     def __init__(
         self,
         name: str,
-        bank_account_id: int | None,
-        prefect_id: int | None,
-        economic_assistant_id: int | None,
-        social_assistant_id: int | None,
+        bank_account_id: int,
+        prefect_id: Optional[int] = None,
+        economic_assistant_id: Optional[int] = None,
+        social_assistant_id: Optional[int] = None,
     ):
         self.bank_account_id = bank_account_id
         self.prefect_id = prefect_id

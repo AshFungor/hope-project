@@ -1,10 +1,17 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    useCallback,
+    ReactNode,
+} from "react";
 
 import { User } from "@app/api/sub/session";
 import { Hope } from "@app/api/api";
-
 import { Request } from "@app/codegen/app/protos/request";
 import { UserRequest } from "@app/codegen/app/protos/session/user-info";
+import { UserBankAccountIdProvider } from "@app/contexts/abstract/current-bank-account";
 
 interface UserContextType {
     currentUser: User | null;
@@ -14,36 +21,40 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+interface UserProviderProperties {
+    children: ReactNode;
+}
+
+export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     const refreshUser = useCallback(async () => {
         try {
             const userRequest = UserRequest.create({});
-            const response = (
-                await Hope.send(Request.create({ user: userRequest }))
-            );
+            const response = await Hope.send(Request.create({ user: userRequest }));
 
-            setCurrentUser(
-                response?.user?.info
-                  ? new User(
-                      response.user?.info.name,
-                      response.user?.info.lastName,
-                      response.user?.info.patronymic,
-                      response.user?.info.login,
-                      response.user?.info.sex,
-                      response.user?.info.bonus,
-                      response.user?.info.birthday,
-                      response.user?.info.bankAccountId,
-                      response.user?.info.prefectureName,
-                      response.user?.info.isAdmin
+            if (response?.user?.info) {
+                const info = response.user.info;
+                setCurrentUser(
+                    new User(
+                        info.name,
+                        info.lastName,
+                        info.patronymic,
+                        info.login,
+                        info.sex,
+                        info.bonus,
+                        info.birthday,
+                        info.bankAccountId,
+                        info.prefectureName,
+                        info.isAdmin
                     )
-                  : null
-            );
-
+                );
+            } else {
+                setCurrentUser(null);
+            }
         } catch (err) {
-            setCurrentUser(null);
             console.warn("Failed to refresh user:", err);
+            setCurrentUser(null);
         }
     }, []);
 
@@ -53,13 +64,17 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return (
         <UserContext.Provider value={{ currentUser, setCurrentUser, refreshUser }}>
-            {children}
+            <UserBankAccountIdProvider id={currentUser?.bankAccountId}>
+                {children}
+            </UserBankAccountIdProvider>
         </UserContext.Provider>
     );
 };
 
-export const useUser = () => {
+export const useUser = (): UserContextType => {
     const context = useContext(UserContext);
-    if (!context) throw new Error("useUser must be used within a UserProvider");
+    if (!context) {
+        throw new Error("useUser must be used within a UserProvider");
+    }
     return context;
 };

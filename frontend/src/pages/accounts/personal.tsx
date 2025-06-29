@@ -5,9 +5,9 @@ import { useUser } from "@app/contexts/user";
 
 import { Hope } from "@app/api/api";
 
-import BalanceSection from "@app/pages/shared/widgets/balance";
-import GoalSection from "@app/pages/shared/widgets/goal";
-import ProposalLinks from "@app/pages/shared/widgets/proposals";
+import BalanceSection from "@app/widgets/shared/balance";
+import GoalSection from "@app/widgets/shared/goal";
+import ProposalLinks from "@app/widgets/shared/proposals";
 
 import { Goal } from "@app/api/sub/goal";
 import { GetLastGoalRequest } from "@app/codegen/app/protos/goal/last";

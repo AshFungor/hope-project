@@ -23,6 +23,8 @@ import "app/protos/goal/last.proto";
 import "app/protos/prefecture/all.proto";
 import "app/protos/prefecture/link.proto";
 
+import "app/protos/company/create.proto";
+
 
 message Response {
     oneof payload {
@@ -34,7 +36,7 @@ message Response {
         product.AvailableProductsResponse available_products = 5;
         product.ConsumeProductResponse consume_product = 6;
         product.ProductCountsResponse product_counts = 7;
-        product.CreateProductRequest create_product = 8;
+        product.CreateProductResponse create_product = 8;
 
         transaction.CreateTransactionResponse create_transaction = 9;
         transaction.DecideOnTransactionResponse decide_on_transaction = 10;
@@ -46,5 +48,7 @@ message Response {
 
         prefecture.UpdateLinkResponse update_prefecture_link = 15;
         prefecture.AllPrefecturesResponse all_prefectures = 16;
+
+        company.CreateCompanyResponse create_company = 17;
     }
 }

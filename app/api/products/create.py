@@ -7,6 +7,7 @@ from app.context import AppContext
 from app.models import Product as ProductModel
 from app.models.queries import wrap_crud_context
 
+from app.codegen.hope import Response
 from app.codegen.product import (
     CreateProductRequest,
     CreateProductResponse,
@@ -23,7 +24,7 @@ def create_product(ctx: AppContext, req: CreateProductRequest):
         ).scalar_one_or_none()
 
         if exists:
-            return protobufify(CreateProductResponse(status=False))
+            return protobufify(Response(create_product=CreateProductResponse(status=False)))
 
         product = ProductModel(
             name=req.product.name,
@@ -33,4 +34,4 @@ def create_product(ctx: AppContext, req: CreateProductRequest):
         ctx.database.session.add(product)
         ctx.database.session.commit()
 
-        return protobufify(CreateProductResponse(status=True))
+        return protobufify(Response(create_product=CreateProductResponse(status=True)))

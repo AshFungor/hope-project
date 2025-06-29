@@ -1,0 +1,32 @@
+secret: "test-secret"
+timezone: "UTC"
+
+logging: !logging
+  stdout: true
+  stderr: false
+  file: null
+  level: "debug"
+
+database: !database
+  kind: !sqlite
+    database_name: ":memory:"
+
+flask_extensions: !flask_extensions
+  csrf: false
+  login_manager: true
+
+consumption: !consumption
+  food:
+    count: 1
+    price: 80
+    period_days: 1
+
+  clothes:
+    count: 1
+    price: 120
+    period_days: 2
+
+  technic:
+    count: 1
+    price: 150
+    period_days: 4

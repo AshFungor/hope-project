@@ -10,7 +10,16 @@ from typing_extensions import Annotated
 
 
 class Ints:
-    Serial = Annotated[int, orm.Sequence(start=0, increment=1, name="Sequence"), mapped_column(orm.BIGINT, primary_key=True)]
+    Serial = Annotated[
+        int, 
+        orm.Sequence(
+            start=0,
+            increment=1,
+            name="Sequence"
+        ), 
+        # sqlite does not like big integers
+        mapped_column(orm.BIGINT().with_variant(orm.INTEGER, "sqlite"), primary_key=True)
+    ]
     Long = Annotated[int, mapped_column(orm.BIGINT, nullable=False)]
     Short = Annotated[int, mapped_column(orm.SMALLINT, nullable=False)]
     Int = Annotated[int, mapped_column(orm.INTEGER, nullable=False)]

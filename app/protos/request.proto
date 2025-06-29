@@ -23,6 +23,8 @@ import "app/protos/goal/last.proto";
 import "app/protos/prefecture/all.proto";
 import "app/protos/prefecture/link.proto";
 
+import "app/protos/company/create.proto";
+
 
 message Request {
     oneof payload {
@@ -47,5 +49,7 @@ message Request {
         
         prefecture.UpdateLinkRequest update_prefecture_link = 16;
         prefecture.AllPrefecturesRequest all_prefectures = 17;
+
+        company.CreateCompanyRequest create_company = 18;
     }
 }
