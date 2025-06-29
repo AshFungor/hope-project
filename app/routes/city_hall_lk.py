@@ -52,7 +52,7 @@ def city_hall_cabinet():
         prefecture.query_bankrupts('mayor', None)
 
     return flask.render_template('main/city_hall.html', 
-        balance=float(account.get_money(bank_account)),
+        balance=account.get_money(bank_account),
         bank_account=bank_account,
         goal=goal,
         mayor=mayor,
