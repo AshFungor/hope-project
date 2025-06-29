@@ -18,6 +18,7 @@ from app.modules.database.validators import CurrentTimezone
 
 logger = env.logger.getChild(__name__)
 
+
 def check_free(role: str, company_id: str, user_id: int) -> bool:
     role = env.db.impl().session.execute(
         sqlalchemy.select(
@@ -30,10 +31,12 @@ def check_free(role: str, company_id: str, user_id: int) -> bool:
                 ),
                 models.User2Company.fired_at == sqlalchemy.null(),
                 models.User2Company.company_id == company_id,
+                models.User2Company.role != 'founder'
             )
         )
     ).scalars().first()
     return role is None or role == 'employee'
+
 
 @blueprints.accounts_blueprint.route('/company_worker_employment', methods=['GET', 'POST'])
 @login_required
