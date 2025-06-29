@@ -153,7 +153,7 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
                     count=tx.count,
                     product=product.name,
                     status=TxStatus.from_string(tx.status.upper()),
-                    updated_at=local_datetime(ctx, tx.updated_at).isoformat(),
+                    updated_at=local_datetime(ctx, tx.updated_at).strftime("%Y-%m-%d %H:%M"),
                     side=role,
                     is_money=(product.id == 1),
                 )

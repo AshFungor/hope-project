@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useUser } from "@app/contexts/user";
-import { AlertStatus, MessageAlert } from "@app/widgets/shared/alert"
+import { MessageAlert } from "@app/widgets/shared/alert"
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";

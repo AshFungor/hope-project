@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
@@ -7,42 +7,54 @@ import { Product } from "@app/codegen/app/protos/types/product";
 import { CreateProductTransactionRequest } from "@app/codegen/app/protos/transaction/create";
 import { TransactionStatusReason as TxStatus } from "@app/codegen/app/protos/types/transaction";
 
-import { useEffectiveId } from "@app/contexts/abstract/current-bank-account";
+import { useUser } from "@app/contexts/user";
+import { PageMode } from "@app/types";
+
 import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
 
-const NewTransactionForm: React.FC = () => {
-    const { id: effectiveAccountId } = useEffectiveId();
+interface NewTransactionFormProps {
+    mode: PageMode;
+}
+
+const NewTransactionForm: React.FC<NewTransactionFormProps> = ({ mode }) => {
+    const params = useParams();
+    const { bankAccountId } = useUser();
     const navigate = useNavigate();
+
+    const effectiveAccountId =
+        mode === PageMode.Company
+            ? Number(params.companyId)
+            : bankAccountId;
 
     const [sellerAccount, setSellerAccount] = useState("");
     const [productName, setProductName] = useState("");
     const [count, setCount] = useState("");
     const [amount, setAmount] = useState("");
     const [products, setProducts] = useState<Product[]>([]);
-    const [message, setMessage] = useState<{ text: string; status: AlertStatus } | null>(null);
+    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
-    const getCreateTransactionMessage = (status: TxStatus | undefined): string => {
+    const getCreateTransactionStatus = (status: TxStatus | undefined): { contents: string; status: AlertStatus } => {
         switch (status) {
             case TxStatus.OK:
-                return "Операция успешно выполнена";
+                return { contents: "Операция успешно выполнена", status: AlertStatus.Info };
             case TxStatus.CUSTOMER_IS_SELLER:
-                return "Ошибка: покупатель и продавец совпадают";
+                return { contents: "Ошибка: покупатель и продавец совпадают", status: AlertStatus.Error };
             case TxStatus.ALREADY_PROCESSED:
-                return "Ошибка: транзакция уже обработана";
+                return { contents: "Ошибка: транзакция уже обработана", status: AlertStatus.Warning };
             case TxStatus.COUNT_OUT_OF_BOUNDS:
-                return "Ошибка: некорректное количество товара";
+                return { contents: "Ошибка: некорректное количество товара", status: AlertStatus.Error };
             case TxStatus.AMOUNT_OUT_OF_BOUNDS:
-                return "Ошибка: некорректная сумма";
+                return { contents: "Ошибка: некорректная сумма", status: AlertStatus.Error };
             case TxStatus.SELLER_MISSING_GOODS:
-                return "Ошибка: у продавца недостаточно товара";
+                return { contents: "Ошибка: у продавца недостаточно товара", status: AlertStatus.Error };
             case TxStatus.CUSTOMER_MISSING_MONEY:
-                return "Ошибка: у покупателя недостаточно средств";
+                return { contents: "Ошибка: у покупателя недостаточно средств", status: AlertStatus.Error };
             case TxStatus.CUSTOMER_MISSING:
-                return "Ошибка: покупатель не найден";
+                return { contents: "Ошибка: покупатель не найден", status: AlertStatus.Error };
             case TxStatus.SELLER_MISSING:
-                return "Ошибка: продавец не найден";
+                return { contents: "Ошибка: продавец не найден", status: AlertStatus.Error };
             default:
-                return "Неизвестная ошибка";
+                return { contents: "Неизвестная ошибка", status: AlertStatus.Notice };
         }
     };
 
@@ -62,13 +74,13 @@ const NewTransactionForm: React.FC = () => {
         e.preventDefault();
 
         if (!effectiveAccountId) {
-            setMessage({ text: "Ошибка: не определён аккаунт", status: AlertStatus.Error });
+            setMessage({ contents: "Ошибка: не определён аккаунт", status: AlertStatus.Error });
             return;
         }
 
         const createTxReq = CreateProductTransactionRequest.create({
-            sellerAccount: Number(sellerAccount),
-            customerAccount: effectiveAccountId,
+            customerAccount: Number(sellerAccount),
+            sellerAccount: effectiveAccountId,
             product: productName,
             count: Number(count),
             amount: Number(amount),
@@ -79,13 +91,11 @@ const NewTransactionForm: React.FC = () => {
             "createTransaction"
         );
 
-        const status = result.status as TxStatus | undefined;
+        const resultStatus = getCreateTransactionStatus(result.status as TxStatus | undefined);
+        setMessage(resultStatus);
 
-        if (status === TxStatus.OK) {
-            setMessage({ text: getCreateTransactionMessage(status), status: AlertStatus.Info });
+        if (result.status === TxStatus.OK) {
             setTimeout(() => navigate(-1), 1000);
-        } else {
-            setMessage({ text: getCreateTransactionMessage(status), status: AlertStatus.Error });
         }
     };
 
@@ -95,7 +105,10 @@ const NewTransactionForm: React.FC = () => {
 
     return (
         <form role="form" onSubmit={handleSubmit}>
-            <MessageAlert message={message?.text ?? ""} status={message?.status} />
+            <MessageAlert
+                message={message?.contents ?? ""}
+                status={message?.status ?? AlertStatus.Info}
+            />
 
             <div className="mb-4">
                 <p className="mb-1">

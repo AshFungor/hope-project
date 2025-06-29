@@ -14,6 +14,7 @@ export namespace Protobuf {
             method,
             data: Request.encode(request).finish(),
             responseType: "arraybuffer",
+            withCredentials: true,
             headers: {
                 "Content-Type": "application/protobuf",
                 "Accept": "application/protobuf"

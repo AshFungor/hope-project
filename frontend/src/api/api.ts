@@ -5,7 +5,8 @@ import { API as SessionAPI } from "@app/api/sub/session";
 import { API as ProductAPI } from "@app/api/sub/product";
 import { API as TransactionAPI } from "@app/api/sub/transaction";
 import { API as GoalAPI } from "@app/api/sub/goal";
-import { API as PrefectureAPI } from "@app/api/sub/prefectures";
+import { API as PrefectureAPI } from "@app/api/sub/prefecture";
+import { API as CompanyAPI } from "@app/api/sub/company";
 
 export namespace Hope {
     export async function send(request: Request): Promise<Response> {
@@ -15,7 +16,10 @@ export namespace Hope {
             response = await SessionAPI.Session.handle(request);
 
         } else if (request.allPrefectures || request.updatePrefectureLink) {
-            response = await PrefectureAPI.Prefectures.handle(request);
+            response = await PrefectureAPI.Prefecture.handle(request);
+
+        } else if (request.createCompany) {
+            response = await CompanyAPI.Company.handle(request);
 
         } else if (
             request.allProducts ||

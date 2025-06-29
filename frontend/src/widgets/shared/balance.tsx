@@ -6,10 +6,12 @@ interface BalanceSectionProperties {
 
 const BalanceSection: React.FC<BalanceSectionProperties> = ({ current }) => {
 	return (
-		<div className="mb-4">
-			<p className="mb-1">
-				<strong>Ваш баланс:</strong> {current}
-			</p>
+		<div className="text-center mb-3 rounded balance-blur"
+			style={{
+				'--balance': `${current}`,
+				'--percentage': `${Math.min(current / 10, 100)}%`
+			} as React.CSSProperties}>
+			<span><strong>Баланс:</strong> {current} Ψ</span>
 		</div>
 	);
 };

@@ -17,7 +17,7 @@ const HomePage = () => {
 	return (
 		<div className="container overflow-hidden">
 			<div className="d-grid gap-2 d-mb-block mb-4">
-				{Button('/personal', 'Личный кабинет')}
+				{Button('/personal/index', 'Личный кабинет')}
 				{Button('/company', 'Фирма')}
 				{Button('/prefecture', 'Префектура')}
 				{Button('/city_hall', 'Мэрия')}

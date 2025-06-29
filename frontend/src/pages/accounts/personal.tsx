@@ -7,7 +7,6 @@ import { Hope } from "@app/api/api";
 
 import BalanceSection from "@app/widgets/shared/balance";
 import GoalSection from "@app/widgets/shared/goal";
-import ProposalLinks from "@app/widgets/shared/proposals";
 
 import { Goal } from "@app/api/sub/goal";
 import { GetLastGoalRequest } from "@app/codegen/app/protos/goal/last";
@@ -25,7 +24,7 @@ export default function PersonalPage() {
         if (currentUser === null) {
             refreshUser();
             navigate(-1);
-			return;
+            return;
         }
 
         (async () => {
@@ -40,7 +39,7 @@ export default function PersonalPage() {
             const lastGoal = lastGoalResponse.lastGoal?.goal ?? null;
 
             if (!lastGoal) {
-                navigate(`/goal/new?bank_account_id=${currentUser.bankAccountId}`);
+                navigate("/personal/goal/new");
                 return;
             }
             setGoal(new Goal(lastGoal.bankAccountId, lastGoal.value));
@@ -52,23 +51,22 @@ export default function PersonalPage() {
                 Request.create({ productCounts: countReq })
             );
 
-			// should move to separate context
-			const counts = countResponse?.productCounts?.products ?? null
-			if (counts === null) {
-				throw Error("failed to fetch balance: could not complete request")
-			}
-			for (const count of counts) {
-				if (count.product?.id == 1) {
-					setBalance(count?.count ?? 0);
-					return;
-				}
-			}
-			setBalance(0);
+            const counts = countResponse?.productCounts?.products ?? null;
+            if (counts === null) {
+                throw Error("failed to fetch balance: could not complete request");
+            }
+            for (const count of counts) {
+                if (count.product?.id == 1) {
+                    setBalance(count?.count ?? 0);
+                    return;
+                }
+            }
+            setBalance(0);
         })();
     }, [currentUser, navigate]);
 
     const goToProducts = () => {
-        navigate(`/products?bank_account_id=${currentUser?.bankAccountId}`);
+        navigate("/personal/products");
     };
 
     return (
@@ -85,30 +83,30 @@ export default function PersonalPage() {
                     </div>
 
                     <Table striped>
-						<thead>
-							<tr>
-								<th colSpan={2}>Ваши данные:</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<th>номер банковского счета</th>
-								<td>{currentUser?.bankAccountId?.toString() ?? ""}</td>
-							</tr>
-							<tr>
-								<th>имя</th>
-								<td>{currentUser?.name ?? ""}</td>
-							</tr>
-							<tr>
-								<th>логин</th>
-								<td>{currentUser?.login ?? ""}</td>
-							</tr>
-							<tr>
-								<th>бонус</th>
-								<td>{currentUser?.bonus?.toString() ?? ""}</td>
-							</tr>
-						</tbody>
-					</Table>
+                        <thead>
+                            <tr>
+                                <th colSpan={2}>Ваши данные:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>номер банковского счета</th>
+                                <td>{currentUser?.bankAccountId?.toString() ?? ""}</td>
+                            </tr>
+                            <tr>
+                                <th>имя</th>
+                                <td>{currentUser?.name ?? ""}</td>
+                            </tr>
+                            <tr>
+                                <th>логин</th>
+                                <td>{currentUser?.login ?? ""}</td>
+                            </tr>
+                            <tr>
+                                <th>бонус</th>
+                                <td>{currentUser?.bonus?.toString() ?? ""}</td>
+                            </tr>
+                        </tbody>
+                    </Table>
 
                     <div className="d-grid">
                         <button
@@ -124,9 +122,33 @@ export default function PersonalPage() {
             <Accordion.Item eventKey="1">
                 <Accordion.Header>Операции со счетом</Accordion.Header>
                 <Accordion.Body className="d-grid gap-3">
-                    <ProposalLinks accountId={currentUser?.bankAccountId} />
+                    <button
+                        className="btn btn-outline-dark btn-lg mb-3"
+                        onClick={() => navigate("/personal/proposal/money")}
+                    >
+                        Перевод
+                    </button>
+                    <button
+                        className="btn btn-outline-dark btn-lg mb-3"
+                        onClick={() => navigate("/personal/proposal/product")}
+                    >
+                        Выставить счет
+                    </button>
+                    <button
+                        className="btn btn-outline-dark btn-lg mb-3"
+                        onClick={() => navigate("/personal/proposal/unpaid")}
+                    >
+                        Неоплаченные счета
+                    </button>
+                    <button
+                        className="btn btn-outline-dark btn-lg mb-3"
+                        onClick={() => navigate("/personal/proposal/history")}
+                    >
+                        История транзакций
+                    </button>
                 </Accordion.Body>
             </Accordion.Item>
+
         </Accordion>
     );
 }

@@ -6,15 +6,18 @@ import React, {
     useCallback,
     ReactNode,
 } from "react";
+import { useNavigate } from 'react-router-dom';
 
 import { User } from "@app/api/sub/session";
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
 import { UserRequest } from "@app/codegen/app/protos/session/user-info";
-import { UserBankAccountIdProvider } from "@app/contexts/abstract/current-bank-account";
 
 interface UserContextType {
     currentUser: User | null;
+    bankAccountId: number | undefined;
+    companyBankAccountId: number | undefined;
+    effectiveId: number | undefined;
     setCurrentUser: (user: User | null) => void;
     refreshUser: () => Promise<void>;
 }
@@ -27,12 +30,18 @@ interface UserProviderProperties {
 
 export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const bankAccountId = currentUser?.bankAccountId;
+    const companyBankAccountId = undefined; // TODO: hook up later
+    const effectiveId = companyBankAccountId ?? bankAccountId;
 
     const refreshUser = useCallback(async () => {
         try {
             const userRequest = UserRequest.create({});
             const response = await Hope.send(Request.create({ user: userRequest }));
-
+    
             if (response?.user?.info) {
                 const info = response.user.info;
                 setCurrentUser(
@@ -55,18 +64,33 @@ export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => 
         } catch (err) {
             console.warn("Failed to refresh user:", err);
             setCurrentUser(null);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
-
+    
     useEffect(() => {
         refreshUser();
     }, [refreshUser]);
+    
+    useEffect(() => {
+        if (!isLoading && currentUser == null) {
+            navigate("/auth/login");
+        }
+    }, [isLoading, currentUser, navigate]);
 
     return (
-        <UserContext.Provider value={{ currentUser, setCurrentUser, refreshUser }}>
-            <UserBankAccountIdProvider id={currentUser?.bankAccountId}>
-                {children}
-            </UserBankAccountIdProvider>
+        <UserContext.Provider
+            value={{
+                currentUser,
+                bankAccountId,
+                companyBankAccountId,
+                effectiveId,
+                setCurrentUser,
+                refreshUser,
+            }}
+        >
+            {children}
         </UserContext.Provider>
     );
 };

@@ -7,6 +7,11 @@ import { CurrentTransactionsRequest } from "@app/codegen/app/protos/transaction/
 import { DecideOnTransactionRequest } from "@app/codegen/app/protos/transaction/decide";
 import { TransactionStatusReason as TxStatus } from "@app/codegen/app/protos/types/transaction";
 
+import { PageMode } from "@app/types";
+import { useUser } from "@app/contexts/user";
+
+import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+
 interface ActiveTransaction {
     transactionId: number;
     product: string;
@@ -30,6 +35,7 @@ const ActionButtons: React.FC<{
 
 const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }) => {
     const [transactions, setTransactions] = useState<ActiveTransaction[]>([]);
+    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     const load = async () => {
         const req: CurrentTransactionsRequest = { account: accountId };
@@ -53,7 +59,7 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
 
     const decide = async (transactionId: number, status: "ACCEPTED" | "REJECTED") => {
         const req: DecideOnTransactionRequest = {
-            account: transactionId,
+            id: transactionId,
             status: status
         };
 
@@ -62,14 +68,28 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
         );
 
         if (response.decideOnTransaction?.status === TxStatus.OK) {
+            setMessage({
+                contents: `Транзакция ${transactionId} обновлена`,
+                status: AlertStatus.Info
+            });
             await load();
         } else {
-            alert(`Ошибка при решении: ${response.decideOnTransaction?.status}`);
+            setMessage({
+                contents: `Ошибка при решении: ${response.decideOnTransaction?.status}`,
+                status: AlertStatus.Error
+            });
         }
     };
 
     return (
         <div className="card" style={{ width: "100%" }}>
+            {message && (
+                <MessageAlert
+                    message={message.contents}
+                    status={message.status}
+                />
+            )}
+
             <div className="text-wrap text-center mb-4">
                 <p className="mb-1">
                     <strong>Ваши транзакции:</strong>
@@ -108,10 +128,24 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
     );
 };
 
-const TransactionDecisionPage: React.FC = () => {
-    const { accountId } = useParams<{ accountId: string }>();
-    if (!accountId) return <div>Missing account ID in URL</div>;
-    return <TransactionDecisionTable accountId={parseInt(accountId, 10)} />;
+interface TransactionDecisionPageProps {
+    mode: PageMode;
+}
+
+const TransactionDecisionPage: React.FC<TransactionDecisionPageProps> = ({ mode }) => {
+    const params = useParams();
+    const { bankAccountId } = useUser();
+
+    const effectiveAccountId =
+        mode === PageMode.Company
+            ? Number(params.companyId)
+            : bankAccountId;
+
+    if (!effectiveAccountId) {
+        return <div>Missing account ID</div>;
+    }
+
+    return <TransactionDecisionTable accountId={effectiveAccountId} />;
 };
 
 export default TransactionDecisionPage;

@@ -7,9 +7,9 @@ export default function MainLayout() {
 	return (
 		<div className="container overflow-hidden d-flex flex-column min-vh-100">
 			<Header showLogout />
-			<main className="flex-grow-1 my-4">
-				<Outlet />
-			</main>
+				<main className="flex-grow-1 my-4">
+					<Outlet />
+				</main>
 			<Footer />
 		</div>
 	);

@@ -17,3 +17,29 @@
 	}
 }
 
+.balance-blur {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.balance-blur::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        0deg,
+        rgba(101, 195, 228, 0.66) calc(100% - var(--percentage)),
+        rgba(251, 171, 0, 0.59) var(--percentage)
+    );
+    filter: blur(16px);
+    z-index: 0;
+}
+
+.balance-blur span {
+    position: relative;
+    z-index: 1;
+}

@@ -6,17 +6,19 @@ import {
     CreateProductResponse,
 } from "@app/codegen/app/protos/products/create";
 
+import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+
 const NewProductForm: React.FC = () => {
     const [productName, setProductName] = useState("");
     const [category, setCategory] = useState("");
     const [level, setLevel] = useState("");
-    const [messages, setMessages] = useState<{ category: string; message: string }[]>([]);
+    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!productName || !category || !level) {
-            setMessages([{ category: "danger", message: "Все поля обязательны!" }]);
+            setMessage({ contents: "Все поля обязательны!", status: AlertStatus.Error });
             return;
         }
 
@@ -33,25 +35,19 @@ const NewProductForm: React.FC = () => {
         };
 
         if (response.createProduct?.status) {
-            setMessages([{ category: "success", message: "Продукт успешно создан!" }]);
+            setMessage({ contents: "Продукт успешно создан!", status: AlertStatus.Info });
             setProductName("");
             setCategory("");
             setLevel("");
         } else {
-            setMessages([{ category: "danger", message: "Ошибка: продукт не удалось создать." }]);
+            setMessage({ contents: "Ошибка: продукт не удалось создать.", status: AlertStatus.Error });
         }
     };
 
     return (
         <form className="new_product d-grid" onSubmit={handleSubmit}>
-            {messages.length > 0 && (
-                <ul className="flashes">
-                    {messages.map((m, i) => (
-                        <li key={i} className={`alert alert-${m.category}`}>
-                            {m.message}
-                        </li>
-                    ))}
-                </ul>
+            {message && (
+                <MessageAlert message={message.contents} status={message.status} />
             )}
 
             <div className="mb-3">
@@ -92,7 +88,7 @@ const NewProductForm: React.FC = () => {
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
-                    <option value="3">4</option>
+                    <option value="4">4</option>
                 </select>
             </div>
 

@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 
-import { useEffectiveId } from "@app/contexts/abstract/current-bank-account";
+import { useParams } from "react-router-dom";
+import { useUser } from "@app/contexts/user";
+import { PageMode } from "@app/types"
+
 import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
+
 import {
     ProductCountsRequest,
     ProductCountsResponse_ProductWithCount,
@@ -19,10 +23,22 @@ import {
 const ProductRow: React.FC<{
     product: ProductCountsResponse_ProductWithCount;
     effectiveAccountId: number;
-    getRowClass: (level: number) => string;
     onConsumed: (response: ConsumeProductResponse, bankAccountId: number, product: string) => void;
     showConsumeButton: boolean;
-}> = ({ product, effectiveAccountId, getRowClass, onConsumed, showConsumeButton }) => {
+}> = ({ product, effectiveAccountId, onConsumed, showConsumeButton }) => {
+    const getRowClass = (level: number): string => {
+        switch (level) {
+            case 1:
+                return 'table-info';
+            case 2:
+                return 'table-primary';
+            case 4:
+                return 'table-warning';
+            default:
+                return 'table-light';
+        }
+    };
+
     const onConsumePressed = async () => {
         const request = ConsumeProductRequest.create({
             product: product.product?.name,
@@ -59,20 +75,7 @@ const ProductTable: React.FC<{
     effectiveAccountId: number;
     showConsumeButton: boolean;
 }> = ({ products, effectiveAccountId, showConsumeButton }) => {
-    const [message, setMessage] = useState<string | null>(null);
-
-    const getRowClass = (level: number): string => {
-        switch (level) {
-            case 1:
-                return 'table-info';
-            case 2:
-                return 'table-primary';
-            case 4:
-                return 'table-warning';
-            default:
-                return 'table-light';
-        }
-    };
+    const [message, setMessage] = useState<{contents: string, status: AlertStatus} | null>(null);
 
     const visitConsumeResponse = (
         response: ConsumeProductResponse,
@@ -81,16 +84,28 @@ const ProductTable: React.FC<{
     ) => {
         switch (response.status) {
             case ConsumeProductResponse_Status.ALREADY_CONSUMED:
-                setMessage(`Продукт ${product} уже употреблялся`);
+                setMessage({
+                    contents: `Продукт ${product} уже употреблялся`,
+                    status: AlertStatus.Warning
+                });
                 break;
             case ConsumeProductResponse_Status.NOT_ENOUGH:
-                setMessage(`На аккаунте ${bankAccountId} не хватает продуктов для потребления`);
+                setMessage({ 
+                    contents: `На аккаунте ${bankAccountId} не хватает продуктов для потребления`,
+                    status: AlertStatus.Error
+                });
                 break;
             case ConsumeProductResponse_Status.OK:
-                setMessage(`Продукт ${product} успешно употреблён`);
+                setMessage({
+                    contents: `Продукт ${product} успешно употреблён`,
+                    status: AlertStatus.Info
+                });
                 break;
             default:
-                setMessage(`Неизвестный статус`);
+                setMessage({
+                    contents: `Неизвестный статус`,
+                    status: AlertStatus.Notice
+                });
         }
     };
 
@@ -98,7 +113,7 @@ const ProductTable: React.FC<{
     return (
         <>
             <MessageAlert
-				message={message ?? null}
+				message={message?.contents ?? null}
 				status={AlertStatus.Info}
 			/>
 
@@ -127,7 +142,6 @@ const ProductTable: React.FC<{
                                         key={p.product?.name}
                                         product={p}
                                         effectiveAccountId={effectiveAccountId}
-                                        getRowClass={getRowClass}
                                         onConsumed={visitConsumeResponse}
                                         showConsumeButton={showConsumeButton}
                                     />
@@ -141,15 +155,25 @@ const ProductTable: React.FC<{
 };
 
 
-export default function AvailableProductsPage() {
-    const { id: effectiveAccountId } = useEffectiveId();
+interface AvailableProductsPageProps {
+    mode: PageMode;
+}
+
+
+export default function AvailableProductsPage({ mode }: AvailableProductsPageProps) {
+    const params = useParams();
+    const { bankAccountId } = useUser();
+
+    const effectiveAccountId =
+        mode === 'company'
+            ? Number(params.companyId)
+            : bankAccountId;
+
     const [products, setProducts] = useState<ProductCountsResponse_ProductWithCount[]>([]);
 
     useEffect(() => {
         const fetchProducts = async () => {
-            if (!effectiveAccountId) {
-				return;
-			}
+            if (!effectiveAccountId) return;
 
             const countReq = ProductCountsRequest.create({ bankAccountId: effectiveAccountId });
             const response = await Hope.sendTyped(
@@ -164,8 +188,8 @@ export default function AvailableProductsPage() {
     }, [effectiveAccountId]);
 
     if (!effectiveAccountId) {
-		return null;
-	}
+        return null;
+    }
 
     return (
         <div className="container mt-4">

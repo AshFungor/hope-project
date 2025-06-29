@@ -35,5 +35,4 @@ message Transaction {
     string side = 10;
 
     bool is_money = 11;
-    bool is_light = 12;
 }

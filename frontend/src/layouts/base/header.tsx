@@ -22,7 +22,7 @@ export default function Header({ showLogout = false }: { showLogout?: boolean })
         <header className="px-3 py-2 text-bg-dark border-bottom">
             <div className="container d-flex align-items-center justify-content-between">
                 <a href="/" className="d-flex align-items-center text-white text-decoration-none">
-                    <img src="/images/logo.png" alt="" className="logo-small" />
+                    <img src="/images/logo.png" alt="" className="logo-small img-fluid" />
                 </a>
                 {showLogout && (
                     <button className="btn btn-outline-light ms-auto" onClick={handleLogout}>

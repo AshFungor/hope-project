@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
@@ -8,16 +8,26 @@ import BalanceSection from "@app/widgets/shared/balance";
 import { Goal } from "@app/codegen/app/protos/types/goal";
 import { CreateGoalRequest } from "@app/codegen/app/protos/goal/create";
 
-import { useEffectiveId } from "@app/contexts/abstract/current-bank-account";
+import { PageMode } from "@app/types";
+import { useUser } from "@app/contexts/user";
 
-export default function GoalFormPage() {
-    const location = useLocation();
+interface GoalFormPageProps {
+    mode: PageMode;
+}
+
+export default function GoalFormPage({ mode }: GoalFormPageProps) {
+    const params = useParams();
+    const { bankAccountId } = useUser();
     const navigate = useNavigate();
+    const location = useLocation();
 
-    const { id: effectiveAccountId } = useEffectiveId();
+    const effectiveAccountId =
+        mode === PageMode.Company
+            ? Number(params.companyId)
+            : bankAccountId;
 
-    const params = new URLSearchParams(location.search);
-    const current = Number(params.get("current"));
+    const paramsSearch = new URLSearchParams(location.search);
+    const current = Number(paramsSearch.get("current"));
 
     const [value, setValue] = useState<number | undefined>();
 
@@ -45,7 +55,6 @@ export default function GoalFormPage() {
 
         const goal = Goal.create({
             bankAccountId: effectiveAccountId,
-			// better proto cannot handle optional values
             value: 0,
         });
         const createGoalReq = CreateGoalRequest.create({ goal });
