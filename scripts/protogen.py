@@ -74,12 +74,14 @@ def main():
         default=Path.cwd(),
         help="Directory containing .proto files (default: current directory)"
     )
-    parser.add_argument("--py_out", type=Path, required=True, help="Python output directory")
-    parser.add_argument("--ts_out", type=Path, required=True, help="TypeScript output directory")
+    parser.add_argument("--py_out", action="store", help="Python output directory")
+    parser.add_argument("--ts_out", action="store", help="TypeScript output directory")
     args = parser.parse_args()
 
-    generate_python_protobufs(args.proto_dir, args.py_out)
-    generate_ts_protobufs(args.proto_dir, args.ts_out)
+    if args.py_out is not None:
+        generate_python_protobufs(args.proto_dir, Path(args.py_out))
+    if args.ts_out is not None:
+        generate_ts_protobufs(args.proto_dir, Path(args.ts_out))
     print("Protobuf generation complete.")
 
 
