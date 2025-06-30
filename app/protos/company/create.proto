@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package company;
+
+message Founder {
+    int64 account_id = 1;
+    double share = 2;
+}
+
+message CreateCompanyRequest {
+    string name = 1;
+    string about = 2;
+    string prefecture = 3;
+    repeated Founder founders = 4;
+}
+
+message CreateCompanyResponse {
+    enum Status {
+        OK = 0;
+        MISSING_FOUNDERS = 1;
+        DUPLICATE_FOUNDERS = 2;
+        MISSING_PREFECTURE = 3;
+        DUPLICATE_NAME = 4;
+    }
+
+    Status status = 1;
+}

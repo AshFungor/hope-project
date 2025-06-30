@@ -16,4 +16,4 @@ pyaml
 protobuf
 betterproto[compiler]
 betterproto
-returns
+pytest

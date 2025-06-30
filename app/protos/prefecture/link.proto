@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package prefecture;
+
+message UpdateLinkRequest {
+    int64 bankAccountId = 1;
+    int64 prefectureId = 2;
+}
+
+message UpdateLinkResponse {
+    bool success = 1;
+}

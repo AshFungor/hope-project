@@ -1,99 +1,134 @@
-from enum import StrEnum
-from typing import Tuple, Union
+import sqlalchemy as orm
 
 from app.context import AppContext, function_context
-from app.models import Product2BankAccount, Transaction, TransactionStatus
-from app.models.queries import CRUD
+from app.models import Product2BankAccount, Transaction, TransactionStatus, BankAccount
+from app.codegen.transaction import DecideOnTransactionResponse
+from app.codegen.types import TransactionStatusReason
 
 
-class ProcessingStatus(StrEnum):
-    ALREADY_PROCESSED = "already_processed"
-    REJECTED = "rejected"
-    VALUE_OUT_OF_BOUNDS = "value_out_of_bounds"
-    MISSING_PRODUCTS = "missing_products"
-    MISSING_MONEY = "missing_money"
-    MISSING_ACCOUNT = "missing_account"
+class Processor:
+    __ctx: AppContext = AppContext.safe_load()
 
+    @classmethod
+    def check_seller_not_customer(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.customer_bank_account_id == transaction.seller_bank_account_id:
+            return TransactionStatusReason.CUSTOMER_IS_SELLER
+        return cls.ok()
 
-@function_context
-def process(ctx: AppContext, transaction: Transaction, approved: bool) -> Tuple[str, bool]:
-    if transaction.status != TransactionStatus.CREATED:
-        return "transaction is already processed", False
+    @classmethod
+    def check_seller_exists(cls, ctx: AppContext, transaction: Transaction) -> TransactionStatusReason:
+        if not ctx.database.session.get(BankAccount, transaction.seller_bank_account_id):
+            return TransactionStatusReason.SELLER_MISSING
+        return cls.ok()
 
-    if not approved:
-        transaction.status = TransactionStatus.REJECTED
-        return "transaction is rejected", True
+    @classmethod
+    def check_customer_exists(cls, ctx: AppContext, transaction: Transaction) -> TransactionStatusReason:
+        if not ctx.database.session.get(BankAccount, transaction.customer_bank_account_id):
+            return TransactionStatusReason.CUSTOMER_MISSING
+        return cls.ok()
 
-    customer = get_products_for(transaction, transaction.customer_bank_account_id)
-    seller = get_products_for(transaction, transaction.seller_bank_account_id)
+    @classmethod
+    def check_not_processed(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.status != TransactionStatus.CREATED:
+            return TransactionStatusReason.ALREADY_PROCESSED
+        return cls.ok()
 
-    if isinstance(customer, str) or isinstance(seller, str):
-        if isinstance(customer, str):
-            return customer, False
-        return seller, False
+    @classmethod
+    def check_bounds(cls, transaction: Transaction) -> TransactionStatusReason:
+        if transaction.amount <= 0:
+            return TransactionStatusReason.AMOUNT_OUT_OF_BOUNDS
+        if transaction.count <= 0:
+            return TransactionStatusReason.COUNT_OUT_OF_BOUNDS
+        return cls.ok()
 
-    customer_wallet, customer_products = customer
-    seller_wallet, seller_products = seller
+    @staticmethod
+    def ok() -> TransactionStatusReason:
+        return TransactionStatusReason.OK
 
-    if transaction.amount <= 0:
-        return "cannot accept transaction with negative amount", False
-    if transaction.count <= 0:
-        return "cannot accept transaction with negative count", False
+    @classmethod
+    def process(cls, ctx: AppContext, transaction: Transaction, approved: bool) -> TransactionStatusReason:
+        if (result := cls.check_not_processed(transaction)) != TransactionStatusReason.OK:
+            return result
 
-    if transaction.product_id == 1:
-        # we make money transaction
-        if seller_wallet is None or customer_wallet is None:
-            return "database lacks money entity with id = 1", False
-        if seller_wallet.count < transaction.count:
-            return "transaction is unavailable: not enough money owned by seller", False
-        customer_wallet.count += transaction.amount
-        seller_wallet.count -= transaction.amount
-        transaction.status = TransactionStatus.APPROVED
+        if not approved:
+            transaction.status = TransactionStatus.REJECTED
+            return cls.ok()
 
-        return "transaction accepted", True
+        if (result := cls.check_seller_exists(ctx, transaction)) != TransactionStatusReason.OK:
+            return result
 
-    if seller_products is None:
-        return f"Seller has no products associated with this account: {transaction.seller_bank_account_id}", False
+        if (result := cls.check_customer_exists(ctx, transaction)) != TransactionStatusReason.OK:
+            return result
 
-    if customer_products is None:
-        try:
-            # create customer's relation if does not exist
-            customer_products = Product2BankAccount(transaction.customer_bank_account_id, transaction.product_id, 0)
-            ctx.database.session.add(customer_products)
-        except Exception as error:
-            return (
-                f"failed to create product account with id {transaction.product_id} for user {transaction.customer_bank_account_id}; error {error}",
-                False,
-            )
+        if (result := cls.check_seller_not_customer(transaction)) != TransactionStatusReason.OK:
+            return result
 
-    ctx.logger.log(transaction)
-    if customer_wallet.count < transaction.amount:
-        return "transaction is unavailable: not enough money owned by customer", False
+        if (result := cls.check_bounds(transaction)) != TransactionStatusReason.OK:
+            return result
 
-    if seller_products.count < transaction.count:
+        customer_wallet = get_products(ctx, transaction.customer_bank_account_id, 1)
+        seller_wallet = get_products(ctx, transaction.seller_bank_account_id, 1)
+        customer_products = get_products(ctx, transaction.customer_bank_account_id, transaction.product_id)
+        seller_products = get_products(ctx, transaction.seller_bank_account_id, transaction.product_id)
+
         if transaction.product_id == 1:
-            return "transaction is unavailable: not enough money owned by seller", False
-        return "transaction is unavailable: not enough products owned by seller", False
+            if not seller_wallet or seller_wallet.count < transaction.count:
+                return TransactionStatusReason.SELLER_MISSING_GOODS
+            if not customer_wallet:
+                return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+            customer_wallet.count += transaction.amount
+            seller_wallet.count -= transaction.amount
 
-    customer_wallet.count -= transaction.amount
-    customer_products.count += transaction.count
-    seller_wallet.count += transaction.amount
-    seller_products.count -= transaction.count
-    transaction.status = TransactionStatus.APPROVED
+            transaction.status = TransactionStatus.ACCEPTED
+            return cls.ok()
 
-    return "transaction accepted", True
+        if not seller_products or seller_products.count < transaction.count:
+            return TransactionStatusReason.SELLER_MISSING_GOODS
+        if not customer_wallet or customer_wallet.count < transaction.amount:
+            return TransactionStatusReason.CUSTOMER_MISSING_MONEY
+
+        if not customer_products:
+            customer_products = Product2BankAccount(
+                bank_account_id=transaction.customer_bank_account_id,
+                product_id=transaction.product_id,
+                count=0
+            )
+            ctx.database.session.add(customer_products)
+
+        customer_wallet.count -= transaction.amount
+        seller_wallet.count += transaction.amount
+        seller_products.count -= transaction.count
+        customer_products.count += transaction.count
+
+        transaction.status = TransactionStatus.ACCEPTED
+        ctx.database.session.commit()
+
+        return cls.ok()
+
+
+def get_products(ctx: AppContext, account: int, product_id: int) -> Product2BankAccount | None:
+    return ctx.database.session.scalar(
+        orm.select(Product2BankAccount).filter(
+            orm.and_(
+                Product2BankAccount.bank_account_id == account,
+                Product2BankAccount.product_id == product_id,
+            )
+        )
+    )
 
 
 @function_context
-def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> Tuple[str, bool]:
+def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> DecideOnTransactionResponse:
     transaction = ctx.database.session.get(Transaction, transaction_id)
     if not transaction:
-        return "could not find transaction", False
+        raise ValueError(f"Transaction {transaction_id} not found")
 
-    message, status = process(with_status == TransactionStatus.APPROVED)
-    if not status:
+    result = Processor.process(ctx, transaction, with_status == TransactionStatus.ACCEPTED)
+
+    if result != TransactionStatusReason.OK:
         ctx.database.session.rollback()
-        ctx.logger.warning(f"failed to complete transaction {transaction_id}: error {message}")
+        ctx.logger.warning(f"Failed to complete transaction {transaction_id}: {result}")
+    else:
+        ctx.database.session.commit()
 
-    ctx.database.session.session.commit()
-    return message, status
+    return DecideOnTransactionResponse(status=result)

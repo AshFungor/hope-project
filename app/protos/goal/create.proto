@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package goal;
+
+import "app/protos/types/goal.proto";
+
+message CreateGoalRequest {
+    types.Goal goal = 1;
+}
+
+message CreateGoalResponse {
+    enum Status {
+        OK = 0;
+        EXISTS = 1;
+    }
+
+    Status status = 1;
+}

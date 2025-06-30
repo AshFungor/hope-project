@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package transaction;
 
+import "app/protos/types/transaction.proto";
+
 message CreateProductTransactionRequest {
     int32 seller_account = 1;
     int32 customer_account = 2;
@@ -17,10 +19,5 @@ message CreateMoneyTransactionRequest {
 }
 
 message CreateTransactionResponse {
-    enum CreationStatus {
-        OK = 0;
-        MULTIPLE_PRODUCTS = 1;
-    };
-
-    CreationStatus status = 1;
+    types.TransactionStatusReason status = 1;
 }

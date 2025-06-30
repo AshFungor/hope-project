@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/product.proto";
+
+message AvailableProductsRequest {
+    int64 bank_account_id = 1;
+}
+
+message AvailableProductsResponse {
+    repeated types.Product products = 1;
+}

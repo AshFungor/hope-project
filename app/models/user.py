@@ -1,5 +1,7 @@
 import datetime
 import enum
+
+from typing import Optional
 from functools import cached_property
 
 from flask_login import UserMixin
@@ -34,8 +36,8 @@ class User(ModelBase, UserMixin):
 
     def __init__(
         self,
-        bank_account_id: int | None,  # must be a valid account id
-        prefecture_id: int,  # prefecture, where user belongs
+        bank_account_id: Optional[int],  # must be a valid account id
+        prefecture_id: Optional[int],  # prefecture, where user belongs
         name: str,  # name of user
         last_name: str,  # last name of user
         patronymic: str,  # patronymic of user
@@ -46,12 +48,11 @@ class User(ModelBase, UserMixin):
         birthday: datetime.date,  # ...
         is_admin: bool = False,  # kek, implementing roles
     ) -> None:
-        # TODO: generate bank account in case none
         self.bank_account_id = bank_account_id
         self.prefecture_id = prefecture_id
         self.name = name
         self.last_name = last_name
-        self.patronymic = patronymic.strip()
+        self.patronymic = patronymic
         self.login = login
         self.password = password
         self.sex = str(sex)

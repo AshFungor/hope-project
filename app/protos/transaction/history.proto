@@ -2,29 +2,12 @@ syntax = "proto3";
 
 package transaction;
 
-message ViewHistoryRequest {
+import "app/protos/types/transaction.proto";
+
+message ViewTransactionsRequest {
     int32 account = 1;
 }
 
-message TransactionEntry {
-    enum Status {
-        CREATED = 0;
-        APPROVED = 1;
-        REJECTED = 2;
-        COMPLETED = 3;
-    }
-
-    int32 transaction_id = 1;
-    int32 amount = 2;
-    int32 count = 3;
-    string product = 4;
-    int32 second_side = 5;
-    Status status = 6;
-    string updated_at = 7;
-    string side = 8;
-    bool is_money = 9;
-}
-
 message ViewTransactionsResponse {
-    repeated TransactionEntry transactions = 1;
+    repeated types.Transaction transactions = 1;
 }

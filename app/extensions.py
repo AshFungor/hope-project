@@ -27,3 +27,7 @@ class FlaskExtensions:
 
         login_manager.init_app(ctx.app)
         ctx.app.permanent_session_lifetime = timedelta(days=3)
+
+    @classmethod
+    def __init_csrf(cls):
+        raise NotImplemented

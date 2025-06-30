@@ -1,55 +1,68 @@
 import sqlalchemy as orm
 
-from flask import Response, session
+from flask import session
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.api import Blueprints
-from app.api.helpers import preprocess, protobufify
+from app.api.helpers import pythonify, protobufify
+
 from app.codegen.session import (
     LoginRequest,
     LoginResponse,
+    LogoutRequest,
+    LogoutResponse,
     LoginResponseLoginStatus,
-    UserInfo,
+    UserRequest,
+    UserResponse,
 )
-from app.context import AppContext, function_context
+from app.codegen.types import User as UserProto
+from app.codegen.hope import Response
+
+from app.context import AppContext
 from app.models import Prefecture, User
 
 
-@Blueprints.session.route("/api/login", methods=["POST"])
-@preprocess(LoginRequest)
-@function_context
+@Blueprints.session.route("/api/session/login", methods=["POST"])
+@pythonify(LoginRequest)
 def login(ctx: AppContext, req: LoginRequest):
-    user = ctx.database.session.scalar(orm.select(User).filter(User.login == req.login))
+    user = ctx.database.session.scalar(
+        orm.select(User).filter(User.login == req.login)
+    )
 
     if user is None or user.password != req.password:
-        resp = LoginResponse(status=LoginResponseLoginStatus.UNAUTHORIZED, message="login or password did not match")
-        return Response(bytes(resp), content_type="application/protobuf", status=401)
+        login_resp = LoginResponse(
+            status=LoginResponseLoginStatus.UNAUTHORIZED
+        )
+        return protobufify(login_resp)
 
     login_user(user)
+
     if user.prefecture_id is not None:
-        prefecture_name = ctx.database.session.get(Prefecture, user.prefecture_id).name
+        prefecture_name = ctx.database.session.get(
+            Prefecture, user.prefecture_id
+        ).name
     else:
         prefecture_name = ""
-
     session["prefecture_name"] = prefecture_name
 
-    resp = LoginResponse(status=LoginResponseLoginStatus.OK, message=prefecture_name)
-    return protobufify(resp)
+    return protobufify(Response(login=LoginResponse(
+        status=LoginResponseLoginStatus.OK    
+    )))
 
 
-@Blueprints.session.route("/api/logout", methods=["POST"])
-def logout():
+@Blueprints.session.route("/api/session/logout", methods=["POST"])
+@pythonify(LogoutRequest)
+def logout(__ctx: AppContext, __req: LogoutRequest):
     logout_user()
-    resp = LoginResponse(status=LoginResponseLoginStatus.OK, message="logged out")
-    return protobufify(resp)
+    return protobufify(Response(logout=LogoutResponse()))
 
 
-@Blueprints.session.route("/api/current_user", methods=["GET"])
+@Blueprints.session.route("/api/session/current_user")
 @login_required
-def get_current_user():
+@pythonify(UserRequest)
+def get_current_user(__ctx: AppContext, __req: UserRequest):
     prefecture_name = session.get("prefecture_name")
-
-    return protobufify(UserInfo(
+    user_resp = UserResponse(info=UserProto(
         name=current_user.name,
         last_name=current_user.last_name,
         patronymic=current_user.patronymic,
@@ -59,4 +72,7 @@ def get_current_user():
         birthday=current_user.birthday.isoformat(),
         bank_account_id=current_user.bank_account_id,
         prefecture_name=prefecture_name,
+        is_admin=current_user.is_admin
     ))
+
+    return protobufify(Response(user=user_resp))
