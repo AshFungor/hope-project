@@ -90,7 +90,7 @@ const ProductTable: React.FC<{
                 });
                 break;
             case ConsumeProductResponse_Status.NOT_ENOUGH:
-                setMessage({ 
+                setMessage({
                     contents: `На аккаунте ${bankAccountId} не хватает продуктов для потребления`,
                     status: AlertStatus.Error
                 });

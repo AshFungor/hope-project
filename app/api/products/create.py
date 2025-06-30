@@ -3,15 +3,11 @@ from flask_login import login_required
 
 from app.api import Blueprints
 from app.api.helpers import protobufify, pythonify
+from app.codegen.hope import Response as APIResponse
+from app.codegen.product import CreateProductRequest, CreateProductResponse
 from app.context import AppContext
 from app.models import Product as ProductModel
 from app.models.queries import wrap_crud_context
-
-from app.codegen.hope import Response
-from app.codegen.product import (
-    CreateProductRequest,
-    CreateProductResponse,
-)
 
 
 @Blueprints.master.route("/api/products/create", methods=["POST"])
@@ -19,19 +15,24 @@ from app.codegen.product import (
 @pythonify(CreateProductRequest)
 def create_product(ctx: AppContext, req: CreateProductRequest):
     with wrap_crud_context():
-        exists = ctx.database.session.execute(
+        existing = ctx.database.session.scalar(
             orm.select(ProductModel).filter_by(name=req.product.name)
-        ).scalar_one_or_none()
+        )
 
-        if exists:
-            return protobufify(Response(create_product=CreateProductResponse(status=False)))
+        if existing:
+            return protobufify(
+                APIResponse(create_product=CreateProductResponse(status=False))
+            )
 
-        product = ProductModel(
+        new_product = ProductModel(
             name=req.product.name,
             category=req.product.category,
             level=req.product.level,
         )
-        ctx.database.session.add(product)
+
+        ctx.database.session.add(new_product)
         ctx.database.session.commit()
 
-        return protobufify(Response(create_product=CreateProductResponse(status=True)))
+        return protobufify(
+            APIResponse(create_product=CreateProductResponse(status=True))
+        )

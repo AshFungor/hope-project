@@ -30,3 +30,5 @@ consumption: !consumption
     count: 1
     price: 150
     period_days: 4
+
+money_product_id: 1

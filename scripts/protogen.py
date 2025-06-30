@@ -68,12 +68,7 @@ def generate_ts_protobufs(proto_dir: Path, ts_out_dir: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Python and TypeScript protobufs.")
-    parser.add_argument(
-        "--proto_dir",
-        type=Path,
-        default=Path.cwd(),
-        help="Directory containing .proto files (default: current directory)"
-    )
+    parser.add_argument("--proto_dir", type=Path, default=Path.cwd(), help="Directory containing .proto files (default: current directory)")
     parser.add_argument("--py_out", action="store", help="Python output directory")
     parser.add_argument("--ts_out", action="store", help="TypeScript output directory")
     args = parser.parse_args()

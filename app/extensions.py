@@ -30,4 +30,4 @@ class FlaskExtensions:
 
     @classmethod
     def __init_csrf(cls):
-        raise NotImplemented
+        raise NotImplementedError

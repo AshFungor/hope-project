@@ -3,7 +3,7 @@ syntax = "proto3";
 package company;
 
 message Founder {
-    int64 account_id = 1;
+    uint64 bank_account_id = 1;
     double share = 2;
 }
 

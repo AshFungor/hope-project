@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package user;
+
+import "app/protos/types/user.proto";
+
+message UserRequest {
+    uint64 bank_account_id = 1;
+}
+
+message UserResponse {
+    types.User user = 1;
+}

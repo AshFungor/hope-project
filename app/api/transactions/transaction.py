@@ -4,26 +4,29 @@ import sqlalchemy as orm
 from flask_login import login_required
 
 from app.api import Blueprints
-from app.api.helpers import pythonify, protobufify, local_datetime
-
-from app.api.transactions.processor import complete_transaction, Processor
+from app.api.helpers import local_datetime, protobufify, pythonify
+from app.api.transactions.processor import Processor, complete_transaction
+from app.codegen.hope import Response as APIResponse
+from app.codegen.transaction import (
+    CreateMoneyTransactionRequest,
+    CreateProductTransactionRequest,
+    CreateTransactionResponse,
+    CurrentTransactionsRequest,
+    CurrentTransactionsResponse,
+    DecideOnTransactionRequest,
+    ViewTransactionsRequest,
+    ViewTransactionsResponse,
+)
+from app.codegen.types import Transaction as EntryProto
+from app.codegen.types import TransactionStatus as TxStatus
+from app.codegen.types import TransactionStatusReason
 from app.context import AppContext
 from app.models import Product, Transaction, TransactionStatus
 from app.models.queries import wrap_crud_context
 
-from app.codegen.transaction import (
-    CreateProductTransactionRequest,
-    CreateMoneyTransactionRequest,
-    ViewTransactionsRequest,
-    ViewTransactionsResponse,
-    CurrentTransactionsRequest,
-    CurrentTransactionsResponse,
-    DecideOnTransactionRequest,
-)
-from app.codegen.hope import Response as APIResponse
-from app.codegen.types import Transaction as EntryProto
-from app.codegen.types import TransactionStatusReason, TransactionStatus as TxStatus
-from app.codegen.transaction import CreateTransactionResponse
+
+def make_status(status: TransactionStatusReason):
+    return CreateTransactionResponse(status=status)
 
 
 @Blueprints.transactions.route("/api/transaction/product/create", methods=["POST"])
@@ -35,16 +38,18 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
     ).all()
 
     if len(products) != 1:
-        return protobufify(APIResponse(
-            create_transaction=_status_response(TransactionStatusReason.MULTIPLE_PRODUCTS)
-        ))
+        return protobufify(
+            APIResponse(
+                create_transaction=make_status(TransactionStatusReason.MULTIPLE_PRODUCTS)
+            )
+        )
 
     product = products[0]
     with wrap_crud_context():
         tx = Transaction(
             product.id,
-            req.customer_account,
-            req.seller_account,
+            req.customer_bank_account_id,
+            req.seller_bank_account_id,
             req.count,
             req.amount,
             TransactionStatus.CREATED,
@@ -53,24 +58,24 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
             "",
         )
 
-        if (status := Processor.check_seller_not_customer(tx)) != TransactionStatusReason.OK:
-            return protobufify(APIResponse(create_transaction=_status_response(status)))
-
-        if (status := Processor.check_bounds(tx)) != TransactionStatusReason.OK:
-            return protobufify(APIResponse(create_transaction=_status_response(status)))
-
-        if (status := Processor.check_seller_exists(ctx, tx)) != TransactionStatusReason.OK:
-            return protobufify(APIResponse(create_transaction=_status_response(status)))
-
-        if (status := Processor.check_customer_exists(ctx, tx)) != TransactionStatusReason.OK:
-            return protobufify(APIResponse(create_transaction=_status_response(status)))
+        for check in [
+            Processor.check_seller_not_customer,
+            Processor.check_bounds,
+            Processor.check_seller_exists,
+            Processor.check_customer_exists,
+        ]:
+            status = check(ctx, tx) if 'exists' in check.__name__ else check(tx)
+            if status != TransactionStatusReason.OK:
+                return protobufify(
+                    APIResponse(create_transaction=make_status(status))
+                )
 
         ctx.database.session.add(tx)
         ctx.database.session.commit()
 
-    return protobufify(APIResponse(
-        create_transaction=_status_response(TransactionStatusReason.OK)
-    ))
+    return protobufify(
+        APIResponse(create_product_transaction=make_status(TransactionStatusReason.OK))
+    )
 
 
 @Blueprints.transactions.route("/api/transaction/money/create", methods=["POST"])
@@ -79,9 +84,9 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
 def new_money_proposal(ctx: AppContext, req: CreateMoneyTransactionRequest):
     with wrap_crud_context():
         tx = Transaction(
-            1,  # pseudo product id for money
-            req.customer_account,
-            req.seller_account,
+            ctx.config.money_product_id,
+            req.customer_bank_account_id,
+            req.seller_bank_account_id,
             req.amount,
             req.amount,
             TransactionStatus.CREATED,
@@ -92,13 +97,15 @@ def new_money_proposal(ctx: AppContext, req: CreateMoneyTransactionRequest):
 
         result = Processor.process(ctx, tx, approved=True)
         if result != TransactionStatusReason.OK:
-            return protobufify(APIResponse(create_transaction=_status_response(result)))
+            return protobufify(
+                APIResponse(create_transaction=make_status(result))
+            )
 
         ctx.database.session.add(tx)
         ctx.database.session.commit()
-        return protobufify(APIResponse(
-            create_transaction=_status_response(TransactionStatusReason.OK)
-        ))
+        return protobufify(
+            APIResponse(create_money_transaction=make_status(TransactionStatusReason.OK))
+        )
 
 
 @Blueprints.transactions.route("/api/transaction/current", methods=["POST"])
@@ -116,23 +123,26 @@ def active_proposals(ctx: AppContext, req: CurrentTransactionsRequest):
         .join(Product, Product.id == Transaction.product_id)
     ).all()
 
-    return protobufify(APIResponse(
-        current_transactions=CurrentTransactionsResponse(
-            transactions=[
-                EntryProto(
-                    transaction_id=tx.id,
-                    amount=tx.amount,
-                    count=tx.count,
-                    product=product.name,
-                    seller_account=tx.seller_bank_account_id,
-                )
-                for tx, product in entries
-            ]
+    return protobufify(
+        APIResponse(
+            current_transactions=CurrentTransactionsResponse(
+                transactions=[
+                    EntryProto(
+                        transaction_id=tx.id,
+                        amount=tx.amount,
+                        count=tx.count,
+                        product=product.name,
+                        seller_bank_account_id=tx.seller_bank_account_id,
+                    )
+                    for tx, product in entries
+                ]
+            )
         )
-    ))
+    )
 
 
 @Blueprints.transactions.route("/api/transaction/history", methods=["POST"])
+@login_required
 @pythonify(ViewTransactionsRequest)
 def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
     def fetch(for_seller: bool):
@@ -143,6 +153,7 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
             .join(Product, Product.id == Transaction.product_id)
         ).all()
 
+    str_format = "%Y-%m-%d %H:%M"
     response = []
     for group, role in [(fetch(True), "seller"), (fetch(False), "customer")]:
         for tx, product in group:
@@ -153,18 +164,20 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
                     count=tx.count,
                     product=product.name,
                     status=TxStatus.from_string(tx.status.upper()),
-                    updated_at=local_datetime(ctx, tx.updated_at).strftime("%Y-%m-%d %H:%M"),
+                    updated_at=local_datetime(ctx, tx.updated_at).strftime(str_format),
                     side=role,
-                    is_money=(product.id == 1),
+                    is_money=(product.id == ctx.config.money_product_id),
                 )
             )
 
-    response.sort(key=lambda e: datetime.fromisoformat(e.updated_at), reverse=True)
-    return protobufify(APIResponse(
-        view_transaction_history=ViewTransactionsResponse(
-            transactions=response
+    response.sort(
+        key=lambda e: datetime.strptime(e.updated_at, str_format), reverse=True
+    )
+    return protobufify(
+        APIResponse(
+            view_transaction_history=ViewTransactionsResponse(transactions=response)
         )
-    ))
+    )
 
 
 @Blueprints.transactions.route("/api/transaction/decide", methods=["POST"])
@@ -174,10 +187,4 @@ def decide_on_proposal(ctx: AppContext, req: DecideOnTransactionRequest):
     result = complete_transaction(req.id, req.status)
     ctx.logger.info(f"transaction {req.id} decision={req.status}: {result}")
 
-    return protobufify(APIResponse(
-        decide_on_transaction=result
-    ))
-
-
-def _status_response(status: TransactionStatusReason):
-    return CreateTransactionResponse(status=status)
+    return protobufify(APIResponse(decide_on_transaction=result))

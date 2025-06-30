@@ -41,7 +41,7 @@ export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => 
         try {
             const userRequest = UserRequest.create({});
             const response = await Hope.send(Request.create({ user: userRequest }));
-    
+
             if (response?.user?.info) {
                 const info = response.user.info;
                 setCurrentUser(
@@ -68,11 +68,11 @@ export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => 
             setIsLoading(false);
         }
     }, []);
-    
+
     useEffect(() => {
         refreshUser();
     }, [refreshUser]);
-    
+
     useEffect(() => {
         if (!isLoading && currentUser == null) {
             navigate("/auth/login");

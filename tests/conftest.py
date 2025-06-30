@@ -1,12 +1,12 @@
-import pytest
-
-from pathlib import Path
 from datetime import datetime
-from flask import Flask, Blueprint
+from pathlib import Path
+
+import pytest
+from flask import Blueprint, Flask
 
 from app.context import AppContext
 from app.extensions import FlaskExtensions
-from app.models import User, BankAccount, Product
+from app.models import BankAccount, Product, User
 
 
 @pytest.fixture(scope="session")
@@ -18,6 +18,7 @@ def test_app():
     app.config.update({"TESTING": True})
 
     from app.api.blueprints import Blueprints
+
     for bp in vars(Blueprints).values():
         if isinstance(bp, Blueprint):
             app.register_blueprint(bp)
@@ -63,11 +64,11 @@ def login_client(client, user_id: int):
 
 @pytest.fixture(scope="session")
 def logged_in_admin(client):
-    user_id = create_user(user_id=1, login='admin', is_admin=True)
+    user_id = create_user(user_id=1, login="admin", is_admin=True)
     return login_client(client, user_id)
 
 
 @pytest.fixture(scope="session")
 def logged_in_normal(client):
-    user_id = create_user(user_id=2, login='normal', is_admin=False)
+    user_id = create_user(user_id=2, login="normal", is_admin=False)
     return login_client(client, user_id)

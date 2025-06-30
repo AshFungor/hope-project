@@ -5,7 +5,7 @@ package transaction;
 import "app/protos/types/transaction.proto";
 
 message ViewTransactionsRequest {
-    int32 account = 1;
+    uint64 account = 1;
 }
 
 message ViewTransactionsResponse {

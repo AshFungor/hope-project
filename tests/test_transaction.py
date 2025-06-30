@@ -1,18 +1,26 @@
-import pytest
-import sqlalchemy as orm
 from datetime import datetime
 
-from app.context import AppContext
+import pytest
+import sqlalchemy as orm
+
 from app.codegen.hope import Request, Response
 from app.codegen.transaction import (
-    CreateProductTransactionRequest,
     CreateMoneyTransactionRequest,
+    CreateProductTransactionRequest,
     CurrentTransactionsRequest,
-    ViewTransactionsRequest,
     DecideOnTransactionRequest,
+    DecideOnTransactionRequestStatus,
+    ViewTransactionsRequest,
 )
 from app.codegen.types import TransactionStatusReason
-from app.models import Product, BankAccount, Transaction, TransactionStatus, Product2BankAccount
+from app.context import AppContext
+from app.models import (
+    BankAccount,
+    Product,
+    Product2BankAccount,
+    Transaction,
+    TransactionStatus,
+)
 
 
 @pytest.fixture
@@ -27,31 +35,11 @@ def tx_data():
         seller = BankAccount(id=1)
         buyer = BankAccount(id=2)
 
-        money_link1 = Product2BankAccount(
-            bank_account_id=1,
-            product_id=1,
-            count=1
-        )
-        money_link2 = Product2BankAccount(
-            bank_account_id=2,
-            product_id=1,
-            count=1
-        )
-        product_link = Product2BankAccount(
-            bank_account_id=1,
-            product_id=2,
-            count=1
-        )
+        money_link1 = Product2BankAccount(bank_account_id=1, product_id=1, count=1)
+        money_link2 = Product2BankAccount(bank_account_id=2, product_id=1, count=1)
+        product_link = Product2BankAccount(bank_account_id=1, product_id=2, count=1)
 
-        session.add_all([
-            money,
-            product,
-            seller,
-            buyer,
-            money_link1,
-            money_link2,
-            product_link
-        ])
+        session.add_all([money, product, seller, buyer, money_link1, money_link2, product_link])
         session.commit()
 
         yield
@@ -67,30 +55,32 @@ def test_create_product_tx(client, tx_data, logged_in_normal):
     req = Request(
         create_product_transaction=CreateProductTransactionRequest(
             product="Laptop",
-            customer_account=2,
-            seller_account=1,
+            customer_bank_account_id=2,
+            seller_bank_account_id=1,
             count=1,
             amount=100
         )
     )
     resp = client.post("/api/transaction/product/create", data=bytes(req))
     assert resp.status_code == 200
+
     r = Response().parse(resp.data)
-    assert r.create_transaction.status == TransactionStatusReason.OK
+    assert r.create_product_transaction.status == TransactionStatusReason.OK
 
 
 def test_create_money_tx(client, tx_data, logged_in_normal):
     req = Request(
         create_money_transaction=CreateMoneyTransactionRequest(
-            customer_account=2,
-            seller_account=1,
+            customer_bank_account_id=2,
+            seller_bank_account_id=1,
             amount=1
         )
     )
     resp = client.post("/api/transaction/money/create", data=bytes(req))
     assert resp.status_code == 200
+
     r = Response().parse(resp.data)
-    assert r.create_transaction.status == TransactionStatusReason.OK
+    assert r.create_money_transaction.status == TransactionStatusReason.OK
 
 
 def test_current_tx(client, tx_data, logged_in_normal):
@@ -110,9 +100,12 @@ def test_current_tx(client, tx_data, logged_in_normal):
         ctx.database.session.add(tx)
         ctx.database.session.commit()
 
-    req = Request(current_transactions=CurrentTransactionsRequest(account=2))
+    req = Request(
+        current_transactions=CurrentTransactionsRequest(account=2)
+    )
     resp = client.post("/api/transaction/current", data=bytes(req))
     assert resp.status_code == 200
+
     r = Response().parse(resp.data)
     assert len(r.current_transactions.transactions) == 1
 
@@ -134,9 +127,12 @@ def test_view_tx_history(client, tx_data):
         ctx.database.session.add(tx)
         ctx.database.session.commit()
 
-    req = Request(view_transaction_history=ViewTransactionsRequest(account=2))
+    req = Request(
+        view_transaction_history=ViewTransactionsRequest(account=2)
+    )
     resp = client.post("/api/transaction/history", data=bytes(req))
     assert resp.status_code == 200
+
     r = Response().parse(resp.data)
     assert len(r.view_transaction_history.transactions) == 1
 
@@ -145,8 +141,8 @@ def test_decide_tx(client, tx_data, logged_in_normal):
     create_req = Request(
         create_product_transaction=CreateProductTransactionRequest(
             product="Laptop",
-            customer_account=2,
-            seller_account=1,
+            customer_bank_account_id=2,
+            seller_bank_account_id=1,
             count=1,
             amount=1
         )
@@ -163,7 +159,7 @@ def test_decide_tx(client, tx_data, logged_in_normal):
     decide_req = Request(
         decide_on_transaction=DecideOnTransactionRequest(
             id=tx.id,
-            status="accepted"
+            status=DecideOnTransactionRequestStatus.ACCEPTED
         )
     )
     decide_resp = client.post("/api/transaction/decide", data=bytes(decide_req))
@@ -171,4 +167,3 @@ def test_decide_tx(client, tx_data, logged_in_normal):
 
     r = Response().parse(decide_resp.data)
     assert r.decide_on_transaction.status == TransactionStatusReason.OK
-

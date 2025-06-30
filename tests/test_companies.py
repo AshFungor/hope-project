@@ -1,12 +1,16 @@
+from datetime import datetime
+
 import pytest
 import sqlalchemy as orm
 
-from datetime import datetime
-
-from app.context import AppContext
-from app.models import User, BankAccount, Prefecture, Company
+from app.codegen.company import (
+    CreateCompanyRequest,
+    CreateCompanyResponseStatus,
+    Founder,
+)
 from app.codegen.hope import Request, Response
-from app.codegen.company import CreateCompanyRequest, Founder, CreateCompanyResponseStatus
+from app.context import AppContext
+from app.models import BankAccount, Company, Prefecture, User
 
 
 @pytest.fixture
@@ -31,15 +35,12 @@ def base_company_data():
             sex="male",
             bonus=0,
             birthday=datetime.now(),
-            is_admin=False
+            is_admin=False,
         )
         session.add_all([account, user, prefecture_account, prefecture])
         session.commit()
 
-        yield {
-            "prefecture": prefecture,
-            "founder": user
-        }
+        yield {"prefecture": prefecture, "founder": user}
 
         session.execute(orm.delete(Company))
         session.execute(orm.delete(Prefecture))
@@ -52,12 +53,7 @@ def test_create_company_ok(client, logged_in_admin, base_company_data):
     founder = base_company_data["founder"]
     req = Request(
         create_company=CreateCompanyRequest(
-            name="NewCorp",
-            about="About us",
-            prefecture="MyPrefecture",
-            founders=[
-                Founder(account_id=founder.bank_account_id, share=0.5)
-            ]
+            name="NewCorp", about="About us", prefecture="MyPrefecture", founders=[Founder(bank_account_id=founder.bank_account_id, share=0.5)]
         )
     )
     resp = client.post("/api/company/create", data=bytes(req))
@@ -72,12 +68,7 @@ def test_create_company_duplicate_name(client, logged_in_admin, base_company_dat
 
     req_ok = Request(
         create_company=CreateCompanyRequest(
-            name="NewCorp",
-            about="First attempt",
-            prefecture="MyPrefecture",
-            founders=[
-                Founder(account_id=founder.bank_account_id, share=0.5)
-            ]
+            name="NewCorp", about="First attempt", prefecture="MyPrefecture", founders=[Founder(bank_account_id=founder.bank_account_id, share=0.5)]
         )
     )
     resp_ok = client.post("/api/company/create", data=bytes(req_ok))
@@ -88,12 +79,10 @@ def test_create_company_duplicate_name(client, logged_in_admin, base_company_dat
 
     req_dup = Request(
         create_company=CreateCompanyRequest(
-            name="NewCorp",  # Та же компания
+            name="NewCorp",
             about="Second attempt",
             prefecture="MyPrefecture",
-            founders=[
-                Founder(account_id=founder.bank_account_id, share=0.5)
-            ]
+            founders=[Founder(bank_account_id=founder.bank_account_id, share=0.5)],
         )
     )
     resp_dup = client.post("/api/company/create", data=bytes(req_dup))
@@ -108,12 +97,7 @@ def test_create_company_missing_prefecture(client, logged_in_admin, base_company
 
     req = Request(
         create_company=CreateCompanyRequest(
-            name="NoPref",
-            about="Oops",
-            prefecture="UnknownPrefecture",
-            founders=[
-                Founder(account_id=founder.bank_account_id, share=0.5)
-            ]
+            name="NoPref", about="Oops", prefecture="UnknownPrefecture", founders=[Founder(bank_account_id=founder.bank_account_id, share=0.5)]
         )
     )
     resp = client.post("/api/company/create", data=bytes(req))
@@ -124,14 +108,7 @@ def test_create_company_missing_prefecture(client, logged_in_admin, base_company
 
 
 def test_create_company_no_founders(client, logged_in_admin, base_company_data):
-    req = Request(
-        create_company=CreateCompanyRequest(
-            name="EmptyFounders",
-            about="Oops",
-            prefecture="MyPrefecture",
-            founders=[]
-        )
-    )
+    req = Request(create_company=CreateCompanyRequest(name="EmptyFounders", about="Oops", prefecture="MyPrefecture", founders=[]))
     resp = client.post("/api/company/create", data=bytes(req))
     assert resp.status_code == 200
 
@@ -147,10 +124,7 @@ def test_create_company_duplicate_founders(client, logged_in_admin, base_company
             name="DuplicateFounderCorp",
             about="Oops",
             prefecture="MyPrefecture",
-            founders=[
-                Founder(account_id=founder.bank_account_id, share=0.5),
-                Founder(account_id=founder.bank_account_id, share=0.5)
-            ]
+            founders=[Founder(bank_account_id=founder.bank_account_id, share=0.5), Founder(bank_account_id=founder.bank_account_id, share=0.5)],
         )
     )
     resp = client.post("/api/company/create", data=bytes(req))
@@ -163,12 +137,7 @@ def test_create_company_duplicate_founders(client, logged_in_admin, base_company
 def test_create_company_missing_founder_record(client, logged_in_admin, base_company_data):
     req = Request(
         create_company=CreateCompanyRequest(
-            name="NoRecordCorp",
-            about="Oops",
-            prefecture="MyPrefecture",
-            founders=[
-                Founder(account_id=999999, share=0.5)  # Не существует
-            ]
+            name="NoRecordCorp", about="Oops", prefecture="MyPrefecture", founders=[Founder(bank_account_id=999999, share=0.5)]
         )
     )
     resp = client.post("/api/company/create", data=bytes(req))

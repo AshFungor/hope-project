@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package company;
+
+import "app/protos/types/company.proto";
+
+message AllCompaniesRequest {
+    uint64 related_user_bank_account_id = 1;
+}
+
+message AllCompaniesResponse {
+    repeated types.Company companies = 2;
+}

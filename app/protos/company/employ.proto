@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package company;
+
+message EmployRequest {
+    uint64 new_employee_bank_account_id = 1;
+    uint64 company_bank_account_id = 2;
+}
+
+message EmployResponse {
+    enum Status {
+        OK = 0;
+        HAS_ROLE_ALREADY = 1;
+        USER_NOT_FOUND = 2;
+        COMPANY_NOT_FOUND = 3;
+    }
+
+    Status status = 1;
+}

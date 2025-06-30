@@ -3,8 +3,8 @@ syntax = "proto3";
 package product;
 
 message ConsumeProductRequest {
-    string product = 1;
-    int64 account = 2;
+    uint64 bank_account_id = 1;
+    string product = 2;
 }
 
 message ConsumeProductResponse {

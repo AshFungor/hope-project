@@ -16,8 +16,8 @@ enum TransactionStatusReason {
 }
 
 message Transaction {
-    int32 seller_account = 1;
-    int32 customer_account = 2;
+    uint64 seller_bank_account_id = 1;
+    uint64 customer_bank_account_id = 2;
 
     string product = 3;
     int32 count = 4;
@@ -30,9 +30,10 @@ message Transaction {
     }
     Status status = 6;
 
-    int32 transaction_id = 7;
+    uint64 transaction_id = 7;
     string updated_at = 9;
-    string side = 10;
+    string created_at = 10;
+    string side = 11;
 
-    bool is_money = 11;
+    bool is_money = 12;
 }

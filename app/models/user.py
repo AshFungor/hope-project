@@ -1,8 +1,7 @@
 import datetime
 import enum
-
-from typing import Optional
 from functools import cached_property
+from typing import Optional
 
 from flask_login import UserMixin
 from sqlalchemy import ForeignKey

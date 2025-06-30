@@ -1,24 +1,22 @@
 import pytest
-
 import sqlalchemy as orm
 
 from app.codegen.hope import Request, Response
 from app.codegen.product import (
-    ConsumeProductRequest,
-    ConsumeProductResponseStatus,
-    ProductCountsRequest,
     AllProductsRequest,
     AvailableProductsRequest,
-    CreateProductRequest
+    ConsumeProductRequest,
+    ConsumeProductResponseStatus,
+    CreateProductRequest,
+    ProductCountsRequest,
 )
 from app.codegen.types import Product
-
 from app.context import AppContext
 
 
 @pytest.fixture
 def product_data():
-    from app.models import Product, Product2BankAccount, BankAccount
+    from app.models import BankAccount, Product, Product2BankAccount
 
     ctx = AppContext.safe_load()
     with ctx.app.app_context():
@@ -78,7 +76,7 @@ def test_product_counts(client, product_data):
 
 
 def test_consume_product_ok(client, product_data):
-    req = Request(consume_product=ConsumeProductRequest(product="Laptop", account=123))
+    req = Request(consume_product=ConsumeProductRequest(product="Laptop", bank_account_id=123))
     resp = client.post("/api/products/consume", data=bytes(req))
 
     assert resp.status_code == 200
@@ -88,7 +86,7 @@ def test_consume_product_ok(client, product_data):
 
 
 def test_consume_product_not_enough(client, product_data):
-    req = Request(consume_product=ConsumeProductRequest(product="Laptop", account=9999))
+    req = Request(consume_product=ConsumeProductRequest(product="Laptop", bank_account_id=9999))
     resp = client.post("/api/products/consume", data=bytes(req))
 
     assert resp.status_code == 200
@@ -98,15 +96,7 @@ def test_consume_product_not_enough(client, product_data):
 
 
 def test_create_product_ok(client, logged_in_admin, product_data):
-    req = Request(
-        create_product=CreateProductRequest(
-            product=Product(
-                name='hello',
-                category='FOOD',
-                level=1
-            )
-        )
-    )
+    req = Request(create_product=CreateProductRequest(product=Product(name="hello", category="FOOD", level=1)))
 
     resp = client.post("/api/products/create", data=bytes(req))
     assert resp.status_code == 200
@@ -116,15 +106,7 @@ def test_create_product_ok(client, logged_in_admin, product_data):
 
 
 def test_create_product_duplicate(client, logged_in_admin, product_data):
-    req = Request(
-        create_product=CreateProductRequest(
-            product=Product(
-                name='hello',
-                category='FOOD',
-                level=1
-            )
-        )
-    )
+    req = Request(create_product=CreateProductRequest(product=Product(name="hello", category="FOOD", level=1)))
 
     for _ in range(2):
         resp = client.post("/api/products/create", data=bytes(req))

@@ -14,5 +14,6 @@ message LoginResponse {
 		ERROR = 2;
     };
 
-    LoginStatus status = 1;
+	uint64 bank_account_id = 1;
+    LoginStatus status = 2;
 }

@@ -1,3 +1,2 @@
 from .blueprints import Blueprints
-
-from . import goal, login, products, transactions, bulk, master, company
+from . import bulk, company, goal, login, master, products, transactions

@@ -2,22 +2,19 @@ import sqlalchemy as orm
 from flask_login import login_required
 
 from app.api import Blueprints
-from app.api.helpers import pythonify, protobufify
-from app.context import AppContext
-
-from app.codegen.hope import Response
+from app.api.helpers import protobufify, pythonify
+from app.codegen.hope import Response as APIResponse
 from app.codegen.product import (
-    ProductCountsRequest,
-    ProductCountsResponse,
-    ProductCountsResponseProductWithCount,
     AllProductsRequest,
     AllProductsResponse,
     AvailableProductsRequest,
     AvailableProductsResponse,
+    ProductCountsRequest,
+    ProductCountsResponse,
+    ProductCountsResponseProductWithCount,
 )
 from app.codegen.types import Product as ProductProto
-
-
+from app.context import AppContext
 from app.models import Product, Product2BankAccount
 
 
@@ -25,24 +22,27 @@ from app.models import Product, Product2BankAccount
 @login_required
 @pythonify(AllProductsRequest)
 def all_products(ctx: AppContext, __req: AllProductsRequest):
-    products = ctx.database.session.execute(
+    products = ctx.database.session.scalars(
         orm.select(Product).order_by(orm.desc(Product.level))
-    ).scalars().all()
+    ).all()
 
     consumables = [name.upper() for name in ctx.config.consumption.categories]
-    return protobufify(Response(
-        all_products=AllProductsResponse(
-            products=[
-                ProductProto(
-                    id=product.id,
-                    name=product.name,
-                    category=product.category,
-                    level=product.level,
-                    consumable=product.category in consumables
-                ) for product in products
-            ]
+
+    return protobufify(
+        APIResponse(
+            all_products=AllProductsResponse(
+                products=[
+                    ProductProto(
+                        name=product.name,
+                        category=product.category,
+                        level=product.level,
+                        consumable=product.category.upper() in consumables,
+                    )
+                    for product in products
+                ]
+            )
         )
-    ))
+    )
 
 
 @Blueprints.product.route("/api/products/available", methods=["POST"])
@@ -55,24 +55,27 @@ def available_products(ctx: AppContext, req: AvailableProductsRequest):
         .filter(
             Product2BankAccount.bank_account_id == req.bank_account_id,
             Product2BankAccount.count > 0,
-            Product.id != 1
+            Product.id != 1,  # assuming product ID 1 is "money"
         )
     ).all()
 
     consumables = [name.upper() for name in ctx.config.consumption.categories]
-    return protobufify(Response(
-        available_products=AvailableProductsResponse(
-            products=[
-                ProductProto(
-                    id=product.id,
-                    name=product.name,
-                    category=product.category,
-                    level=product.level,
-                    consumable=product.category in consumables
-                ) for product in products
-            ]
+
+    return protobufify(
+        APIResponse(
+            available_products=AvailableProductsResponse(
+                products=[
+                    ProductProto(
+                        name=product.name,
+                        category=product.category,
+                        level=product.level,
+                        consumable=product.category.upper() in consumables,
+                    )
+                    for product in products
+                ]
+            )
         )
-    ))
+    )
 
 
 @Blueprints.product.route("/api/products/counts", methods=["POST"])
@@ -82,25 +85,26 @@ def get_product_count(ctx: AppContext, req: ProductCountsRequest):
     products = ctx.database.session.execute(
         orm.select(Product, Product2BankAccount.count)
         .join(Product, Product2BankAccount.product_id == Product.id)
-        .filter(
-            Product2BankAccount.bank_account_id == req.bank_account_id
-        )
+        .filter(Product2BankAccount.bank_account_id == req.bank_account_id)
     ).all()
 
     consumables = [name.upper() for name in ctx.config.consumption.categories]
-    return protobufify(Response(
-        product_counts=ProductCountsResponse(
-            [
-                ProductCountsResponseProductWithCount(
-                    product=ProductProto(
-                        id=product.id,
-                        name=product.name,
-                        category=product.category,
-                        level=product.level,
-                        consumable=product.category in consumables
-                    ),
-                    count=count
-                ) for product, count in products
-            ]
+
+    return protobufify(
+        APIResponse(
+            product_counts=ProductCountsResponse(
+                products=[
+                    ProductCountsResponseProductWithCount(
+                        product=ProductProto(
+                            name=product.name,
+                            category=product.category,
+                            level=product.level,
+                            consumable=product.category.upper() in consumables,
+                        ),
+                        count=count,
+                    )
+                    for product, count in products
+                ]
+            )
         )
-    ))
+    )
