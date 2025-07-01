@@ -1,30 +1,39 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
 const MasterHomePage: React.FC = () => {
     const navigate = useNavigate();
 
-    const Button = (path: string, label: string) => (
-        <button
-            className="btn btn-outline-dark btn-lg mb-3"
+    const NavButton = (path: string, label: string) => (
+        <Button
+            key={path}
+            variant="outlined"
+            size="large"
             onClick={() => navigate(path)}
         >
             {label}
-        </button>
+        </Button>
     );
 
     return (
-        <div className="container overflow-hidden">
-            <h1 className="mb-4 text-center">Личный кабинет мастера</h1>
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" align="center" gutterBottom>
+                Личный кабинет мастера
+            </Typography>
 
-            <div className="d-grid gap-2 d-mb-block mb-4">
-                {Button("/master/product/create", "Зарегистрировать товар")}
-                {Button("/master/product/all", "Просмотреть все товары")}
-                {Button("/master/resources", "Про ресурсы/товары/энергию")}
-                {Button("/master/prefecture/update", "Сменить префектуру")}
-                {Button("/master/company/create", "Создать фирму")}
-            </div>
-        </div>
+            <Stack spacing={2} sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
+                {NavButton('/master/product/create', 'Зарегистрировать товар')}
+                {NavButton('/master/product/all', 'Просмотреть все товары')}
+                {NavButton('/master/resources', 'Про ресурсы/товары/энергию')}
+                {NavButton('/master/prefecture/update', 'Сменить префектуру')}
+                {NavButton('/master/company/create', 'Создать фирму')}
+            </Stack>
+        </Container>
     );
 };
 

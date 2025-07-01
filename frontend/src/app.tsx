@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AuthLayout from '@app/layouts/auth';
 
 import { UserProvider } from '@app/contexts/user';
+import { ThemeProvider } from '@app/contexts/theme';
 import { PageMode } from '@app/types';
 
 import HomePage from '@app/pages/home';
@@ -37,69 +38,78 @@ import { EmployeeRole } from './codegen/app/protos/types/company';
 
 function App() {
     return (
-        <BrowserRouter>
-            <UserProvider>
-                <Routes>
-                    <Route element={<MainLayout />}>
-                        <Route path="/personal/index" element={<PersonalPage />} />
-                        <Route path="/personal/products" element={<ProductsPage mode={PageMode.Personal} />} />
-                        <Route path="/personal/goal/new" element={<GoalPage mode={PageMode.Personal} />} />
-                        <Route path="/personal/proposal/history" element={<TransactionHistory mode={PageMode.Personal} />} />
-                        <Route path="/personal/proposal/unpaid" element={<TransactionDecisionPage mode={PageMode.Personal} />} />
-                        <Route path="/personal/proposal/money" element={<MoneyTransferForm mode={PageMode.Personal} />} />
-                        <Route path="/personal/proposal/product" element={<NewTransactionForm mode={PageMode.Personal} />} />
+        <ThemeProvider> 
+            <BrowserRouter>
+                <UserProvider>
+                    <Routes>
+                        <Route element={<MainLayout />}>
+                            <Route path="/personal/index" element={<PersonalPage />} />
+                            <Route path="/personal/products" element={<ProductsPage mode={PageMode.Personal} />} />
+                            <Route path="/personal/goal/new" element={<GoalPage mode={PageMode.Personal} />} />
+                            <Route path="/personal/proposal/history" element={<TransactionHistory mode={PageMode.Personal} />} />
+                            <Route path="/personal/proposal/unpaid" element={<TransactionDecisionPage mode={PageMode.Personal} />} />
+                            <Route path="/personal/proposal/money" element={<MoneyTransferForm mode={PageMode.Personal} />} />
+                            <Route path="/personal/proposal/product" element={<NewTransactionForm mode={PageMode.Personal} />} />
 
-                        <Route path="/companies" element={<CompanyListPage />} />
-                        <Route path="/company/:companyId" element={<CompanyAccountPage />} />
-                        <Route path="/company/:companyId/products" element={<ProductsPage mode={PageMode.Company} />} />
-                        <Route path="/company/:companyId/goal/new" element={<GoalPage mode={PageMode.Company} />} />
-                        <Route path="/company/:companyId/proposal/history" element={<TransactionHistory mode={PageMode.Company} />} />
-                        <Route path="/company/:companyId/proposal/unpaid" element={<TransactionDecisionPage mode={PageMode.Company} />} />
-                        <Route path="/company/:companyId/proposal/money" element={<MoneyTransferForm mode={PageMode.Company} />} />
-                        <Route path="/company/:companyId/proposal/product" element={<NewTransactionForm mode={PageMode.Company} />} />
-						<Route path="/company/:companyId/workers" element={<CompanyEmployeesPage />} />
-						<Route
-							path="/company/:companyId/ceo/employ"
-							element={
-								<CompanyEmployPage
-									permittedRoles={[
-										EmployeeRole.CEO,
-										EmployeeRole.CFO,
-										EmployeeRole.MARKETING_MANAGER,
-										EmployeeRole.PRODUCTION_MANAGER,
-									]}
-								/>
-							}
-						/>
-						<Route
-							path="/company/:companyId/production/employ"
-							element={
-								<CompanyEmployPage
-									permittedRoles={[
-										EmployeeRole.EMPLOYEE
-									]}
-								/>
-							}
-						/>
+                            <Route path="/companies" element={<CompanyListPage />} />
+                            <Route path="/company/:companyId" element={<CompanyAccountPage />} />
+                            <Route path="/company/:companyId/products" element={<ProductsPage mode={PageMode.Org} />} />
+                            <Route path="/company/:orgId/goal/new" element={<GoalPage mode={PageMode.Org} />} />
+                            <Route path="/company/:orgId/proposal/history" element={<TransactionHistory mode={PageMode.Org} />} />
+                            <Route path="/company/:orgId/proposal/unpaid" element={<TransactionDecisionPage mode={PageMode.Org} />} />
+                            <Route path="/company/:orgId/proposal/money" element={<MoneyTransferForm mode={PageMode.Org} />} />
+                            <Route path="/company/:orgId/proposal/product" element={<NewTransactionForm mode={PageMode.Org} />} />
+                            <Route path="/company/:companyId/workers" element={<CompanyEmployeesPage />} />
+                            <Route
+                                path="/company/:companyId/ceo/employ"
+                                element={
+                                    <CompanyEmployPage
+                                        permittedRoles={[
+                                            EmployeeRole.CFO,
+                                            EmployeeRole.MARKETING_MANAGER,
+                                            EmployeeRole.PRODUCTION_MANAGER,
+                                        ]}
+                                    />
+                                }
+                            />
+                            <Route
+                                path="/company/:companyId/production/employ"
+                                element={
+                                    <CompanyEmployPage
+                                        permittedRoles={[
+                                            EmployeeRole.EMPLOYEE
+                                        ]}
+                                    />
+                                }
+                            />
 
-                        <Route path="/" element={<HomePage />} />
+                            <Route path="/" element={<HomePage />} />
 
-                        <Route path="/master" element={<MasterHomePage />} />
-                        <Route path="/master/product/all" element={<AllProductsPage />} />
-                        <Route path="/city_hall" element={<CityHallPage />} />
-						<Route path="/prefecture" element={<PrefectureAccountPage />} />
-                        <Route path="/master/product/create" element={<NewProductForm />} />
-                        <Route path="/master/resources" element={<MasterActionsPage />} />
-                        <Route path="/master/prefecture/update" element={<SwitchPrefectureForm />} />
-                        <Route path="/master/company/create" element={<CreateCompanyForm />} />
-                    </Route>
+                            <Route path="/prefecture/index" element={<PrefectureAccountPage />} />
+                            <Route path="/prefecture/:orgId/goal/new" element={<GoalPage mode={PageMode.Org} />} />
+                            <Route path="/prefecture/:orgId/proposal/history" element={<TransactionHistory mode={PageMode.Org} />} />
+                            <Route path="/prefecture/:orgId/proposal/money" element={<MoneyTransferForm mode={PageMode.Org} />} />
 
-                    <Route element={<AuthLayout />}>
-                        <Route path="/auth/login" element={<LoginPage />} />
-                    </Route>
-                </Routes>
-            </UserProvider>
-        </BrowserRouter>
+                            <Route path="/city_hall/index" element={<CityHallPage />} />
+                            <Route path="/city_hall/:orgId/goal/new" element={<GoalPage mode={PageMode.Org} />} />
+                            <Route path="/city_hall/:orgId/proposal/history" element={<TransactionHistory mode={PageMode.Org} />} />
+                            <Route path="/city_hall/:orgId/proposal/money" element={<MoneyTransferForm mode={PageMode.Org} />} />
+
+                            <Route path="/master/index" element={<MasterHomePage />} />
+                            <Route path="/master/product/all" element={<AllProductsPage />} />
+                            <Route path="/master/product/create" element={<NewProductForm />} />
+                            <Route path="/master/resources" element={<MasterActionsPage />} />
+                            <Route path="/master/prefecture/update" element={<SwitchPrefectureForm />} />
+                            <Route path="/master/company/create" element={<CreateCompanyForm />} />
+                        </Route>
+
+                        <Route element={<AuthLayout />}>
+                            <Route path="/auth/login" element={<LoginPage />} />
+                        </Route>
+                    </Routes>
+                </UserProvider>
+            </BrowserRouter>
+        </ThemeProvider>
     );
 }
 

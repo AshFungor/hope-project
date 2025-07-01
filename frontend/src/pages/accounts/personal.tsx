@@ -1,17 +1,31 @@
-import { useEffect, useState } from "react";
-import { Accordion, Table } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "@app/contexts/user";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '@app/contexts/user';
 
-import { Hope } from "@app/api/api";
+import { Hope } from '@app/api/api';
 
-import BalanceSection from "@app/widgets/shared/balance";
-import GoalSection from "@app/widgets/shared/goal";
+import BalanceSection from '@app/widgets/shared/balance';
+import GoalSection from '@app/widgets/shared/goal';
 
-import { Goal } from "@app/api/sub/goal";
-import { GetLastGoalRequest } from "@app/codegen/app/protos/goal/last";
-import { Request } from "@app/codegen/app/protos/request";
-import { ProductCountsRequest } from "@app/codegen/app/protos/product/count";
+import { Goal } from '@app/api/sub/goal';
+import { GetLastGoalRequest } from '@app/codegen/app/protos/goal/last';
+import { Request } from '@app/codegen/app/protos/request';
+import { ProductCountsRequest } from '@app/codegen/app/protos/product/count';
+
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TableBody from '@mui/material/TableBody';
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
 
 export default function PersonalPage() {
     const { currentUser, refreshUser } = useUser();
@@ -39,13 +53,13 @@ export default function PersonalPage() {
             const lastGoal = lastGoalResponse.lastGoal?.goal ?? null;
 
             if (!lastGoal) {
-                navigate("/personal/goal/new");
+                navigate('/personal/goal/new');
                 return;
             }
             setGoal(new Goal(lastGoal.bankAccountId, lastGoal.value));
 
             const countReq = ProductCountsRequest.create({
-                bankAccountId: currentUser.bankAccountId
+                bankAccountId: currentUser.bankAccountId,
             });
             const countResponse = await Hope.send(
                 Request.create({ productCounts: countReq })
@@ -53,10 +67,10 @@ export default function PersonalPage() {
 
             const counts = countResponse?.productCounts?.products ?? null;
             if (counts === null) {
-                throw Error("failed to fetch balance: could not complete request");
+                throw Error('failed to fetch balance: could not complete request');
             }
             for (const count of counts) {
-                if (count.product?.category == "MONEY") {
+                if (count.product?.category === 'MONEY') {
                     setBalance(count?.count ?? 0);
                     return;
                 }
@@ -66,89 +80,105 @@ export default function PersonalPage() {
     }, [currentUser, navigate]);
 
     const goToProducts = () => {
-        navigate("/personal/products");
+        navigate('/personal/products');
     };
 
     return (
-        <Accordion defaultActiveKey="0">
-            <Accordion.Item eventKey="0">
-                <Accordion.Header>Профиль</Accordion.Header>
-                <Accordion.Body>
+        <Box>
+            <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Профиль
+                </AccordionSummary>
+                <AccordionDetails>
                     <GoalSection goal={goal} balance={balance} />
-                    <div
-                        className="text-center mb-3 rounded blur"
-                        style={{ textAlign: "center" }}
+
+                    <Box
+                        className="blur"
+                        sx={{
+                            textAlign: 'center',
+                            mb: 3,
+                            p: 2,
+                            borderRadius: 1,
+                        }}
                     >
                         <BalanceSection current={balance} />
-                    </div>
+                    </Box>
 
-                    <Table striped>
-                        <thead>
-                            <tr>
-                                <th colSpan={2}>Ваши данные:</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>номер банковского счета</th>
-                                <td>{currentUser?.bankAccountId?.toString() ?? ""}</td>
-                            </tr>
-                            <tr>
-                                <th>имя</th>
-                                <td>{currentUser?.name ?? ""}</td>
-                            </tr>
-                            <tr>
-                                <th>логин</th>
-                                <td>{currentUser?.login ?? ""}</td>
-                            </tr>
-                            <tr>
-                                <th>бонус</th>
-                                <td>{currentUser?.bonus?.toString() ?? ""}</td>
-                            </tr>
-                        </tbody>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell colSpan={2}>Ваши данные:</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>номер банковского счета</TableCell>
+                                <TableCell>{currentUser?.bankAccountId?.toString() ?? ''}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>имя</TableCell>
+                                <TableCell>{currentUser?.name ?? ''}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>логин</TableCell>
+                                <TableCell>{currentUser?.login ?? ''}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>бонус</TableCell>
+                                <TableCell>{currentUser?.bonus?.toString() ?? ''}</TableCell>
+                            </TableRow>
+                        </TableBody>
                     </Table>
 
-                    <div className="d-grid">
-                        <button
-                            className="btn btn-outline-dark btn-lg mb-3"
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                        <Button
+                            variant="outlined"
+                            size="large"
                             onClick={goToProducts}
                         >
                             Перейти к продуктам
-                        </button>
-                    </div>
-                </Accordion.Body>
-            </Accordion.Item>
+                        </Button>
+                    </Box>
+                </AccordionDetails>
+            </Accordion>
 
-            <Accordion.Item eventKey="1">
-                <Accordion.Header>Операции со счетом</Accordion.Header>
-                <Accordion.Body className="d-grid gap-3">
-                    <button
-                        className="btn btn-outline-dark btn-lg mb-3"
-                        onClick={() => navigate("/personal/proposal/money")}
-                    >
-                        Перевод
-                    </button>
-                    <button
-                        className="btn btn-outline-dark btn-lg mb-3"
-                        onClick={() => navigate("/personal/proposal/product")}
-                    >
-                        Выставить счет
-                    </button>
-                    <button
-                        className="btn btn-outline-dark btn-lg mb-3"
-                        onClick={() => navigate("/personal/proposal/unpaid")}
-                    >
-                        Неоплаченные счета
-                    </button>
-                    <button
-                        className="btn btn-outline-dark btn-lg mb-3"
-                        onClick={() => navigate("/personal/proposal/history")}
-                    >
-                        История транзакций
-                    </button>
-                </Accordion.Body>
-            </Accordion.Item>
-
-        </Accordion>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Операции со счетом
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Stack spacing={2}>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={() => navigate('/personal/proposal/money')}
+                        >
+                            Перевод
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={() => navigate('/personal/proposal/product')}
+                        >
+                            Выставить счет
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={() => navigate('/personal/proposal/unpaid')}
+                        >
+                            Неоплаченные счета
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="large"
+                            onClick={() => navigate('/personal/proposal/history')}
+                        >
+                            История транзакций
+                        </Button>
+                    </Stack>
+                </AccordionDetails>
+            </Accordion>
+        </Box>
     );
 }

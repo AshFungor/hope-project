@@ -1,177 +1,171 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
-import { API as GoalAPI } from "@app/api/sub/goal";
-import { Goal } from "@app/codegen/app/protos/types/goal";
+import { PartialUserRequest } from "@app/codegen/app/protos/user/partial";
+import { GetLastGoalRequest } from "@app/codegen/app/protos/goal/last";
+import { ProductCountsRequest } from "@app/codegen/app/protos/product/count";
 
-interface Roles {
-    economic_assistant?: boolean;
-    social_assistant?: boolean;
-}
+import BalanceSection from "@app/widgets/shared/balance";
+import GoalSection from "@app/widgets/shared/goal";
+import { Goal } from "@app/api/sub/goal";
 
-// interface CityHallPageProps {
-//     bankAccount: number;
-//     mayor?: string;
-//     economic_assistant?: string;
-//     social_assistant?: string;
-// }
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Stack from "@mui/material/Stack";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Button from "@mui/material/Button";
+import { useUser } from "@app/contexts/user";
+import { CityHallRequest } from "@app/codegen/app/protos/city_hall/current";
 
-interface CityHallPageProps {
-}
-
-const CityHallPage: React.FC<CityHallPageProps> = ({
-    // bankAccount,
-    // mayor,
-    // economic_assistant,
-    // social_assistant,
-}) => {
+export default function CityHallPage() {
+    const { currentUser } = useUser();
     const navigate = useNavigate();
 
     const [balance, setBalance] = useState<number>(0);
     const [goal, setGoal] = useState<Goal | null>(null);
-    const [roles, setRoles] = useState<Roles>({});
 
-    // useEffect(() => {
-    //     // Example: roles may come from the same backend or context
-    //     setRoles({
-    //         economic_assistant: !!economic_assistant,
-    //         social_assistant: !!social_assistant,
-    //     });
+    const [cityHallBankAccount, setCityHallBankAccount] = useState<number>(0);
 
-    //     // Fetch balance, same as PersonalPage pattern
-    //     (async () => {
-    //         // Dummy: Replace with real `ProductAPI.count` or balance source.
-    //         const dummyBalance = 750; // Replace with real fetch.
-    //         setBalance(dummyBalance);
+    const [mayorName, setMayorName] = useState<string>("-");
+    const [ecoAssistantName, setEcoAssistantName] = useState<string>("-");
+    const [socialAssistantName, setSocialAssistantName] = useState<string>("-");
 
-    //         // Load goal
-    //         const goalResponse = await Hope.send(Request.create({ lastGoal: { bankAccountId: bankAccount } }));
-    //         const lastGoal = goalResponse.lastGoal?.goal ?? null;
+    const [isMayor, setIsMayor] = useState<boolean>(false);
+    const [isEcoAssistant, setIsEcoAssistant] = useState<boolean>(false);
+    const [isSocialAssistant, setIsSocialAssistant] = useState<boolean>(false);
 
-    //         setGoal(lastGoal);
+    useEffect(() => {
+        if (!currentUser) return;
 
-    //         // If mayor exists but no goal → redirect to create goal page.
-    //         if (mayor && !lastGoal) {
-    //             navigate(`/goal/new?bank_account_id=${bankAccount}`);
-    //         }
-    //     })();
-    // }, [bankAccount, mayor, navigate]);
+        (async () => {
+            const cityHallReq: CityHallRequest = {
+                bankAccountId: currentUser.bankAccountId
+            };
+            const cityHallResp = await Hope.send(
+                Request.create({ cityHall: cityHallReq })
+            );
+
+            const cityHall = cityHallResp.cityHall?.cityHall;
+            if (!cityHall) return;
+
+            setCityHallBankAccount(cityHall.bankAccountId);
+
+            const getUserName = async (accountId: number) => {
+                const req = PartialUserRequest.create({ bankAccountId: accountId });
+                const resp = await Hope.send(Request.create({ partialUser: req }));
+                if (!resp.partialUser) return "-";
+                const u = resp.partialUser.user;
+                return `${u?.name ?? ""} ${u?.lastName ?? ""}`.trim();
+            };
+
+            const [mayor, eco, social] = await Promise.all([
+                getUserName(cityHall.mayorAccountId),
+                getUserName(cityHall.economicAssistantAccountId),
+                getUserName(cityHall.socialAssistantAccountId)
+            ]);
+
+            setMayorName(mayor);
+            setEcoAssistantName(eco);
+            setSocialAssistantName(social);
+
+            const userIsMayor = currentUser.bankAccountId === cityHall.mayorAccountId;
+            const userIsEco = currentUser.bankAccountId === cityHall.economicAssistantAccountId;
+            const userIsSocial = currentUser.bankAccountId === cityHall.socialAssistantAccountId;
+
+            setIsMayor(userIsMayor);
+            setIsEcoAssistant(userIsEco);
+            setIsSocialAssistant(userIsSocial);
+
+            const countReq: ProductCountsRequest = { bankAccountId: cityHall.bankAccountId };
+            const countResp = await Hope.sendTyped(
+                Request.create({ productCounts: countReq }),
+                "productCounts"
+            );
+            const money = countResp.products?.find(p => p.product?.category === "MONEY");
+            setBalance(money?.count ?? 0);
+
+            const goalReq: GetLastGoalRequest = { bankAccountId: cityHall.bankAccountId };
+            const goalResp = await Hope.sendTyped(Request.create({ lastGoal: goalReq }), "lastGoal");
+            const g = goalResp.goal;
+
+            if (g) {
+                setGoal(new Goal(Number(g.bankAccountId), g.value));
+            } else {
+                if (userIsMayor) {
+                    navigate(`/city_hall/${cityHall.bankAccountId}/goal/new?current=${money?.count ?? 0}`);
+                    return;
+                }
+                setGoal(null);
+            }
+        })();
+    }, [currentUser, navigate]);
+
+    const handleNavigate = (path: string) => {
+        navigate(path);
+    };
 
     return (
-        <div className="container my-4">
-            <div className="text-center mb-3">
-                <h3>
-                    <strong>Мэрия &quot;Надежды&quot;</strong>
-                </h3>
-            </div>
+        <Box sx={{ maxWidth: 800, mx: "auto", mt: 4 }}>
+            <Box sx={{ mb: 3, textAlign: "center", borderBottom: 1, borderColor: "divider" }}>
+                <Typography variant="h5" fontWeight="bold">
+                    Мэрия города
+                </Typography>
+            </Box>
 
-            <div className="text-center mb-3 rounded blur position-relative">
-                <style>
-                    {`
-                    .blur:before {
-                        content: "";
-                        position: absolute;
-                        top: 0; left: 0; right: 0; bottom: 0;
-                        background: linear-gradient(
-                            0deg,
-                            rgba(101,195,228,0.66) ${100 - balance / 10}%,
-                            rgba(251,171,0,0.6) ${balance / 10}%
-                        );
-                        filter: blur(16px);
-                        z-index: 0;
-                    }
-                    .blur span {
-                        position: relative;
-                        z-index: 1;
-                    }
-                    `}
-                </style>
-                <span>
-                    <strong>Баланс: {balance}</strong> Ψ
-                </span>
-            </div>
+            <BalanceSection current={balance} />
+            <GoalSection goal={goal} balance={balance} />
 
-            <table className="table table-striped">
-                <thead>
-                    <tr>
-                        <th colSpan={2}>Данные о городе:</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>Номер банковского счета:</th>
-                        {/* <td>{bankAccount}</td> */}
-                    </tr>
-                    <tr>
-                        <th>Мэр:</th>
-                        {/* <td>{mayor || "У мэрии пока нет мэра"}</td> */}
-                    </tr>
-                    <tr>
-                        <th>Министр экономики:</th>
-                        {/* <td>{economic_assistant || "У мэрии пока нет министра экономики"}</td> */}
-                    </tr>
-                    <tr>
-                        <th>Министр социальной политики:</th>
-                        {/* <td>{social_assistant || "У мэрии пока нет министра социальной политики"}</td> */}
-                    </tr>
-                </tbody>
-            </table>
+            <Table sx={{ mt: 3 }}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell colSpan={2}>Данные о мэрии:</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>Номер банковского счета</TableCell>
+                        <TableCell>{cityHallBankAccount}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Мэр</TableCell>
+                        <TableCell>{mayorName}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Министр экономики</TableCell>
+                        <TableCell>{ecoAssistantName}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Министр социальной политики</TableCell>
+                        <TableCell>{socialAssistantName}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
 
-            {goal ? (
-                <div className="text-start mb-5">
-                    <p className="mb-1">
-                        <strong>Цель по доходу в день:</strong>{" "}
-                        <b>{goal.value}</b> Ψ
-                    </p>
-                    <div className="progress">
-                        <div
-                            className="bg-success progress-bar progress-bar-striped progress-bar-animated"
-                            role="progressbar"
-                            aria-valuenow={goal.value}
-                            aria-valuemin={0}
-                            aria-valuemax={100}
-                            style={{ width: `${goal.value}%` }}
-                        >
-                            {goal.value}%
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="text-start mb-5">
-                    <p className="mb-1">
-                        <strong>Цель по доходу в день:</strong>{" "}
-                        <b>не установлена</b> Ψ
-                    </p>
-                </div>
+            {(isEcoAssistant) && (
+                <Stack spacing={2} sx={{ mt: 4 }}>
+                    <Button
+                        variant="outlined"
+                        size="large"
+                        onClick={() => handleNavigate(`/city_hall/${cityHallBankAccount}/proposal/money`)}
+                    >
+                        Перевод средств
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        size="large"
+                        onClick={() => handleNavigate(`/city_hall/${cityHallBankAccount}/proposal/history`)}
+                    >
+                        История транзакций
+                    </Button>
+                </Stack>
             )}
-
-            {(roles.economic_assistant || roles.social_assistant) && (
-                <div className="d-grid gap-2 mb-4">
-                    <form action="/proposal/new_money_transaction" method="GET">
-                        {/* <input type="hidden" name="account" value={bankAccount} /> */}
-                        <button
-                            className="btn btn-outline-dark btn-lg mb-3 w-100"
-                            type="submit"
-                        >
-                            Перевод средств
-                        </button>
-                    </form>
-
-                    <form action="/proposal/view_history" method="GET">
-                        {/* <input type="hidden" name="account" value={bankAccount} /> */}
-                        <button
-                            className="btn btn-outline-dark btn-lg mb-3 w-100"
-                            type="submit"
-                        >
-                            История транзакций
-                        </button>
-                    </form>
-                </div>
-            )}
-        </div>
+        </Box>
     );
-};
-
-export default CityHallPage;
+}

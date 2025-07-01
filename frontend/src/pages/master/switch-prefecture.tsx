@@ -1,18 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
+
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
 interface Prefecture {
     id: number;
     name: string;
 }
 
-const SwitchPrefectureForm: React.FC = () => {
+export default function SwitchPrefecturePage() {
     const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
-    const [bankAccountId, setBankAccountId] = useState("");
-    const [prefectureId, setPrefectureId] = useState("");
-    const [message, setMessage] = useState<string | null>(null);
+    const [bankAccountId, setBankAccountId] = useState('');
+    const [prefectureId, setPrefectureId] = useState('');
+    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     useEffect(() => {
         (async () => {
@@ -28,7 +41,7 @@ const SwitchPrefectureForm: React.FC = () => {
                     }))
                 );
             } catch (err) {
-                console.error("failed to query prefectures:", err);
+                console.error('failed to query prefectures:', err);
             }
         })();
     }, []);
@@ -40,7 +53,10 @@ const SwitchPrefectureForm: React.FC = () => {
         const prefId = parseInt(prefectureId, 10);
 
         if (isNaN(accountId) || isNaN(prefId)) {
-            setMessage("Введите корректные значения.");
+            setMessage({
+                contents: 'Введите корректные значения.',
+                status: AlertStatus.Error,
+            });
             return;
         }
 
@@ -54,57 +70,69 @@ const SwitchPrefectureForm: React.FC = () => {
         const response = await Hope.send(req);
 
         if (response.updatePrefectureLink?.success) {
-            setMessage(`Привязка счета ${accountId} к префектуре ${prefId} выполнена.`);
+            setMessage({
+                contents: `Привязка счета ${accountId} к префектуре ${prefId} выполнена.`,
+                status: AlertStatus.Info,
+            });
+            setBankAccountId('');
+            setPrefectureId('');
         } else {
-            setMessage("Не удалось выполнить привязку. Проверьте данные.");
+            setMessage({
+                contents: 'Не удалось выполнить привязку. Проверьте данные.',
+                status: AlertStatus.Error,
+            });
         }
-
-        setBankAccountId("");
-        setPrefectureId("");
     };
 
     return (
-        <form className="switch-prefecture-form" onSubmit={handleSubmit}>
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" align="center" gutterBottom>
+                Смена префектуры
+            </Typography>
+
             {message && (
-                <div className="alert alert-success fade-in mb-4" role="alert">
-                    {message}
-                </div>
+                <MessageAlert message={message.contents} status={message.status} />
             )}
 
-            <div className="mb-3">
-                <label className="form-label">Номер банковского счета</label>
-                <input
-                    type="number"
-                    className="form-control text-center"
-                    value={bankAccountId}
-                    onChange={(e) => setBankAccountId(e.target.value)}
-                    placeholder="Введите номер счета"
-                />
-            </div>
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}
+            >
+                <Stack spacing={3}>
+                    <TextField
+                        label="Номер банковского счета"
+                        type="number"
+                        value={bankAccountId}
+                        onChange={(e) => setBankAccountId(e.target.value)}
+                        placeholder="Введите номер счета"
+                        fullWidth
+                    />
 
-            <div className="mb-3">
-                <label className="form-label">Префектура</label>
-                <select
-                    className="form-select"
-                    value={prefectureId}
-                    onChange={(e) => setPrefectureId(e.target.value)}
-                >
-                    <option value="">Выберите префектуру</option>
-                    {prefectures.map((p) => (
-                        <option key={p.id} value={p.id}>
-                            {p.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                    <FormControl fullWidth>
+                        <InputLabel id="prefecture-label">Префектура</InputLabel>
+                        <Select
+                            labelId="prefecture-label"
+                            value={prefectureId}
+                            label="Префектура"
+                            onChange={(e) => setPrefectureId(e.target.value)}
+                        >
+                            <MenuItem value="">
+                                <em>Выберите префектуру</em>
+                            </MenuItem>
+                            {prefectures.map((p) => (
+                                <MenuItem key={p.id} value={p.id}>
+                                    {p.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
-            <div className="d-grid gap-2 mb-4">
-                <button type="submit" className="btn btn-success">
-                    Сохранить
-                </button>
-            </div>
-        </form>
+                    <Button type="submit" variant="contained" color="success" fullWidth>
+                        Сохранить
+                    </Button>
+                </Stack>
+            </Box>
+        </Container>
     );
-};
-
-export default SwitchPrefectureForm;
+}

@@ -33,6 +33,8 @@ import "app/protos/transaction/unpaid.proto";
 import "app/protos/goal/create.proto";
 import "app/protos/goal/last.proto";
 
+import "app/protos/city_hall/current.proto";
+
 message Response {
     oneof payload {
         session.LoginResponse login = 1;
@@ -66,5 +68,7 @@ message Response {
         company.AllEmployeesResponse all_employees = 23;
         company.GetCompanyResponse get_company = 24;
         company.FireResponse fire = 25;
+
+        city.CityHallResponse city_hall = 26;
     }
 }

@@ -1,9 +1,16 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
-import { AllCompaniesRequest, AllCompaniesResponse } from "@app/codegen/app/protos/company/all";
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
+import { AllCompaniesRequest, AllCompaniesResponse } from '@app/codegen/app/protos/company/all';
+
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Box from '@mui/material/Box';
 
 interface Company {
     bankAccountId: number;
@@ -38,23 +45,24 @@ export default function CompanyListPage() {
     };
 
     return (
-        <div className="container mt-4">
-            <div className="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-                <h3><strong>Список доступных фирм</strong></h3>
-            </div>
+        <Container sx={{ mt: 4 }}>
+            <Box sx={{ textAlign: 'center', mb: 3 }}>
+                <Typography variant="h4">
+                    <strong>Список доступных фирм</strong>
+                </Typography>
+            </Box>
 
-            <div className="list-group">
+            <List sx={{ maxWidth: 600, mx: 'auto' }}>
                 {companies.map((company) => (
-                    <button
+                    <ListItemButton
                         key={company.bankAccountId}
-                        type="button"
-                        className="list-group-item list-group-item-action text-center"
                         onClick={() => handleClick(company.bankAccountId)}
+                        sx={{ textAlign: 'center' }}
                     >
-                        {company.name}
-                    </button>
+                        <ListItemText primary={company.name} />
+                    </ListItemButton>
                 ))}
-            </div>
-        </div>
+            </List>
+        </Container>
     );
 }

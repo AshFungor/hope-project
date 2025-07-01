@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from "react";
-import { Form, Button } from "react-bootstrap";
+import React, { useState, useEffect } from 'react';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 import {
     CreateCompanyRequest,
     CreateCompanyResponse,
     CreateCompanyResponse_Status,
     Founder,
-} from "@app/codegen/app/protos/company/create";
-import { AllPrefecturesRequest, AllPrefecturesResponse } from "@app/codegen/app/protos/prefecture/all";
+} from '@app/codegen/app/protos/company/create';
+import { AllPrefecturesRequest, AllPrefecturesResponse } from '@app/codegen/app/protos/prefecture/all';
 
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
 interface Prefecture {
     id: number;
     name: string;
 }
 
-export default function CreateCompanyForm() {
-    const [companyName, setCompanyName] = useState("");
-    const [about, setAbout] = useState("");
-    const [prefectureId, setPrefectureId] = useState("");
+export default function CreateCompanyPage() {
+    const [companyName, setCompanyName] = useState('');
+    const [about, setAbout] = useState('');
+    const [prefectureId, setPrefectureId] = useState('');
     const [founders, setFounders] = useState<Founder[]>([]);
     const [ceoId, setCeoId] = useState<number>(0);
     const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
@@ -40,7 +48,7 @@ export default function CreateCompanyForm() {
                     name: p.name,
                 })));
             } catch (err) {
-                console.error("Failed to load prefectures:", err);
+                console.error('Failed to load prefectures:', err);
             }
         };
         fetchPrefectures();
@@ -50,10 +58,10 @@ export default function CreateCompanyForm() {
         setFounders([...founders, Founder.create({ bankAccountId: 0, share: 0 })]);
     };
 
-    const updateFounder = (index: number, field: "accountId" | "share", value: number) => {
+    const updateFounder = (index: number, field: 'accountId' | 'share', value: number) => {
         const updated = [...founders];
-        if (field === "accountId") updated[index].bankAccountId = value;
-        if (field === "share") updated[index].share = value;
+        if (field === 'accountId') updated[index].bankAccountId = value;
+        if (field === 'share') updated[index].share = value;
         setFounders(updated);
     };
 
@@ -65,7 +73,7 @@ export default function CreateCompanyForm() {
         e.preventDefault();
 
         if (!companyName || !about || !prefectureId || founders.length === 0 || ceoId <= 0) {
-            setMessage({ contents: "Все поля обязательны, включая генерального директора", status: AlertStatus.Error });
+            setMessage({ contents: 'Все поля обязательны, включая генерального директора', status: AlertStatus.Error });
             return;
         }
 
@@ -77,8 +85,8 @@ export default function CreateCompanyForm() {
 
         if (invalidFounder) {
             setMessage({
-                contents: "ID учредителя должен быть > 0, а доля — от 1% до 100%.",
-                status: AlertStatus.Error
+                contents: 'ID учредителя должен быть > 0, а доля — от 1% до 100%.',
+                status: AlertStatus.Error,
             });
             return;
         }
@@ -86,16 +94,14 @@ export default function CreateCompanyForm() {
         const request = CreateCompanyRequest.create({
             name: companyName,
             about: about,
-            prefecture: prefectures.find((p) => p.id === parseInt(prefectureId))?.name ?? "",
-            founders: [
-                ...founders.map((f) =>
-                    Founder.create({
-                        bankAccountId: f.bankAccountId,
-                        share: f.share / 100.0
-                    })
-                ),
-            ],
-            ceoBankAccountId: ceoId
+            prefecture: prefectures.find((p) => p.id === parseInt(prefectureId))?.name ?? '',
+            founders: founders.map((f) =>
+                Founder.create({
+                    bankAccountId: f.bankAccountId,
+                    share: f.share / 100.0,
+                })
+            ),
+            ceoBankAccountId: ceoId,
         });
 
         const response = await Hope.send(Request.create({ createCompany: request })) as {
@@ -104,139 +110,130 @@ export default function CreateCompanyForm() {
 
         switch (response.createCompany?.status) {
             case CreateCompanyResponse_Status.OK:
-                setMessage({ contents: "Фирма успешно создана!", status: AlertStatus.Info });
-                setCompanyName("");
-                setAbout("");
-                setPrefectureId("");
+                setMessage({ contents: 'Фирма успешно создана!', status: AlertStatus.Info });
+                setCompanyName('');
+                setAbout('');
+                setPrefectureId('');
                 setFounders([]);
                 setCeoId(0);
                 break;
             case CreateCompanyResponse_Status.MISSING_FOUNDERS:
-                setMessage({ contents: "Не указаны учредители.", status: AlertStatus.Error });
+                setMessage({ contents: 'Не указаны учредители.', status: AlertStatus.Error });
                 break;
             case CreateCompanyResponse_Status.DUPLICATE_FOUNDERS:
-                setMessage({ contents: "Учредители дублируются.", status: AlertStatus.Error });
+                setMessage({ contents: 'Учредители дублируются.', status: AlertStatus.Error });
                 break;
             case CreateCompanyResponse_Status.MISSING_PREFECTURE:
-                setMessage({ contents: "Не выбрана префектура.", status: AlertStatus.Error });
+                setMessage({ contents: 'Не выбрана префектура.', status: AlertStatus.Error });
                 break;
             case CreateCompanyResponse_Status.DUPLICATE_NAME:
-                setMessage({ contents: "Фирма с таким названием уже существует.", status: AlertStatus.Error });
+                setMessage({ contents: 'Фирма с таким названием уже существует.', status: AlertStatus.Error });
                 break;
             default:
-                setMessage({ contents: "Неизвестная ошибка.", status: AlertStatus.Error });
+                setMessage({ contents: 'Неизвестная ошибка.', status: AlertStatus.Error });
         }
     };
 
     return (
-        <Form className="new_company d-grid" onSubmit={handleSubmit}>
-            {message && (
-                <MessageAlert message={message.contents} status={message.status} />
-            )}
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" align="center" sx={{ mb: 4 }}>
+                Новая фирма
+            </Typography>
 
-            <div className="mb-3">
-                <strong>
-                    <label className="form-label">Название фирмы</label>
-                </strong>
-                <Form.Control
-                    type="text"
-                    className="form-control text-center"
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 3, maxWidth: 600, mx: 'auto' }}
+            >
+                {message && (
+                    <MessageAlert message={message.contents} status={message.status} />
+                )}
+
+                <TextField
+                    label="Название фирмы"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
+                    fullWidth
                 />
-            </div>
 
-            <div className="mb-3">
-                <strong>
-                    <label className="form-label">Описание</label>
-                </strong>
-                <Form.Control
-                    type="text"
-                    className="form-control text-center"
+                <TextField
+                    label="Описание"
                     value={about}
                     onChange={(e) => setAbout(e.target.value)}
+                    fullWidth
                 />
-            </div>
 
-            <div className="mb-3">
-                <strong>
-                    <label className="form-label">Префектура</label>
-                </strong>
-                <Form.Select
-                    className="form-select text-center"
-                    value={prefectureId}
-                    onChange={(e) => setPrefectureId(e.target.value)}
-                >
-                    <option value="">Выберите префектуру</option>
-                    {prefectures.map((p) => (
-                        <option key={p.id} value={p.id}>
-                            {p.name}
-                        </option>
-                    ))}
-                </Form.Select>
-            </div>
+                <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>Префектура</Typography>
+                    <Select
+                        value={prefectureId}
+                        onChange={(e) => setPrefectureId(e.target.value)}
+                        displayEmpty
+                        fullWidth
+                    >
+                        <MenuItem value="">
+                            <em>Выберите префектуру</em>
+                        </MenuItem>
+                        {prefectures.map((p) => (
+                            <MenuItem key={p.id} value={p.id}>
+                                {p.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </Box>
 
-            <div className="mb-3">
-                <strong>
-                    <label className="form-label">ID Генерального директора (CEO)</label>
-                </strong>
-                <Form.Control
+                <TextField
+                    label="ID Генерального директора (CEO)"
                     type="number"
-                    className="form-control text-center"
-                    value={ceoId === 0 ? "" : ceoId}
+                    value={ceoId === 0 ? '' : ceoId}
                     onChange={(e) => setCeoId(Number(e.target.value))}
                     placeholder="Введите ID счета CEO"
+                    fullWidth
                 />
-            </div>
 
-            <div className="mb-3">
-                <strong className="form-label d-block mb-2">Учредители</strong>
+                <Box>
+                    <Typography variant="subtitle1" sx={{ mb: 2 }}>Учредители</Typography>
+                    <Stack spacing={2}>
+                        {founders.map((founder, index) => (
+                            <Box key={index} sx={{ display: 'flex', gap: 2 }}>
+                                <TextField
+                                    label="ID учредителя"
+                                    type="number"
+                                    value={founder.bankAccountId === 0 ? '' : founder.bankAccountId}
+                                    onChange={(e) =>
+                                        updateFounder(index, 'accountId', parseInt(e.target.value.replace(/^0+/, '') || '0', 10))
+                                    }
+                                    fullWidth
+                                />
+                                <TextField
+                                    label="Доля (%)"
+                                    type="number"
+                                    value={founder.share === 0 ? '' : founder.share}
+                                    onChange={(e) =>
+                                        updateFounder(index, 'share', parseInt(e.target.value.replace(/^0+/, '') || '0', 10))
+                                    }
+                                    fullWidth
+                                />
+                                <Button variant="outlined" color="error" onClick={() => removeFounder(index)}>
+                                    &times;
+                                </Button>
+                            </Box>
+                        ))}
+                    </Stack>
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        onClick={addFounder}
+                        sx={{ mt: 2 }}
+                    >
+                        + Добавить учредителя
+                    </Button>
+                </Box>
 
-                {founders.map((founder, index) => (
-                    <div key={index} className="d-flex gap-2 mb-2">
-                        <input
-                            type="text"
-                            inputMode="numeric"
-                            pattern="[0-9]*"
-                            className="form-control"
-                            placeholder="ID учредителя"
-                            value={founder.bankAccountId === 0 ? "" : String(founder.bankAccountId)}
-                            onChange={(e) =>
-                                updateFounder(index, "accountId", parseInt(e.target.value.replace(/^0+/, "") || "0", 10))
-                            }
-                        />
-                        <input
-                            type="text"
-                            inputMode="decimal"
-                            pattern="[0-9]*"
-                            className="form-control"
-                            placeholder="Доля (%)"
-                            value={founder.share === 0 ? "" : String(founder.share)}
-                            onChange={(e) =>
-                                updateFounder(index, "share", parseInt(e.target.value.replace(/^0+/, "") || "0", 10))
-                            }
-                        />
-
-                        <Button variant="outline-danger" onClick={() => removeFounder(index)}>
-                            &times;
-                        </Button>
-                    </div>
-                ))}
-
-                <button
-                    type="button"
-                    className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center"
-                    onClick={addFounder}
-                >
-                    <span className="me-2 fs-4">+</span> Добавить учредителя
-                </button>
-            </div>
-
-            <div className="d-grid gap-2 mb-4">
-                <Button type="submit" className="btn btn-success">
+                <Button variant="contained" color="success" type="submit">
                     Создать фирму
                 </Button>
-            </div>
-        </Form>
+            </Box>
+        </Container>
     );
 }

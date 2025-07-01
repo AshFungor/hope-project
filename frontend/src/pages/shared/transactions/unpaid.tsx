@@ -1,21 +1,36 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 import {
     CurrentTransactionsRequest
-} from "@app/codegen/app/protos/transaction/unpaid";
+} from '@app/codegen/app/protos/transaction/unpaid';
 import {
     DecideOnTransactionRequest,
     DecideOnTransactionRequest_Status
-} from "@app/codegen/app/protos/transaction/decide";
-import { TransactionStatusReason, TransactionStatusReason as TxStatus } from "@app/codegen/app/protos/types/transaction";
+} from '@app/codegen/app/protos/transaction/decide';
+import {
+    TransactionStatusReason,
+    TransactionStatusReason as TxStatus
+} from '@app/codegen/app/protos/types/transaction';
 
-import { PageMode } from "@app/types";
-import { useUser } from "@app/contexts/user";
+import { PageMode } from '@app/types';
+import { useUser } from '@app/contexts/user';
 
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
 interface ActiveTransaction {
     transactionId: number;
@@ -28,20 +43,26 @@ interface ActiveTransaction {
 const ActionButtons: React.FC<{
     onDecide: (status: DecideOnTransactionRequest_Status) => void;
 }> = ({ onDecide }) => (
-    <td colSpan={4}>
-        <button
-            className="btn btn-success me-2"
-            onClick={() => onDecide(DecideOnTransactionRequest_Status.ACCEPTED)}
-        >
-            Принять
-        </button>
-        <button
-            className="btn btn-danger"
-            onClick={() => onDecide(DecideOnTransactionRequest_Status.REJECTED)}
-        >
-            Отклонить
-        </button>
-    </td>
+    <TableRow>
+        <TableCell colSpan={5}>
+            <Stack direction="row" spacing={2}>
+                <Button
+                    variant="contained"
+                    color="success"
+                    onClick={() => onDecide(DecideOnTransactionRequest_Status.ACCEPTED)}
+                >
+                    Принять
+                </Button>
+                <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => onDecide(DecideOnTransactionRequest_Status.REJECTED)}
+                >
+                    Отклонить
+                </Button>
+            </Stack>
+        </TableCell>
+    </TableRow>
 );
 
 const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }) => {
@@ -59,7 +80,7 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
                 product: t.product,
                 count: t.count,
                 amount: t.amount,
-                secondSide: t.sellerBankAccountId ?? 0
+                secondSide: t.sellerBankAccountId ?? 0,
             }))
         );
     };
@@ -71,34 +92,34 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
     const getTransactionStatusMessage = function (status: TransactionStatusReason): { contents: string; status: AlertStatus } {
         switch (status) {
             case TransactionStatusReason.OK:
-                return { contents: "Транзакция успешно обработана.", status: AlertStatus.Info };
+                return { contents: 'Транзакция успешно обработана.', status: AlertStatus.Info };
             case TransactionStatusReason.CUSTOMER_IS_SELLER:
-                return { contents: "Покупатель и продавец совпадают.", status: AlertStatus.Error };
+                return { contents: 'Покупатель и продавец совпадают.', status: AlertStatus.Error };
             case TransactionStatusReason.ALREADY_PROCESSED:
-                return { contents: "Транзакция уже была обработана.", status: AlertStatus.Error };
+                return { contents: 'Транзакция уже была обработана.', status: AlertStatus.Error };
             case TransactionStatusReason.COUNT_OUT_OF_BOUNDS:
-                return { contents: "Количество товара превышает доступное.", status: AlertStatus.Error };
+                return { contents: 'Количество товара превышает доступное.', status: AlertStatus.Error };
             case TransactionStatusReason.AMOUNT_OUT_OF_BOUNDS:
-                return { contents: "Сумма транзакции выходит за допустимые пределы.", status: AlertStatus.Error };
+                return { contents: 'Сумма транзакции выходит за допустимые пределы.', status: AlertStatus.Error };
             case TransactionStatusReason.SELLER_MISSING_GOODS:
-                return { contents: "У продавца недостаточно товаров.", status: AlertStatus.Error };
+                return { contents: 'У продавца недостаточно товаров.', status: AlertStatus.Error };
             case TransactionStatusReason.CUSTOMER_MISSING_MONEY:
-                return { contents: "У покупателя недостаточно средств.", status: AlertStatus.Error };
+                return { contents: 'У покупателя недостаточно средств.', status: AlertStatus.Error };
             case TransactionStatusReason.CUSTOMER_MISSING:
-                return { contents: "Покупатель не найден.", status: AlertStatus.Error };
+                return { contents: 'Покупатель не найден.', status: AlertStatus.Error };
             case TransactionStatusReason.SELLER_MISSING:
-                return { contents: "Продавец не найден.", status: AlertStatus.Error };
+                return { contents: 'Продавец не найден.', status: AlertStatus.Error };
             case TransactionStatusReason.MULTIPLE_PRODUCTS:
-                return { contents: "Транзакция не поддерживает несколько товаров одновременно.", status: AlertStatus.Error };
+                return { contents: 'Транзакция не поддерживает несколько товаров одновременно.', status: AlertStatus.Error };
             default:
                 return { contents: `Неизвестный статус транзакции (${status})`, status: AlertStatus.Error };
         }
-    }
+    };
 
     const decide = async (transactionId: number, status: DecideOnTransactionRequest_Status) => {
         const req: DecideOnTransactionRequest = {
             id: transactionId,
-            status: status
+            status: status,
         };
 
         const response = await Hope.send(
@@ -108,19 +129,17 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
         if (response.decideOnTransaction?.status === TxStatus.OK) {
             setMessage({
                 contents: `Транзакция ${transactionId} обновлена`,
-                status: AlertStatus.Info
+                status: AlertStatus.Info,
             });
             await load();
         } else {
-            setMessage({
-                contents: `Ошибка при решении: ${response.decideOnTransaction?.status}`,
-                status: AlertStatus.Error
-            });
+            const fallback = getTransactionStatusMessage(response.decideOnTransaction?.status ?? TxStatus.UNRECOGNIZED);
+            setMessage(fallback);
         }
     };
 
     return (
-        <div className="card" style={{ width: "100%" }}>
+        <Paper sx={{ width: '100%', overflow: 'auto', p: 2 }}>
             {message && (
                 <MessageAlert
                     message={message.contents}
@@ -128,41 +147,36 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
                 />
             )}
 
-            <div className="text-wrap text-center mb-4">
-                <p className="mb-1">
-                    <strong>Ваши транзакции:</strong>
-                </p>
-            </div>
-            <div className="table-responsive">
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Номер транзакции</th>
-                            <th>Название</th>
-                            <th>Количество</th>
-                            <th>Цена</th>
-                            <th>Вторая сторона сделки</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map((t) => (
-                            <React.Fragment key={t.transactionId}>
-                                <tr>
-                                    <td>{t.transactionId}</td>
-                                    <td>{t.product}</td>
-                                    <td>x{t.count}</td>
-                                    <td>{t.amount}</td>
-                                    <td>{t.secondSide}</td>
-                                </tr>
-                                <tr>
-                                    <ActionButtons onDecide={(status) => decide(t.transactionId, status)} />
-                                </tr>
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <Typography variant="h5" align="center" gutterBottom>
+                Ваши транзакции
+            </Typography>
+
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Номер транзакции</TableCell>
+                        <TableCell>Название</TableCell>
+                        <TableCell>Количество</TableCell>
+                        <TableCell>Цена</TableCell>
+                        <TableCell>Вторая сторона сделки</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {transactions.map((t) => (
+                        <React.Fragment key={t.transactionId}>
+                            <TableRow>
+                                <TableCell>{t.transactionId}</TableCell>
+                                <TableCell>{t.product}</TableCell>
+                                <TableCell>x{t.count}</TableCell>
+                                <TableCell>{t.amount}</TableCell>
+                                <TableCell>{t.secondSide}</TableCell>
+                            </TableRow>
+                            <ActionButtons onDecide={(status) => decide(t.transactionId, status)} />
+                        </React.Fragment>
+                    ))}
+                </TableBody>
+            </Table>
+        </Paper>
     );
 };
 
@@ -175,15 +189,19 @@ const TransactionDecisionPage: React.FC<TransactionDecisionPageProps> = ({ mode 
     const { bankAccountId } = useUser();
 
     const effectiveAccountId =
-        mode === PageMode.Company
-            ? Number(params.companyId)
+        mode === PageMode.Org
+            ? Number(params.orgId)
             : bankAccountId;
 
     if (!effectiveAccountId) {
-        return <div>Missing account ID</div>;
+        return <Typography>Missing account ID</Typography>;
     }
 
-    return <TransactionDecisionTable accountId={effectiveAccountId} />;
+    return (
+        <Container sx={{ mt: 4 }}>
+            <TransactionDecisionTable accountId={effectiveAccountId} />
+        </Container>
+    );
 };
 
 export default TransactionDecisionPage;

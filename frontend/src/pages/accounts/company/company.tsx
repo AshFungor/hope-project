@@ -1,21 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useUser } from "@app/contexts/user";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useUser } from '@app/contexts/user';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 
-import { GetCompanyRequest, GetCompanyResponse } from "@app/codegen/app/protos/company/get";
-import { CurrentPrefectureRequest, CurrentPrefectureResponse } from "@app/codegen/app/protos/prefecture/current";
-import { GetLastGoalRequest, GetLastGoalResponse } from "@app/codegen/app/protos/goal/last";
-import { AllEmployeesRequest, AllEmployeesResponse } from "@app/codegen/app/protos/company/employees";
-import { ProductCountsRequest, ProductCountsResponse } from "@app/codegen/app/protos/product/count";
+import { GetCompanyRequest, GetCompanyResponse } from '@app/codegen/app/protos/company/get';
+import { CurrentPrefectureRequest, CurrentPrefectureResponse } from '@app/codegen/app/protos/prefecture/current';
+import { GetLastGoalRequest, GetLastGoalResponse } from '@app/codegen/app/protos/goal/last';
+import { AllEmployeesRequest, AllEmployeesResponse } from '@app/codegen/app/protos/company/employees';
+import { ProductCountsRequest, ProductCountsResponse } from '@app/codegen/app/protos/product/count';
 
-import { Goal as GoalModel } from "@app/api/sub/goal";
-import { EmployeeRole } from "@app/codegen/app/protos/types/company";
+import { Goal as GoalModel } from '@app/api/sub/goal';
+import { EmployeeRole } from '@app/codegen/app/protos/types/company';
 
-import BalanceSection from "@app/widgets/shared/balance";
-import GoalSection from "@app/widgets/shared/goal";
+import BalanceSection from '@app/widgets/shared/balance';
+import GoalSection from '@app/widgets/shared/goal';
+
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 
 interface Company {
     bankAccountId: number;
@@ -38,7 +49,7 @@ export default function CompanyCabinetPage() {
     const [balance, setBalance] = useState(0);
     const [company, setCompany] = useState<Company | null>(null);
     const [ceo, setCeo] = useState<CEO | null>(null);
-    const [prefectureName, setPrefectureName] = useState<string>("");
+    const [prefectureName, setPrefectureName] = useState<string>('');
 
     const [fCeo, setFCeo] = useState(false);
     const [fCfo, setFCfo] = useState(false);
@@ -77,13 +88,13 @@ export default function CompanyCabinetPage() {
             employees.forEach((e) => {
                 if (e.role === EmployeeRole.CEO) {
                     setCeo({
-                        name: e.info?.name ?? "",
-                        lastName: e.info?.lastName ?? "",
-                        patronymic: e.info?.patronymic ?? "",
-                    })
+                        name: e.info?.name ?? '',
+                        lastName: e.info?.lastName ?? '',
+                        patronymic: e.info?.patronymic ?? '',
+                    });
                 }
 
-                if (e.info?.bankAccountId != currentUser?.bankAccountId) {
+                if (e.info?.bankAccountId !== currentUser?.bankAccountId) {
                     return;
                 }
 
@@ -97,7 +108,7 @@ export default function CompanyCabinetPage() {
             const prefResp = await Hope.send(Request.create({ currentPrefecture: prefReq })) as {
                 currentPrefecture?: CurrentPrefectureResponse;
             };
-            setPrefectureName(prefResp.currentPrefecture?.prefecture?.name ?? "");
+            setPrefectureName(prefResp.currentPrefecture?.prefecture?.name ?? '');
 
             const goalReq: GetLastGoalRequest = { bankAccountId: Number(companyId) };
             const goalResp = await Hope.send(Request.create({ lastGoal: goalReq })) as {
@@ -122,7 +133,7 @@ export default function CompanyCabinetPage() {
                 productCounts?: ProductCountsResponse;
             };
             const counts = countResp?.productCounts?.products ?? [];
-            const money = counts.find(p => p.product?.category === "MONEY");
+            const money = counts.find(p => p.product?.category === 'MONEY');
             setBalance(money?.count ?? 0);
         };
 
@@ -134,116 +145,126 @@ export default function CompanyCabinetPage() {
     };
 
     return (
-        <div className="container mt-4">
+        <Container sx={{ mt: 4 }}>
             {company && (
                 <>
-                    <div className="text-wrap text-center d-flex flex-wrap align-items-center justify-content-center mb-3">
-                        <h3><strong>Фирма "{company.name}"</strong></h3>
-                    </div>
+                    <Box sx={{ textAlign: 'center', mb: 3 }}>
+                        <Typography variant="h4" component="h3">
+                            Фирма "{company.name}"
+                        </Typography>
+                    </Box>
 
                     <GoalSection goal={goal} balance={balance} />
                     <BalanceSection current={balance} />
 
-                    <table className="table table-striped">
-                        <thead>
-                            <tr>
-                                <td colSpan={2}>Данные о фирме:</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <th>Номер банковского счета:</th>
-                                <td>{company.bankAccountId}</td>
-                            </tr>
-                            <tr>
-                                <th>Описание фирмы:</th>
-                                <td>{company.about}</td>
-                            </tr>
-                            <tr>
-                                <th>Ген. директор:</th>
-                                <td>{ceo?.name} {ceo?.patronymic} {ceo?.lastName}</td>
-                            </tr>
-                            <tr>
-                                <th>Префектура:</th>
-                                <td>{prefectureName}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell colSpan={2}>Данные о фирме:</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>Номер банковского счета:</TableCell>
+                                <TableCell>{company.bankAccountId}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Описание фирмы:</TableCell>
+                                <TableCell>{company.about}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Ген. директор:</TableCell>
+                                <TableCell>{ceo?.name} {ceo?.patronymic} {ceo?.lastName}</TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>Префектура:</TableCell>
+                                <TableCell>{prefectureName}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
 
-                    <div className="d-grid gap-2 mb-5">
+                    <Stack spacing={2} sx={{ my: 5 }}>
                         {fCfo && (
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/money`)}
                             >
                                 Перевод средств
-                            </button>
+                            </Button>
                         )}
 
                         {fMark && (
                             <>
-                                <button
-                                    className="btn btn-outline-dark btn-lg mb-3"
+                                <Button
+                                    variant="outlined"
+                                    size="large"
                                     onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/product`)}
                                 >
                                     Выставить счёт
-                                </button>
-                                <button
-                                    className="btn btn-outline-dark btn-lg mb-3"
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="large"
                                     onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/unpaid`)}
                                 >
                                     Входящие счета
-                                </button>
+                                </Button>
                             </>
                         )}
 
                         {fProd && (
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/history`)}
                             >
                                 История счетов
-                            </button>
+                            </Button>
                         )}
-                    </div>
+                    </Stack>
 
                     {fProd && (
-                        <div className="d-grid gap-2 mb-5">
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                        <Stack spacing={2} sx={{ mb: 5 }}>
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/products`)}
                             >
                                 Наши ресурсы/энергия/товары
-                            </button>
+                            </Button>
 
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/production/employ`)}
                             >
                                 Принять на работу
-                            </button>
-                        </div>
+                            </Button>
+                        </Stack>
                     )}
 
                     {fCeo && (
-                        <div className="d-grid gap-2 mb-5">
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                        <Stack spacing={2} sx={{ mb: 5 }}>
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/workers`)}
                             >
                                 Сотрудники
-                            </button>
+                            </Button>
 
-                            <button
-                                className="btn btn-outline-dark btn-lg mb-3"
+                            <Button
+                                variant="outlined"
+                                size="large"
                                 onClick={() => handleNavigate(`/company/${company.bankAccountId}/ceo/employ`)}
                             >
                                 Принять на работу
-                            </button>
-                        </div>
+                            </Button>
+                        </Stack>
                     )}
                 </>
             )}
-        </div>
+        </Container>
     );
 }

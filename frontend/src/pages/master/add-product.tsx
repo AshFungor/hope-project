@@ -1,24 +1,35 @@
-import React, { useState } from "react";
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import React, { useState } from 'react';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 import {
     CreateProductRequest,
     CreateProductResponse,
-} from "@app/codegen/app/protos/product/create";
+} from '@app/codegen/app/protos/product/create';
 
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
-const NewProductForm: React.FC = () => {
-    const [productName, setProductName] = useState("");
-    const [category, setCategory] = useState("");
-    const [level, setLevel] = useState("");
+export default function NewProductPage() {
+    const [productName, setProductName] = useState('');
+    const [category, setCategory] = useState('');
+    const [level, setLevel] = useState('');
     const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!productName || !category || !level) {
-            setMessage({ contents: "Все поля обязательны!", status: AlertStatus.Error });
+            setMessage({ contents: 'Все поля обязательны!', status: AlertStatus.Error });
             return;
         }
 
@@ -35,70 +46,71 @@ const NewProductForm: React.FC = () => {
         };
 
         if (response.createProduct?.status) {
-            setMessage({ contents: "Продукт успешно создан!", status: AlertStatus.Info });
-            setProductName("");
-            setCategory("");
-            setLevel("");
+            setMessage({ contents: 'Продукт успешно создан!', status: AlertStatus.Info });
+            setProductName('');
+            setCategory('');
+            setLevel('');
         } else {
-            setMessage({ contents: "Ошибка: продукт не удалось создать.", status: AlertStatus.Error });
+            setMessage({ contents: 'Ошибка: продукт не удалось создать.', status: AlertStatus.Error });
         }
     };
 
     return (
-        <form className="new_product d-grid" onSubmit={handleSubmit}>
-            {message && (
-                <MessageAlert message={message.contents} status={message.status} />
-            )}
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" align="center" sx={{ mb: 4 }}>
+                Новый продукт
+            </Typography>
 
-            <div className="mb-3">
-                <label className="form-label">Название продукта</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    value={productName}
-                    onChange={(e) => setProductName(e.target.value)}
-                    placeholder="Введите название"
-                />
-            </div>
+            <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 400, mx: 'auto' }}>
+                {message && (
+                    <MessageAlert message={message.contents} status={message.status} />
+                )}
 
-            <div className="mb-3">
-                <label className="form-label">Категория</label>
-                <select
-                    className="form-select"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                >
-                    <option value="">Выберите категорию</option>
-                    <option value="Energy">ENERGY</option>
-                    <option value="Resource">FOOD</option>
-                    <option value="Product">TECHNIC</option>
-                    <option value="Product">CLOTHES</option>
-                </select>
-            </div>
+                <Stack spacing={3} sx={{ mb: 4 }}>
+                    <TextField
+                        label="Название продукта"
+                        value={productName}
+                        onChange={(e) => setProductName(e.target.value)}
+                        placeholder="Введите название"
+                        fullWidth
+                    />
 
-            <div className="mb-3">
-                <label className="form-label">Уровень</label>
-                <select
-                    className="form-select"
-                    value={level}
-                    onChange={(e) => setLevel(e.target.value)}
-                >
-                    <option value="">Выберите уровень</option>
-                    <option value="0">0</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
+                    <FormControl fullWidth>
+                        <InputLabel id="category-label">Категория</InputLabel>
+                        <Select
+                            labelId="category-label"
+                            value={category}
+                            label="Категория"
+                            onChange={(e) => setCategory(e.target.value)}
+                        >
+                            <MenuItem value="">Выберите категорию</MenuItem>
+                            <MenuItem value="Energy">ENERGY</MenuItem>
+                            <MenuItem value="Resource">FOOD</MenuItem>
+                            <MenuItem value="ProductTech">TECHNIC</MenuItem>
+                            <MenuItem value="ProductClothes">CLOTHES</MenuItem>
+                        </Select>
+                    </FormControl>
 
-            <div className="d-grid gap-2 mb-4">
-                <button type="submit" className="btn btn-success">
+                    <FormControl fullWidth>
+                        <InputLabel id="level-label">Уровень</InputLabel>
+                        <Select
+                            labelId="level-label"
+                            value={level}
+                            label="Уровень"
+                            onChange={(e) => setLevel(e.target.value)}
+                        >
+                            <MenuItem value="">Выберите уровень</MenuItem>
+                            {[0, 1, 2, 3, 4].map((lvl) => (
+                                <MenuItem key={lvl} value={lvl}>{lvl}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Stack>
+
+                <Button type="submit" variant="contained" color="primary" fullWidth>
                     Создать
-                </button>
-            </div>
-        </form>
+                </Button>
+            </Box>
+        </Container>
     );
-};
-
-export default NewProductForm;
+}

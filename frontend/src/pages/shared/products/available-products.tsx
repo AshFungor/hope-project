@@ -1,24 +1,32 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { useParams } from "react-router-dom";
-import { useUser } from "@app/contexts/user";
-import { PageMode } from "@app/types"
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
 
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import { useUser } from '@app/contexts/user';
+import { PageMode } from '@app/types';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 
 import {
     ProductCountsRequest,
     ProductCountsResponse_ProductWithCount,
-} from "@app/codegen/app/protos/product/count";
+} from '@app/codegen/app/protos/product/count';
 import {
     ConsumeProductRequest,
     ConsumeProductResponse,
     ConsumeProductResponse_Status,
-} from "@app/codegen/app/protos/product/consume";
-
+} from '@app/codegen/app/protos/product/consume';
 
 const ProductRow: React.FC<{
     product: ProductCountsResponse_ProductWithCount;
@@ -26,16 +34,16 @@ const ProductRow: React.FC<{
     onConsumed: (response: ConsumeProductResponse, bankAccountId: number, product: string) => void;
     showConsumeButton: boolean;
 }> = ({ product, effectiveAccountId, onConsumed, showConsumeButton }) => {
-    const getRowClass = (level: number): string => {
+    const getRowColor = (level: number): string => {
         switch (level) {
             case 1:
-                return 'table-info';
+                return '#d1ecf1';
             case 2:
-                return 'table-primary';
+                return '#cce5ff';
             case 4:
-                return 'table-warning';
+                return '#fff3cd';
             default:
-                return 'table-light';
+                return '#f8f9fa';
         }
     };
 
@@ -47,35 +55,39 @@ const ProductRow: React.FC<{
 
         const response = await Hope.sendTyped(
             Request.create({ consumeProduct: request }),
-            "consumeProduct"
+            'consumeProduct'
         );
 
         onConsumed(response, effectiveAccountId, product.product?.name ?? '');
     };
 
     return (
-        <tr className={getRowClass(product.product?.level ?? 0)}>
-            <td>{product.product?.name}</td>
-            <td>{product.count}</td>
-            <td>{product.product?.level}</td>
-            <td>
+        <TableRow sx={{ backgroundColor: getRowColor(product.product?.level ?? 0) }}>
+            <TableCell>{product.product?.name}</TableCell>
+            <TableCell>{product.count}</TableCell>
+            <TableCell>{product.product?.level}</TableCell>
+            <TableCell>
                 {product.product?.consumable && showConsumeButton && (
-                    <button className="btn btn-success btn-sm" onClick={onConsumePressed}>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        onClick={onConsumePressed}
+                    >
                         Потребить
-                    </button>
+                    </Button>
                 )}
-            </td>
-        </tr>
+            </TableCell>
+        </TableRow>
     );
 };
-
 
 const ProductTable: React.FC<{
     products: ProductCountsResponse_ProductWithCount[];
     effectiveAccountId: number;
     showConsumeButton: boolean;
 }> = ({ products, effectiveAccountId, showConsumeButton }) => {
-    const [message, setMessage] = useState<{contents: string, status: AlertStatus} | null>(null);
+    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     const visitConsumeResponse = (
         response: ConsumeProductResponse,
@@ -86,55 +98,58 @@ const ProductTable: React.FC<{
             case ConsumeProductResponse_Status.ALREADY_CONSUMED:
                 setMessage({
                     contents: `Продукт ${product} уже употреблялся`,
-                    status: AlertStatus.Warning
+                    status: AlertStatus.Warning,
                 });
                 break;
             case ConsumeProductResponse_Status.NOT_ENOUGH:
                 setMessage({
                     contents: `На аккаунте ${bankAccountId} не хватает продуктов для потребления`,
-                    status: AlertStatus.Error
+                    status: AlertStatus.Error,
                 });
                 break;
             case ConsumeProductResponse_Status.OK:
                 setMessage({
                     contents: `Продукт ${product} успешно употреблён`,
-                    status: AlertStatus.Info
+                    status: AlertStatus.Info,
                 });
                 break;
             default:
                 setMessage({
                     contents: `Неизвестный статус`,
-                    status: AlertStatus.Notice
+                    status: AlertStatus.Notice,
                 });
         }
     };
 
     const categories = Array.from(new Set(products.map((p) => p.product?.category)));
+
     return (
         <>
             <MessageAlert
-				message={message?.contents ?? null}
-				status={AlertStatus.Info}
-			/>
+                message={message?.contents ?? null}
+                status={message?.status ?? AlertStatus.Info}
+            />
 
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>Название товара</th>
-                        <th>Количество</th>
-                        <th>Уровень</th>
-                        <th></th>
-                    </tr>
-                </thead>
+            <Table sx={{ mt: 2 }}>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Название товара</TableCell>
+                        <TableCell>Количество</TableCell>
+                        <TableCell>Уровень</TableCell>
+                        <TableCell />
+                    </TableRow>
+                </TableHead>
 
                 {categories.map((category) => (
                     <React.Fragment key={category ?? ''}>
-                        <thead>
-                            <tr>
-                                <th colSpan={4}>{category}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell colSpan={4}>
+                                    <Typography variant="h6">{category}</Typography>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
                             {products
                                 .filter((p) => p.product?.category === category)
                                 .map((p) => (
@@ -146,19 +161,17 @@ const ProductTable: React.FC<{
                                         showConsumeButton={showConsumeButton}
                                     />
                                 ))}
-                        </tbody>
+                        </TableBody>
                     </React.Fragment>
                 ))}
-            </table>
+            </Table>
         </>
     );
 };
 
-
 interface AvailableProductsPageProps {
     mode: PageMode;
 }
-
 
 export default function AvailableProductsPage({ mode }: AvailableProductsPageProps) {
     const params = useParams();
@@ -178,7 +191,7 @@ export default function AvailableProductsPage({ mode }: AvailableProductsPagePro
             const countReq = ProductCountsRequest.create({ bankAccountId: effectiveAccountId });
             const response = await Hope.sendTyped(
                 Request.create({ productCounts: countReq }),
-                "productCounts"
+                'productCounts'
             );
 
             setProducts(response.products);
@@ -192,13 +205,15 @@ export default function AvailableProductsPage({ mode }: AvailableProductsPagePro
     }
 
     return (
-        <div className="container mt-4">
-            <h2>Ваши продукты</h2>
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" gutterBottom>
+                Ваши продукты
+            </Typography>
             <ProductTable
                 products={products}
                 effectiveAccountId={effectiveAccountId}
                 showConsumeButton={true}
             />
-        </div>
+        </Container>
     );
 }

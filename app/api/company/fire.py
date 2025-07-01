@@ -65,6 +65,8 @@ def fire_employee(ctx: AppContext, req: FireRequest):
 
     employee_role = employee_link.role
     if employer_role == Role.CEO:
+        if employee_role == Role.CEO:
+            return protobufify(APIResponse(fire=FireResponse(FireResponseStatus.EMPLOYER_NOT_AUTHORIZED)))
         pass
     elif employer_role == Role.PRODUCTION_MANAGER and employee_role == Role.EMPLOYEE:
         pass

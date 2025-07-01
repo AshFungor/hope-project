@@ -79,6 +79,12 @@ def employ_user(ctx: AppContext, req: EmployRequest):
 
     employer_role = employer_link.role
     if employer_role == Role.CEO:
+        # should we remove ceo from payload?
+        if req.role == EmployeeRole.CEO:
+            ctx.logger.warning(
+                f"employment failed: cannot employ ceo"
+            )
+            return answer(EmployResponse(status=EmployResponseStatus.EMPLOYER_NOT_AUTHORIZED))
         pass
     elif employer_role == Role.PRODUCTION_MANAGER:
         if req.role != EmployeeRole.EMPLOYEE:

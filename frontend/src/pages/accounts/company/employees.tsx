@@ -1,18 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-import { Hope } from "@app/api/api";
-import { useUser } from "@app/contexts/user";
+import { Hope } from '@app/api/api';
+import { useUser } from '@app/contexts/user';
 
-import { Request } from "@app/codegen/app/protos/request";
-import { AllEmployeesRequest, AllEmployeesResponse } from "@app/codegen/app/protos/company/employees";
-import { FireRequest, FireResponse, FireResponse_Status } from "@app/codegen/app/protos/company/fire";
-import { EmployeeRole } from "@app/codegen/app/protos/types/company";
+import { Request } from '@app/codegen/app/protos/request';
+import { AllEmployeesRequest, AllEmployeesResponse } from '@app/codegen/app/protos/company/employees';
+import { FireRequest, FireResponse, FireResponse_Status } from '@app/codegen/app/protos/company/fire';
+import { EmployeeRole } from '@app/codegen/app/protos/types/company';
 
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
+
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 interface CompanyEmployeesProps {
-    employees: AllEmployeesResponse["employees"];
+    employees: AllEmployeesResponse['employees'];
     canFireKeyRoles: boolean;
     canFireWorkers: boolean;
     onFire: (bankAccountId: number, role: EmployeeRole) => void;
@@ -20,12 +30,12 @@ interface CompanyEmployeesProps {
 
 const roleLabel = (role: EmployeeRole) => {
     switch (role) {
-        case EmployeeRole.CEO: return "Генеральный директор";
-        case EmployeeRole.CFO: return "Финансовый директор";
-        case EmployeeRole.MARKETING_MANAGER: return "Маркетолог";
-        case EmployeeRole.PRODUCTION_MANAGER: return "Производственный директор";
-        case EmployeeRole.EMPLOYEE: return "Сотрудник";
-        default: return "Роль неизвестна";
+        case EmployeeRole.CEO: return 'Генеральный директор';
+        case EmployeeRole.CFO: return 'Финансовый директор';
+        case EmployeeRole.MARKETING_MANAGER: return 'Маркетолог';
+        case EmployeeRole.PRODUCTION_MANAGER: return 'Производственный директор';
+        case EmployeeRole.EMPLOYEE: return 'Сотрудник';
+        default: return 'Роль неизвестна';
     }
 };
 
@@ -33,53 +43,57 @@ export function CompanyEmployees({
     employees,
     canFireKeyRoles,
     canFireWorkers,
-    onFire
+    onFire,
 }: CompanyEmployeesProps) {
     return (
-        <div className="mt-4">
-            <h5 className="mb-3">Сотрудники</h5>
-            <table className="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Имя</th>
-                        <th>Фамилия</th>
-                        <th>Отчество</th>
-                        <th>Должность</th>
-                        {(canFireKeyRoles || canFireWorkers) && <th></th>}
-                    </tr>
-                </thead>
-                <tbody>
+        <Box sx={{ mt: 4 }}>
+            <Typography variant="h6" sx={{ mb: 3 }}>
+                Сотрудники
+            </Typography>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Имя</TableCell>
+                        <TableCell>Фамилия</TableCell>
+                        <TableCell>Отчество</TableCell>
+                        <TableCell>Должность</TableCell>
+                        {(canFireKeyRoles || canFireWorkers) && <TableCell />}
+                    </TableRow>
+                </TableHead>
+                <TableBody>
                     {employees.map((e, index) => {
                         const canFire =
-                            (canFireKeyRoles && e.role !== EmployeeRole.EMPLOYEE) ||
+                            (canFireKeyRoles && e.role !== EmployeeRole.EMPLOYEE && e.role !== EmployeeRole.CEO) ||
                             (canFireWorkers && e.role === EmployeeRole.EMPLOYEE);
 
                         return (
-                            <tr key={index}>
-                                <td>{e.info?.name}</td>
-                                <td>{e.info?.lastName}</td>
-                                <td>{e.info?.patronymic}</td>
-                                <td>{roleLabel(e.role)}</td>
+                            <TableRow key={index}>
+                                <TableCell>{e.info?.name}</TableCell>
+                                <TableCell>{e.info?.lastName}</TableCell>
+                                <TableCell>{e.info?.patronymic}</TableCell>
+                                <TableCell>{roleLabel(e.role)}</TableCell>
                                 {(canFireKeyRoles || canFireWorkers) && (
-                                    <td>
+                                    <TableCell>
                                         {canFire ? (
-                                            <button
-                                                className="btn btn-sm btn-outline-danger"
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                color="error"
                                                 onClick={() => onFire(e.info?.bankAccountId ?? 0, e.role)}
                                             >
                                                 Уволить
-                                            </button>
+                                            </Button>
                                         ) : (
-                                            <span className="text-muted">-</span>
+                                            <Typography variant="body2" color="text.secondary">-</Typography>
                                         )}
-                                    </td>
+                                    </TableCell>
                                 )}
-                            </tr>
+                            </TableRow>
                         );
                     })}
-                </tbody>
-            </table>
-        </div>
+                </TableBody>
+            </Table>
+        </Box>
     );
 }
 
@@ -87,7 +101,7 @@ export default function CompanyEmployeesPage() {
     const { companyId } = useParams<{ companyId: string }>();
     const { currentUser } = useUser();
 
-    const [employees, setEmployees] = useState<AllEmployeesResponse["employees"]>([]);
+    const [employees, setEmployees] = useState<AllEmployeesResponse['employees']>([]);
     const [canFireKeyRoles, setCanFireKeyRoles] = useState(false);
     const [canFireWorkers, setCanFireWorkers] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
@@ -137,35 +151,37 @@ export default function CompanyEmployeesPage() {
 
         switch (response.fire?.status) {
             case FireResponse_Status.OK:
-                setMessage("Сотрудник уволен.");
+                setMessage('Сотрудник уволен.');
                 setStatus(AlertStatus.Info);
                 await fetchEmployees();
                 break;
             case FireResponse_Status.USER_NOT_FOUND:
-                setMessage("Пользователь не найден.");
+                setMessage('Пользователь не найден.');
                 setStatus(AlertStatus.Error);
                 break;
             case FireResponse_Status.COMPANY_NOT_FOUND:
-                setMessage("Фирма не найдена.");
+                setMessage('Фирма не найдена.');
                 setStatus(AlertStatus.Error);
                 break;
             case FireResponse_Status.EMPLOYER_NOT_AUTHORIZED:
-                setMessage("У вас нет прав для увольнения этого сотрудника.");
+                setMessage('У вас нет прав для увольнения этого сотрудника.');
                 setStatus(AlertStatus.Error);
                 break;
             case FireResponse_Status.EMPLOYEE_IS_NOT_SUITABLE:
-                setMessage("Нельзя уволить этого сотрудника.");
+                setMessage('Нельзя уволить этого сотрудника.');
                 setStatus(AlertStatus.Error);
                 break;
             default:
-                setMessage("Неизвестная ошибка при увольнении.");
+                setMessage('Неизвестная ошибка при увольнении.');
                 setStatus(AlertStatus.Error);
         }
     };
 
     return (
-        <div className="container mt-4">
-            <h3 className="mb-4 text-center"><strong>Список сотрудников</strong></h3>
+        <Container sx={{ mt: 4 }}>
+            <Typography variant="h4" sx={{ mb: 4 }} align="center">
+                <strong>Список сотрудников</strong>
+            </Typography>
             <MessageAlert message={message} status={status} />
             <CompanyEmployees
                 employees={employees}
@@ -173,6 +189,6 @@ export default function CompanyEmployeesPage() {
                 canFireWorkers={canFireWorkers}
                 onFire={handleFire}
             />
-        </div>
+        </Container>
     );
 }

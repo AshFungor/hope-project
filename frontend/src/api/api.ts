@@ -8,6 +8,7 @@ import { API as GoalAPI } from "@app/api/sub/goal";
 import { API as PrefectureAPI } from "@app/api/sub/prefecture";
 import { API as CompanyAPI } from "@app/api/sub/company";
 import { API as UserAPI } from "@app/api/sub/user";
+import { API as CityHallAPI } from "@app/api/sub/city_hall";
 
 export namespace Hope {
     export async function send(request: Request): Promise<Response> {
@@ -52,6 +53,9 @@ export namespace Hope {
 
         } else if (request.createGoal || request.lastGoal) {
             response = await GoalAPI.Goal.handle(request);
+
+        } else if (request.cityHall) {
+            response = await CityHallAPI.CityHall.handle(request);
 
         } else {
             throw new Error(`Unsupported request: none of the oneof fields set`);

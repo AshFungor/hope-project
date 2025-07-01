@@ -89,6 +89,7 @@ def get_partial_user(ctx: AppContext, req: PartialUserRequest):
     )
 
     if user is None:
+        ctx.logger.warning(f"could not get user: {req.bank_account_id} is unknown")
         return protobufify(Response(partial_user=PartialUserResponse()))
 
     partial_resp = PartialUserResponse(
