@@ -13,7 +13,7 @@ from app.models.queries import wrap_crud_context
 
 from app.codegen.hope import Response
 from app.codegen.types import EmployeeRole
-from app.codegen.company import EmployRequest, EmployResponse, EmployResponseStatus
+from app.codegen.company import EmployRequest, EmployResponse, EmployResponseStatus, MasterChangeCEOResponse, MasterChangeCEORequest
 
 
 CRITICAL_ROLES = {
@@ -139,3 +139,58 @@ def employ_user(ctx: AppContext, req: EmployRequest):
         session.commit()
 
     return answer(EmployResponse(status=EmployResponseStatus.OK))
+
+
+@Blueprints.company.route("/api/company/master/change_ceo", methods=["POST"])
+@login_required
+@pythonify(MasterChangeCEORequest)
+def master_change_ceo(ctx: AppContext, req: MasterChangeCEORequest):
+    session = ctx.database.session
+
+    company = session.scalar(
+        orm.select(Company).filter_by(bank_account_id=req.company_id)
+    )
+    new_ceo = session.scalar(
+        orm.select(User).filter_by(bank_account_id=req.new_ceo_id)
+    )
+
+    if not company or not new_ceo:
+        return protobufify(Response(master_change_ceo=MasterChangeCEOResponse(ok=False)))
+
+    current_ceo_link = session.scalar(
+        orm.select(User2Company).filter(
+            User2Company.company_id == company.id,
+            User2Company.role == Role.CEO,
+            User2Company.fired_at.is_(None)
+        )
+    )
+
+    if current_ceo_link:
+        current_ceo_link.fired_at = datetime.now()
+
+    new_ceo_link = session.scalar(
+        orm.select(User2Company).filter(
+            User2Company.company_id == company.id,
+            User2Company.user_id == new_ceo.id,
+            User2Company.fired_at.is_(None)
+        )
+    )
+
+    if new_ceo_link:
+        new_ceo_link.role = Role.CEO
+    else:
+        new_ceo_link = User2Company(
+            user_id=new_ceo.id,
+            company_id=company.id,
+            role=Role.CEO,
+            employed_at=datetime.now(),
+            ratio=0
+        )
+        session.add(new_ceo_link)
+
+    company.ceo_id = new_ceo.id
+
+    with wrap_crud_context():
+        session.commit()
+
+    return protobufify(Response(master_change_ceo=MasterChangeCEOResponse(ok=True)))

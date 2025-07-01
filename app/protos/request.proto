@@ -29,6 +29,7 @@ import "app/protos/transaction/create.proto";
 import "app/protos/transaction/history.proto";
 import "app/protos/transaction/decide.proto";
 import "app/protos/transaction/unpaid.proto";
+import "app/protos/transaction/master.proto";
 
 import "app/protos/goal/create.proto";
 import "app/protos/goal/last.proto";
@@ -70,5 +71,12 @@ message Request {
         company.FireRequest fire = 25;
 
         city.CityHallRequest city_hall = 26;
+
+        transaction.MasterRemoveMoneyRequest master_remove_money = 27;
+        transaction.MasterAddMoneyRequest master_add_money = 28;
+        transaction.MasterAddProductRequest master_add_product = 29;
+        transaction.MasterRemoveProductRequest master_remove_product = 30;
+
+        company.MasterChangeCEORequest master_change_ceo = 31;
     }
 }

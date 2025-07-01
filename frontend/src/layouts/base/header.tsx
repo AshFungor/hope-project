@@ -26,13 +26,14 @@ export default function Header({ showLogout = false }: { showLogout?: boolean })
     return (
         <AppBar
             position="static"
-            color="primary"
+            color="default"
             enableColorOnDark
             sx={{
                 px: 3,
                 py: 1,
                 borderBottom: 1,
                 borderColor: 'divider',
+                bgcolor: 'black',
             }}
         >
             <Toolbar disableGutters sx={{ display: 'flex', justifyContent: 'space-between' }}>

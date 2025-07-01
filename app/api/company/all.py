@@ -11,7 +11,7 @@ from app.context import AppContext
 from app.models import Company, User, User2Company
 
 
-@Blueprints.company.route("/api/companies/all", methods=["POST"])
+@Blueprints.company.route("/api/company/all", methods=["POST"])
 @login_required
 @pythonify(AllCompaniesRequest)
 def get_all_companies(ctx: AppContext, req: AllCompaniesRequest):

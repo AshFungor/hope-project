@@ -25,30 +25,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
     };
 
-        
     const theme = createTheme({
         palette: {
             mode: 'light',
             primary: {
-                main: '#000000',     // Primary is black
-                contrastText: '#ffffff',
+                main: '#9a5500',
             },
             secondary: {
-                main: '#FF8C00',     // Dark orange
-                contrastText: '#000000',
-            },
-            background: {
-                default: '#FAEBD7',  // Antique White
-                paper: '#FFEFD5',    // Papaya Whip
-            },
-            text: {
-                primary: '#000000',
-                secondary: '#333333',
-            },
-        },
-        typography: {
-            button: {
-                textTransform: 'none',
+                main: '#f50057',
             },
         },
     });

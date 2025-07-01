@@ -12,7 +12,7 @@ const MasterHomePage: React.FC = () => {
     const NavButton = (path: string, label: string) => (
         <Button
             key={path}
-            variant="outlined"
+            variant="contained"
             size="large"
             onClick={() => navigate(path)}
         >
@@ -32,6 +32,7 @@ const MasterHomePage: React.FC = () => {
                 {NavButton('/master/resources', 'Про ресурсы/товары/энергию')}
                 {NavButton('/master/prefecture/update', 'Сменить префектуру')}
                 {NavButton('/master/company/create', 'Создать фирму')}
+                {NavButton('/master/company/change-ceo', 'Сменить CEO')} {/* ✅ Added label */}
             </Stack>
         </Container>
     );

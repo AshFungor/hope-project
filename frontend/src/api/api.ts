@@ -9,6 +9,7 @@ import { API as PrefectureAPI } from "@app/api/sub/prefecture";
 import { API as CompanyAPI } from "@app/api/sub/company";
 import { API as UserAPI } from "@app/api/sub/user";
 import { API as CityHallAPI } from "@app/api/sub/city_hall";
+import { API as MasterAPI } from "@app/api/sub/master-transactions";
 
 export namespace Hope {
     export async function send(request: Request): Promise<Response> {
@@ -29,7 +30,8 @@ export namespace Hope {
             request.getCompany ||
             request.allEmployees ||
             request.employ ||
-            request.fire
+            request.fire ||
+            request.masterChangeCeo
         ) {
             response = await CompanyAPI.Company.handle(request);
 
@@ -50,6 +52,14 @@ export namespace Hope {
             request.currentTransactions
         ) {
             response = await TransactionAPI.Transaction.handle(request);
+
+        } else if (
+            request.masterRemoveMoney ||
+            request.masterAddMoney ||
+            request.masterAddProduct ||
+            request.masterRemoveProduct
+        ) {
+            response = await MasterAPI.Master.handle(request);
 
         } else if (request.createGoal || request.lastGoal) {
             response = await GoalAPI.Goal.handle(request);

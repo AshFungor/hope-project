@@ -24,3 +24,13 @@ message EmployResponse {
 
     Status status = 1;
 }
+
+message MasterChangeCEORequest {
+    int64 company_id = 1;
+    int64 new_ceo_id = 2;
+}
+
+message MasterChangeCEOResponse {
+    bool ok = 1;
+}
+

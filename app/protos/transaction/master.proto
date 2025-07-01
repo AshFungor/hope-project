@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package transaction;
+
+message MasterRemoveMoneyRequest {
+    int64 customer_bank_account_id = 1;
+    int64 amount = 2;
+}
+
+message MasterAddMoneyRequest {
+    int64 customer_bank_account_id = 1;
+    int64 amount = 2;
+}
+
+message MasterAddProductRequest {
+    int64 customer_bank_account_id = 1;
+    string product = 2;
+    int64 count = 3;
+    int64 amount = 4;
+}
+
+message MasterRemoveProductRequest {
+    int64 customer_bank_account_id = 1;
+    string product = 2;
+    int64 count = 3;
+    int64 amount = 4;
+}

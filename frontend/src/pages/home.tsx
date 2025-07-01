@@ -11,7 +11,7 @@ const HomePage = () => {
 
     const NavButton = (path: string, label: string) => (
         <Button
-            variant="outlined"
+            variant="contained"
             size="large"
             onClick={() => navigate(path)}
             sx={{ mb: 2 }}

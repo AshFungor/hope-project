@@ -22,6 +22,7 @@ import CityHallPage from "@app/pages/accounts/city-hall";
 import NewProductForm from "@app/pages/master/add-product";
 import SwitchPrefectureForm from "@app/pages/master/switch-prefecture";
 import MasterActionsPage from "@app/pages/master/transactions";
+import MasterChangeCEOPage from './pages/master/change-ceo';
 import CreateCompanyForm from "@app/pages/master/create-company";
 import AllProductsPage from "@app/pages/master/all-products";
 
@@ -101,6 +102,7 @@ function App() {
                             <Route path="/master/resources" element={<MasterActionsPage />} />
                             <Route path="/master/prefecture/update" element={<SwitchPrefectureForm />} />
                             <Route path="/master/company/create" element={<CreateCompanyForm />} />
+                            <Route path="/master/company/change-ceo" element={<MasterChangeCEOPage />} />
                         </Route>
 
                         <Route element={<AuthLayout />}>

@@ -35,6 +35,7 @@ import "app/protos/goal/last.proto";
 
 import "app/protos/city_hall/current.proto";
 
+
 message Response {
     oneof payload {
         session.LoginResponse login = 1;
@@ -70,5 +71,12 @@ message Response {
         company.FireResponse fire = 25;
 
         city.CityHallResponse city_hall = 26;
+
+        transaction.CreateTransactionResponse master_remove_money = 27;
+        transaction.CreateTransactionResponse master_add_money = 28;
+        transaction.CreateTransactionResponse master_add_product = 29;
+        transaction.CreateTransactionResponse master_remove_product = 30;
+
+        company.MasterChangeCEOResponse master_change_ceo = 31;
     }
 }

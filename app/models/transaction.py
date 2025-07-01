@@ -47,9 +47,4 @@ class Transaction(ModelBase):
         self.status = status
         self.created_at = created_at
         self.updated_at = updated_at
-        self.comment = self.__generate_comment(comment)
-
-    def __generate_comment(self, additional_message: str | None) -> None:
-        if additional_message is None:
-            return ""
-        return f"transaction comment {additional_message}"
+        self.comment = comment
