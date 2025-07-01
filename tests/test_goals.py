@@ -1,18 +1,18 @@
-import pytest
+from datetime import datetime
 
+import pytest
 import sqlalchemy as orm
 
-from datetime import datetime
-from app.codegen.hope import Request, Response
 from app.codegen.goal import (
     CreateGoalRequest,
     CreateGoalResponseStatus,
-    GetLastGoalRequest
+    GetLastGoalRequest,
 )
+from app.codegen.hope import Request, Response
 from app.codegen.types import Goal as GoalProto
-
 from app.context import AppContext
-from app.models import Goal, BankAccount, Product, Product2BankAccount
+from app.models import BankAccount, Goal, Product, Product2BankAccount
+
 
 @pytest.fixture
 def goal_data():
@@ -38,14 +38,12 @@ def goal_data():
 
 
 def test_create_goal(client, goal_data, logged_in_normal):
-    req = Request(create_goal=CreateGoalRequest(
-        goal=GoalProto(bank_account_id=123, value=500)
-    ))
+    req = Request(create_goal=CreateGoalRequest(goal=GoalProto(bank_account_id=123, value=500)))
     resp = client.post("/api/goal/create", data=bytes(req))
     assert resp.status_code == 200
 
     r = Response().parse(resp.data)
-    assert r.crete_goal.status == CreateGoalResponseStatus.OK
+    assert r.create_goal.status == CreateGoalResponseStatus.OK
 
 
 def test_create_goal_exists(client, goal_data, logged_in_normal):
@@ -55,14 +53,12 @@ def test_create_goal_exists(client, goal_data, logged_in_normal):
         ctx.database.session.add(goal)
         ctx.database.session.commit()
 
-    req = Request(create_goal=CreateGoalRequest(
-        goal=GoalProto(bank_account_id=123, value=1000)
-    ))
+    req = Request(create_goal=CreateGoalRequest(goal=GoalProto(bank_account_id=123, value=1000)))
     resp = client.post("/api/goal/create", data=bytes(req))
     assert resp.status_code == 200
 
     r = Response().parse(resp.data)
-    assert r.crete_goal.status == CreateGoalResponseStatus.EXISTS
+    assert r.create_goal.status == CreateGoalResponseStatus.EXISTS
 
 
 def test_get_last_goal_none(client, goal_data, logged_in_normal):
@@ -79,12 +75,7 @@ def test_get_last_goal_none(client, goal_data, logged_in_normal):
 def test_get_last_goal_exists(client, goal_data, logged_in_normal):
     ctx = AppContext.safe_load()
     with ctx.app.app_context():
-        goal = Goal(
-            bank_account_id=123,
-            value=1000,
-            amount_on_setup=2000,
-            created_at=datetime.now()
-        )
+        goal = Goal(bank_account_id=123, value=1000, amount_on_setup=2000, created_at=datetime.now())
         ctx.database.session.add(goal)
         ctx.database.session.commit()
 

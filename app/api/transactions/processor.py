@@ -1,9 +1,9 @@
 import sqlalchemy as orm
 
-from app.context import AppContext, function_context
-from app.models import Product2BankAccount, Transaction, TransactionStatus, BankAccount
-from app.codegen.transaction import DecideOnTransactionResponse
+from app.codegen.transaction import DecideOnTransactionResponse, DecideOnTransactionRequestStatus
 from app.codegen.types import TransactionStatusReason
+from app.context import AppContext, function_context
+from app.models import BankAccount, Product2BankAccount, Transaction, TransactionStatus
 
 
 class Processor:
@@ -88,11 +88,7 @@ class Processor:
             return TransactionStatusReason.CUSTOMER_MISSING_MONEY
 
         if not customer_products:
-            customer_products = Product2BankAccount(
-                bank_account_id=transaction.customer_bank_account_id,
-                product_id=transaction.product_id,
-                count=0
-            )
+            customer_products = Product2BankAccount(bank_account_id=transaction.customer_bank_account_id, product_id=transaction.product_id, count=0)
             ctx.database.session.add(customer_products)
 
         customer_wallet.count -= transaction.amount
@@ -118,12 +114,12 @@ def get_products(ctx: AppContext, account: int, product_id: int) -> Product2Bank
 
 
 @function_context
-def complete_transaction(ctx: AppContext, transaction_id: int, with_status: str) -> DecideOnTransactionResponse:
+def complete_transaction(ctx: AppContext, transaction_id: int, with_status: DecideOnTransactionRequestStatus) -> DecideOnTransactionResponse:
     transaction = ctx.database.session.get(Transaction, transaction_id)
     if not transaction:
         raise ValueError(f"Transaction {transaction_id} not found")
 
-    result = Processor.process(ctx, transaction, with_status == TransactionStatus.ACCEPTED)
+    result = Processor.process(ctx, transaction, with_status == DecideOnTransactionRequestStatus.ACCEPTED)
 
     if result != TransactionStatusReason.OK:
         ctx.database.session.rollback()

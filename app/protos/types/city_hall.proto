@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package types;
+
+message CityHall {
+    uint64 bank_account_id = 2;
+    uint64 mayor_account_id = 3;
+    uint64 economic_assistant_account_id = 4;
+    uint64 social_assistant_account_id = 5;
+}

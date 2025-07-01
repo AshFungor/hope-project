@@ -1,6 +1,6 @@
 import types
 
-from .user import User
+from .user import User, Sex
 from .bank_account import BankAccount, Product2BankAccount
 from .city import CityHall
 from .company import Company, Role, User2Company

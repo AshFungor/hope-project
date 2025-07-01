@@ -4,13 +4,26 @@ package hope;
 
 import "app/protos/session/login.proto";
 import "app/protos/session/logout.proto";
-import "app/protos/session/user-info.proto";
 
-import "app/protos/products/all.proto";
-import "app/protos/products/consume.proto";
-import "app/protos/products/count.proto";
-import "app/protos/products/create.proto";
-import "app/protos/products/available.proto";
+import "app/protos/user/full.proto";
+import "app/protos/user/partial.proto";
+
+import "app/protos/prefecture/all.proto";
+import "app/protos/prefecture/current.proto";
+import "app/protos/prefecture/link.proto";
+
+import "app/protos/company/all.proto";
+import "app/protos/company/create.proto";
+import "app/protos/company/employ.proto";
+import "app/protos/company/employees.proto";
+import "app/protos/company/get.proto";
+import "app/protos/company/fire.proto";
+
+import "app/protos/product/all.proto";
+import "app/protos/product/consume.proto";
+import "app/protos/product/count.proto";
+import "app/protos/product/create.proto";
+import "app/protos/product/available.proto";
 
 import "app/protos/transaction/create.proto";
 import "app/protos/transaction/history.proto";
@@ -20,36 +33,42 @@ import "app/protos/transaction/unpaid.proto";
 import "app/protos/goal/create.proto";
 import "app/protos/goal/last.proto";
 
-import "app/protos/prefecture/all.proto";
-import "app/protos/prefecture/link.proto";
-
-import "app/protos/company/create.proto";
-
+import "app/protos/city_hall/current.proto";
 
 message Request {
     oneof payload {
         session.LoginRequest login = 1;
         session.LogoutRequest logout = 2;
-        session.UserRequest user = 3;
 
-        product.AllProductsRequest all_products = 4;
-        product.AvailableProductsRequest available_products = 5;
-        product.ConsumeProductRequest consume_product = 6;
-        product.ProductCountsRequest product_counts = 7;
-        product.CreateProductRequest create_product = 8;
+        user.PartialUserRequest partial_user = 3;
+        user.UserRequest full_user = 4;
 
-        transaction.CreateProductTransactionRequest create_product_transaction = 9;
-        transaction.CreateMoneyTransactionRequest create_money_transaction = 10;
-        transaction.DecideOnTransactionRequest decide_on_transaction = 11;
-        transaction.ViewTransactionsRequest view_transaction_history = 12;
-        transaction.CurrentTransactionsRequest current_transactions = 13;
+        product.AllProductsRequest all_products = 5;
+        product.AvailableProductsRequest available_products = 6;
+        product.ConsumeProductRequest consume_product = 7;
+        product.ProductCountsRequest product_counts = 8;
+        product.CreateProductRequest create_product = 9;
 
-        goal.CreateGoalRequest create_goal = 14;
-        goal.GetLastGoalRequest last_goal = 15;
-        
-        prefecture.UpdateLinkRequest update_prefecture_link = 16;
-        prefecture.AllPrefecturesRequest all_prefectures = 17;
+        transaction.CreateProductTransactionRequest create_product_transaction = 10;
+        transaction.CreateMoneyTransactionRequest create_money_transaction = 11;
+        transaction.DecideOnTransactionRequest decide_on_transaction = 12;
+        transaction.ViewTransactionsRequest view_transaction_history = 13;
+        transaction.CurrentTransactionsRequest current_transactions = 14;
 
-        company.CreateCompanyRequest create_company = 18;
+        goal.CreateGoalRequest create_goal = 15;
+        goal.GetLastGoalRequest last_goal = 16;
+
+        prefecture.UpdateLinkRequest update_prefecture_link = 17;
+        prefecture.AllPrefecturesRequest all_prefectures = 18;
+        prefecture.CurrentPrefectureRequest current_prefecture = 19;
+
+        company.CreateCompanyRequest create_company = 20;
+        company.AllCompaniesRequest all_companies = 21;
+        company.EmployRequest employ = 22;
+        company.AllEmployeesRequest all_employees = 23;
+        company.GetCompanyRequest get_company = 24;
+        company.FireRequest fire = 25;
+
+        city.CityHallRequest city_hall = 26;
     }
 }

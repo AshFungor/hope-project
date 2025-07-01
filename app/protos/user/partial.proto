@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package user;
+
+import "app/protos/types/user.proto";
+
+message PartialUserRequest {
+    uint64 bank_account_id = 1;
+}
+
+message PartialUserResponse {
+    types.PartialUser user = 1;
+}

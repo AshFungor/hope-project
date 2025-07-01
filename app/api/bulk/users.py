@@ -1,28 +1,25 @@
 import csv
-
-from io import StringIO
 from datetime import datetime
+from io import StringIO
 
-from app.api.bulk import bulk
 from app.api import Blueprints
+from app.api.bulk import bulk
 from app.context import AppContext
-from app.models.queries import wrap_crud_context, CRUD
-from app.models import User, BankAccount, Product2BankAccount, Product
+from app.models import BankAccount, Product, Product2BankAccount, User
+from app.models.queries import CRUD, wrap_crud_context
 
 
 # TODO: fix this
 @Blueprints.loader.route("/api/bulk/users", methods=["POST"])
-@bulk
+@bulk.bulk
 def bulk_create_users(ctx: AppContext, stream: StringIO):
     with wrap_crud_context():
         money = ctx.database.session.get(Product, 1)
         if money is None:
-            ctx.database.session.add(
-                Product("MONEY", "надик", 1)
-            )
+            ctx.database.session.add(Product("MONEY", "надик", 1))
             ctx.database.session.commit()
 
-        for row in csv.DictReader(stream, delimiter=';'):
+        for row in csv.DictReader(stream, delimiter=";"):
             try:
                 CRUD.create_user(
                     User(
@@ -35,7 +32,7 @@ def bulk_create_users(ctx: AppContext, stream: StringIO):
                         password=row["Password"],
                         sex=row["Sex"],
                         bonus=int(row["Bonus"]),
-                        is_admin=row["IsAdmin"].lower() == "true"
+                        is_admin=row["IsAdmin"].lower() == "true",
                     )
                 )
             except KeyError as err:
@@ -44,5 +41,5 @@ def bulk_create_users(ctx: AppContext, stream: StringIO):
 
         ctx.database.session.commit()
         return "success", 200
-    
+
     return "bulk adding failed", 400

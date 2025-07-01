@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { User } from "@app/api/sub/session";
 import { Hope } from "@app/api/api";
 import { Request } from "@app/codegen/app/protos/request";
-import { UserRequest } from "@app/codegen/app/protos/session/user-info";
+import { UserRequest } from "@app/codegen/app/protos/user/full";
 
 interface UserContextType {
     currentUser: User | null;
@@ -40,10 +40,10 @@ export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => 
     const refreshUser = useCallback(async () => {
         try {
             const userRequest = UserRequest.create({});
-            const response = await Hope.send(Request.create({ user: userRequest }));
-    
-            if (response?.user?.info) {
-                const info = response.user.info;
+            const response = await Hope.send(Request.create({ fullUser: userRequest }));
+
+            if (response?.fullUser?.user) {
+                const info = response.fullUser.user;
                 setCurrentUser(
                     new User(
                         info.name,
@@ -68,11 +68,11 @@ export const UserProvider: React.FC<UserProviderProperties> = ({ children }) => 
             setIsLoading(false);
         }
     }, []);
-    
+
     useEffect(() => {
         refreshUser();
     }, [refreshUser]);
-    
+
     useEffect(() => {
         if (!isLoading && currentUser == null) {
             navigate("/auth/login");

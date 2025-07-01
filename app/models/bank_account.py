@@ -25,8 +25,8 @@ class BankAccount(ModelBase):
 
     @classmethod
     def from_kind(cls, kind: AccountMapping) -> int:
-        tail = randint(10 ** cls.__tail_len, 10 ** (cls.__tail_len + 1) - 1)
-        s = f"{int(kind)}{tail}"[:1 + cls.__tail_len]
+        tail = randint(10**cls.__tail_len, 10 ** (cls.__tail_len + 1) - 1)
+        s = f"{int(kind)}{tail}"[: 1 + cls.__tail_len]
         return int(s)
 
 

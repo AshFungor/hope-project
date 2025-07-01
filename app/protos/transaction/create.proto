@@ -5,17 +5,17 @@ package transaction;
 import "app/protos/types/transaction.proto";
 
 message CreateProductTransactionRequest {
-    int32 seller_account = 1;
-    int32 customer_account = 2;
+    uint64 seller_bank_account_id = 1;
+    uint64 customer_bank_account_id = 2;
     string product = 3;
-    int32 count = 4;
-    int32 amount = 5;
+    uint64 count = 4;
+    uint64 amount = 5;
 }
 
 message CreateMoneyTransactionRequest {
-    int32 seller_account = 1;
-    int32 customer_account = 2;
-    int32 amount = 3;
+    uint64 seller_bank_account_id = 1;
+    uint64 customer_bank_account_id = 2;
+    uint64 amount = 3;
 }
 
 message CreateTransactionResponse {

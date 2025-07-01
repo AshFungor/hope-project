@@ -5,11 +5,15 @@ package transaction;
 import "app/protos/types/transaction.proto";
 
 message DecideOnTransactionRequest {
-    string status = 1;
-    int32 id = 2;
+    enum Status {
+        ACCEPTED = 0;
+        REJECTED = 1;
+    }
+
+    uint64 id = 1;
+    Status status = 2;
 }
 
 message DecideOnTransactionResponse {
     types.TransactionStatusReason status = 1;
 }
-

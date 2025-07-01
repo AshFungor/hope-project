@@ -6,7 +6,15 @@ from typing import Callable, List, Tuple
 import sqlalchemy as orm
 
 from app.context import AppContext, function_context
-from app.models import BankAccount, Company, Product2BankAccount, Role, User2Company, User, Product
+from app.models import (
+    BankAccount,
+    Company,
+    Product,
+    Product2BankAccount,
+    Role,
+    User,
+    User2Company,
+)
 
 
 def wrap_crud_call(f: Callable):
@@ -83,10 +91,8 @@ class CRUD:
     @wrap_crud_call
     def query_money(cls, account: int) -> int:
         return cls.query_product(account, 1)
-    
+
     @classmethod
     @wrap_crud_call
     def query_product_by_name(cls, name: str) -> Product:
-        return cls.__ctx.database.session.execute(
-            orm.select(Product).filter(Product.name == name)
-        ).first()
+        return cls.__ctx.database.session.execute(orm.select(Product).filter(Product.name == name)).first()

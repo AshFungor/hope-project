@@ -99,6 +99,7 @@ class AppConfig(YAMLObject):
     logging: Logging
     flask_extensions: FlaskExtensions
     consumption: Consumption
+    money_product_id: int
 
 
 class AppContext:

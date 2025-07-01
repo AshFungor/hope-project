@@ -9,5 +9,6 @@ message CreateProductRequest {
 }
 
 message CreateProductResponse {
+    // should probably rework into statuses
     bool status = 1;
 }

@@ -7,9 +7,7 @@ from app.models import Consumption, Product
 
 
 @function_context
-def needs_to_consume(
-    ctx: AppContext, id: int, product_category: str, norm: int, time_offset: timedelta
-) -> int:
+def needs_to_consume(ctx: AppContext, id: int, product_category: str, norm: int, time_offset: timedelta) -> int:
     suitable_products = ctx.database.session.scalars(orm.select(Product.id).filter(Product.category == product_category)).all()
 
     consumed = ctx.database.session.scalars(

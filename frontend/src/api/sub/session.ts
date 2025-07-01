@@ -34,10 +34,6 @@ export namespace API {
                 return Protobuf.send("/api/session/logout", request, "POST");
             }
 
-            if (request.user) {
-                return Protobuf.send("/api/session/current_user", request, "GET");
-            }
-
             throw new Error("Unsupported Session payload type");
         }
     }

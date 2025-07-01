@@ -1,7 +1,21 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+
 export default function Footer() {
-	return (
-		<footer className="py-3 mt-auto text-center border-top">
-			<p className="text-body-secondary">© 2024 Надежда</p>
-		</footer>
-	);
+    return (
+        <Box
+            component="footer"
+            sx={{
+                py: 3,
+                mt: 'auto',
+                textAlign: 'center',
+                borderTop: 1,
+                borderColor: 'divider',
+            }}
+        >
+            <Typography variant="body2" color="text.secondary">
+                © 2024 Надежда
+            </Typography>
+        </Box>
+    );
 }

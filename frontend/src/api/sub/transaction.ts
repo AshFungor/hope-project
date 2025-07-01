@@ -5,13 +5,14 @@ import { Transaction_Status, Transaction as TransactionType } from "@app/codegen
 
 export class Transaction implements TransactionType {
     constructor(
-        public sellerAccount: number,
-        public customerAccount: number,
+        public sellerBankAccountId: number,
+        public customerBankAccountId: number,
         public product: string,
         public count: number,
         public amount: number,
         public status: Transaction_Status,
         public transactionId: number,
+        public createdAt: string,
         public updatedAt: string,
         public side: string,
         public isMoney: boolean,

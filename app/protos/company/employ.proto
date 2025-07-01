@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package company;
+
+import "app/protos/types/company.proto";
+
+message EmployRequest {
+    uint64 new_employee_bank_account_id = 1;
+    uint64 company_bank_account_id = 2;
+
+    types.EmployeeRole role = 3;
+}
+
+message EmployResponse {
+    enum Status {
+        OK = 0;
+        HAS_ROLE_ALREADY = 1;
+        USER_NOT_FOUND = 2;
+        COMPANY_NOT_FOUND = 3;
+        EMPLOYER_NOT_AUTHORIZED = 4;
+        EMPLOYEE_IS_NOT_SUITABLE = 5;
+        ALREADY_TAKEN = 6;
+    }
+
+    Status status = 1;
+}

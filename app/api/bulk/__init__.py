@@ -1,3 +1,1 @@
-from .bulk import bulk
-
-from . import users
+from . import users, bulk

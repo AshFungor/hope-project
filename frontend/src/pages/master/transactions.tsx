@@ -1,13 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { Accordion, Form, Button, InputGroup } from "react-bootstrap";
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import React, { useEffect, useState } from 'react';
+
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
+
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import Button from '@mui/material/Button';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const MasterActionsPage: React.FC = () => {
-    const [account, setAccount] = useState("");
-    const [count, setCount] = useState("");
-    const [productName, setProductName] = useState("");
-    const [amount, setAmount] = useState("");
+    const [account, setAccount] = useState('');
+    const [count, setCount] = useState('');
+    const [productName, setProductName] = useState('');
+    const [amount, setAmount] = useState('');
     const [products, setProducts] = useState<string[]>([]);
 
     useEffect(() => {
@@ -28,160 +39,195 @@ const MasterActionsPage: React.FC = () => {
         // TODO: Send request to backend
     };
 
+    const InputBlock = ({
+        label,
+        type,
+        value,
+        onChange,
+    }: {
+        label: string;
+        type: string;
+        value: string;
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    }) => (
+        <TextField
+            type={type}
+            value={value}
+            onChange={onChange}
+            fullWidth
+            InputProps={{
+                startAdornment: <InputAdornment position="start">{label}</InputAdornment>,
+            }}
+            sx={{ mb: 3 }}
+        />
+    );
+
     return (
-        <Accordion defaultActiveKey="0">
-            <Accordion.Item eventKey="1">
-                <Accordion.Header>Списать надики</Accordion.Header>
-                <Accordion.Body>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Счет</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={account}
-                            onChange={(e) => setAccount(e.target.value)}
-                        />
-                    </InputGroup>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Количество</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={count}
-                            onChange={(e) => setCount(e.target.value)}
-                        />
-                    </InputGroup>
-                    <Button size="lg" variant="success" onClick={() => handleMoney("1")}>
+        <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
+            <Accordion defaultExpanded>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Списать надики
+                </AccordionSummary>
+                <AccordionDetails>
+                    <InputBlock
+                        label="Счет"
+                        type="number"
+                        value={account}
+                        onChange={(e) => setAccount(e.target.value)}
+                    />
+                    <InputBlock
+                        label="Количество"
+                        type="number"
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                    />
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        fullWidth
+                        onClick={() => handleMoney('1')}
+                    >
                         Подтверждаю
                     </Button>
-                </Accordion.Body>
-            </Accordion.Item>
+                </AccordionDetails>
+            </Accordion>
 
-            <Accordion.Item eventKey="2">
-                <Accordion.Header>Добавить надики</Accordion.Header>
-                <Accordion.Body>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Счет</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={account}
-                            onChange={(e) => setAccount(e.target.value)}
-                        />
-                    </InputGroup>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Количество</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={count}
-                            onChange={(e) => setCount(e.target.value)}
-                        />
-                    </InputGroup>
-                    <Button size="lg" variant="success" onClick={() => handleMoney("2")}>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Добавить надики
+                </AccordionSummary>
+                <AccordionDetails>
+                    <InputBlock
+                        label="Счет"
+                        type="number"
+                        value={account}
+                        onChange={(e) => setAccount(e.target.value)}
+                    />
+                    <InputBlock
+                        label="Количество"
+                        type="number"
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                    />
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        fullWidth
+                        onClick={() => handleMoney('2')}
+                    >
                         Подтверждаю
                     </Button>
-                </Accordion.Body>
-            </Accordion.Item>
+                </AccordionDetails>
+            </Accordion>
 
-            <Accordion.Item eventKey="5">
-                <Accordion.Header>Списать товар</Accordion.Header>
-                <Accordion.Body>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Счет</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={account}
-                            onChange={(e) => setAccount(e.target.value)}
-                        />
-                    </InputGroup>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Списать товар
+                </AccordionSummary>
+                <AccordionDetails>
+                    <InputBlock
+                        label="Счет"
+                        type="number"
+                        value={account}
+                        onChange={(e) => setAccount(e.target.value)}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Название продукта</InputGroup.Text>
-                        <Form.Control
-                            type="text"
-                            list="product-list"
-                            value={productName}
-                            onChange={(e) => setProductName(e.target.value)}
-                        />
-                        <datalist id="product-list">
-                            {products.map((p) => (
-                                <option key={p} value={p} />
-                            ))}
-                        </datalist>
-                    </InputGroup>
+                    <Autocomplete
+                        freeSolo
+                        options={products}
+                        value={productName}
+                        onInputChange={(_, newValue) => setProductName(newValue)}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Название продукта"
+                                fullWidth
+                                sx={{ mb: 3 }}
+                            />
+                        )}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Количество продукта</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={count}
-                            onChange={(e) => setCount(e.target.value)}
-                        />
-                    </InputGroup>
+                    <InputBlock
+                        label="Количество продукта"
+                        type="number"
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Стоимость</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                        />
-                    </InputGroup>
+                    <InputBlock
+                        label="Стоимость"
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                    />
 
-                    <Button size="lg" variant="success" onClick={() => handleProduct("3")}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        fullWidth
+                        onClick={() => handleProduct('3')}
+                    >
                         Подтверждаю
                     </Button>
-                </Accordion.Body>
-            </Accordion.Item>
+                </AccordionDetails>
+            </Accordion>
 
-            <Accordion.Item eventKey="6">
-                <Accordion.Header>Добавить товар</Accordion.Header>
-                <Accordion.Body>
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Счет</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={account}
-                            onChange={(e) => setAccount(e.target.value)}
-                        />
-                    </InputGroup>
+            <Accordion>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    Добавить товар
+                </AccordionSummary>
+                <AccordionDetails>
+                    <InputBlock
+                        label="Счет"
+                        type="number"
+                        value={account}
+                        onChange={(e) => setAccount(e.target.value)}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Название товара</InputGroup.Text>
-                        <Form.Control
-                            type="text"
-                            list="product-list"
-                            value={productName}
-                            onChange={(e) => setProductName(e.target.value)}
-                        />
-                        <datalist id="product-list">
-                            {products.map((p) => (
-                                <option key={p} value={p} />
-                            ))}
-                        </datalist>
-                    </InputGroup>
+                    <Autocomplete
+                        freeSolo
+                        options={products}
+                        value={productName}
+                        onInputChange={(_, newValue) => setProductName(newValue)}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                label="Название товара"
+                                fullWidth
+                                sx={{ mb: 3 }}
+                            />
+                        )}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Количество</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={count}
-                            onChange={(e) => setCount(e.target.value)}
-                        />
-                    </InputGroup>
+                    <InputBlock
+                        label="Количество"
+                        type="number"
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                    />
 
-                    <InputGroup className="mb-4 input-group-lg">
-                        <InputGroup.Text>Стоимость</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                        />
-                    </InputGroup>
+                    <InputBlock
+                        label="Стоимость"
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                    />
 
-                    <Button size="lg" variant="success" onClick={() => handleProduct("4")}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        size="large"
+                        fullWidth
+                        onClick={() => handleProduct('4')}
+                    >
                         Подтверждаю
                     </Button>
-                </Accordion.Body>
-            </Accordion.Item>
-        </Accordion>
+                </AccordionDetails>
+            </Accordion>
+        </Box>
     );
 };
 

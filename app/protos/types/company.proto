@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package types;
 
-enum Role {
+enum EmployeeRole {
     ROLE_UNSPECIFIED = 0;
     CEO = 1;
     FOUNDER = 2;
@@ -13,9 +13,8 @@ enum Role {
 }
 
 message Company {
-    int64 id = 1;
-    int64 bank_account_id = 2;
-    int64 prefecture_id = 3;
+    uint64 bank_account_id = 2;
+    uint64 prefecture_bank_account_id = 3;
     string name = 4;
     string about = 5;
 }
