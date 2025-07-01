@@ -3,7 +3,7 @@ from flask_login import login_required
 
 from app.api import Blueprints
 from app.api.helpers import protobufify, pythonify
-from app.codegen.hope import Response as APIResponse
+from app.codegen.hope import Response as Response
 from app.codegen.product import (
     AllProductsRequest,
     AllProductsResponse,
@@ -29,7 +29,7 @@ def all_products(ctx: AppContext, __req: AllProductsRequest):
     consumables = [name.upper() for name in ctx.config.consumption.categories]
 
     return protobufify(
-        APIResponse(
+        Response(
             all_products=AllProductsResponse(
                 products=[
                     ProductProto(
@@ -62,7 +62,7 @@ def available_products(ctx: AppContext, req: AvailableProductsRequest):
     consumables = [name.upper() for name in ctx.config.consumption.categories]
 
     return protobufify(
-        APIResponse(
+        Response(
             available_products=AvailableProductsResponse(
                 products=[
                     ProductProto(
@@ -91,7 +91,7 @@ def get_product_count(ctx: AppContext, req: ProductCountsRequest):
     consumables = [name.upper() for name in ctx.config.consumption.categories]
 
     return protobufify(
-        APIResponse(
+        Response(
             product_counts=ProductCountsResponse(
                 products=[
                     ProductCountsResponseProductWithCount(

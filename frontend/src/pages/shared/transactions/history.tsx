@@ -16,16 +16,17 @@ interface TransactionHistoryProps {
 
 const Row: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
     const t = new TransactionLocal(
-        transaction.sellerAccount,
-        transaction.customerAccount,
+        transaction.sellerBankAccountId,
+        transaction.customerBankAccountId,
         transaction.product,
         transaction.count,
         transaction.amount,
         transaction.status,
         transaction.transactionId,
+        transaction.createdAt,
         transaction.updatedAt,
         transaction.side,
-        transaction.isMoney,
+        transaction.isMoney
     );
 
     let rowClass = "";
@@ -48,6 +49,7 @@ const Row: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
                 </>
             )}
             <td>{t.stringStatus()}</td>
+            <td>{t.createdAt}</td>
             <td>{t.updatedAt}</td>
             <td>{t.side}</td>
         </tr>
@@ -64,7 +66,8 @@ const Table: React.FC<{ transactions: Transaction[] }> = ({ transactions }) => (
                     <th>Количество</th>
                     <th>Цена</th>
                     <th>Статус</th>
-                    <th>Время</th>
+                    <th>Создано</th>
+                    <th>Обновлено</th>
                     <th>Сторона сделки</th>
                 </tr>
             </thead>
@@ -103,7 +106,11 @@ export default function TransactionHistory({ mode }: TransactionHistoryProps) {
                 "viewTransactionHistory"
             );
 
-            setTransactions(response.transactions);
+            const txs = response.transactions ?? [];
+            // Sort transactions by latest first if needed
+            setTransactions([...txs].sort((a, b) =>
+                (b.updatedAt || "").localeCompare(a.updatedAt || "")
+            ));
         };
 
         fetchTransactions();
@@ -117,7 +124,7 @@ export default function TransactionHistory({ mode }: TransactionHistoryProps) {
         <div>
             <div className="text-wrap text-center mb-4">
                 <p className="mb-1">
-                    <strong>Транзакции, выполненные вами</strong>
+                    <strong>История транзакций</strong>
                 </p>
             </div>
 
@@ -131,8 +138,7 @@ export default function TransactionHistory({ mode }: TransactionHistoryProps) {
                                 className="page-link"
                                 onClick={() => setPage(Math.max(0, page - 1))}
                             >
-                                <span aria-hidden="true">&laquo;</span>
-                                <span className="sr-only">Previous</span>
+                                &laquo;
                             </button>
                         </li>
 
@@ -141,8 +147,7 @@ export default function TransactionHistory({ mode }: TransactionHistoryProps) {
                                 className="page-link"
                                 onClick={() => setPage(page + 1)}
                             >
-                                <span className="sr-only">Next</span>
-                                <span aria-hidden="true">&raquo;</span>
+                                &raquo;
                             </button>
                         </li>
                     </ul>

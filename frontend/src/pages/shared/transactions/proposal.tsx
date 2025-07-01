@@ -79,8 +79,8 @@ const NewTransactionForm: React.FC<NewTransactionFormProps> = ({ mode }) => {
         }
 
         const createTxReq = CreateProductTransactionRequest.create({
-            customerAccount: Number(sellerAccount),
-            sellerAccount: effectiveAccountId,
+            customerBankAccountId: Number(sellerAccount),
+            sellerBankAccountId: effectiveAccountId,
             product: productName,
             count: Number(count),
             amount: Number(amount),
@@ -88,7 +88,7 @@ const NewTransactionForm: React.FC<NewTransactionFormProps> = ({ mode }) => {
 
         const result = await Hope.sendTyped(
             Request.create({ createProductTransaction: createTxReq }),
-            "createTransaction"
+            "createProductTransaction"
         );
 
         const resultStatus = getCreateTransactionStatus(result.status as TxStatus | undefined);

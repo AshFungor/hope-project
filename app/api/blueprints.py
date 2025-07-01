@@ -8,3 +8,4 @@ class Blueprints:
     goal = flask.Blueprint("goal", __name__)
     product = flask.Blueprint("product", __name__)
     master = flask.Blueprint("master", __name__)
+    company = flask.Blueprint("company", __name__)

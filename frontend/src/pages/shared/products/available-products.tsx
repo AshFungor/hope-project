@@ -12,12 +12,12 @@ import { Request } from "@app/codegen/app/protos/request";
 import {
     ProductCountsRequest,
     ProductCountsResponse_ProductWithCount,
-} from "@app/codegen/app/protos/products/count";
+} from "@app/codegen/app/protos/product/count";
 import {
     ConsumeProductRequest,
     ConsumeProductResponse,
     ConsumeProductResponse_Status,
-} from "@app/codegen/app/protos/products/consume";
+} from "@app/codegen/app/protos/product/consume";
 
 
 const ProductRow: React.FC<{
@@ -42,7 +42,7 @@ const ProductRow: React.FC<{
     const onConsumePressed = async () => {
         const request = ConsumeProductRequest.create({
             product: product.product?.name,
-            account: effectiveAccountId,
+            bankAccountId: effectiveAccountId,
         });
 
         const response = await Hope.sendTyped(

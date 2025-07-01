@@ -3,7 +3,7 @@ from flask_login import login_required
 
 from app.api import Blueprints
 from app.api.helpers import protobufify, pythonify
-from app.codegen.hope import Response as APIResponse
+from app.codegen.hope import Response as Response
 from app.codegen.product import CreateProductRequest, CreateProductResponse
 from app.context import AppContext
 from app.models import Product as ProductModel
@@ -21,7 +21,7 @@ def create_product(ctx: AppContext, req: CreateProductRequest):
 
         if existing:
             return protobufify(
-                APIResponse(create_product=CreateProductResponse(status=False))
+                Response(create_product=CreateProductResponse(status=False))
             )
 
         new_product = ProductModel(
@@ -34,5 +34,5 @@ def create_product(ctx: AppContext, req: CreateProductRequest):
         ctx.database.session.commit()
 
         return protobufify(
-            APIResponse(create_product=CreateProductResponse(status=True))
+            Response(create_product=CreateProductResponse(status=True))
         )

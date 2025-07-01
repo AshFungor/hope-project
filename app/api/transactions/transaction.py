@@ -6,7 +6,7 @@ from flask_login import login_required
 from app.api import Blueprints
 from app.api.helpers import local_datetime, protobufify, pythonify
 from app.api.transactions.processor import Processor, complete_transaction
-from app.codegen.hope import Response as APIResponse
+from app.codegen.hope import Response as Response
 from app.codegen.transaction import (
     CreateMoneyTransactionRequest,
     CreateProductTransactionRequest,
@@ -39,8 +39,8 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
 
     if len(products) != 1:
         return protobufify(
-            APIResponse(
-                create_transaction=make_status(TransactionStatusReason.MULTIPLE_PRODUCTS)
+            Response(
+                create_money_transaction=make_status(TransactionStatusReason.MULTIPLE_PRODUCTS)
             )
         )
 
@@ -67,14 +67,14 @@ def new_proposal(ctx: AppContext, req: CreateProductTransactionRequest):
             status = check(ctx, tx) if 'exists' in check.__name__ else check(tx)
             if status != TransactionStatusReason.OK:
                 return protobufify(
-                    APIResponse(create_transaction=make_status(status))
+                    Response(create_money_transaction=make_status(status))
                 )
 
         ctx.database.session.add(tx)
         ctx.database.session.commit()
 
     return protobufify(
-        APIResponse(create_product_transaction=make_status(TransactionStatusReason.OK))
+        Response(create_product_transaction=make_status(TransactionStatusReason.OK))
     )
 
 
@@ -98,13 +98,13 @@ def new_money_proposal(ctx: AppContext, req: CreateMoneyTransactionRequest):
         result = Processor.process(ctx, tx, approved=True)
         if result != TransactionStatusReason.OK:
             return protobufify(
-                APIResponse(create_transaction=make_status(result))
+                Response(create_money_transaction=make_status(result))
             )
 
         ctx.database.session.add(tx)
         ctx.database.session.commit()
         return protobufify(
-            APIResponse(create_money_transaction=make_status(TransactionStatusReason.OK))
+            Response(create_money_transaction=make_status(TransactionStatusReason.OK))
         )
 
 
@@ -124,7 +124,7 @@ def active_proposals(ctx: AppContext, req: CurrentTransactionsRequest):
     ).all()
 
     return protobufify(
-        APIResponse(
+        Response(
             current_transactions=CurrentTransactionsResponse(
                 transactions=[
                     EntryProto(
@@ -165,6 +165,7 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
                     product=product.name,
                     status=TxStatus.from_string(tx.status.upper()),
                     updated_at=local_datetime(ctx, tx.updated_at).strftime(str_format),
+                    created_at=local_datetime(ctx, tx.created_at).strftime(str_format),
                     side=role,
                     is_money=(product.id == ctx.config.money_product_id),
                 )
@@ -174,7 +175,7 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
         key=lambda e: datetime.strptime(e.updated_at, str_format), reverse=True
     )
     return protobufify(
-        APIResponse(
+        Response(
             view_transaction_history=ViewTransactionsResponse(transactions=response)
         )
     )
@@ -187,4 +188,4 @@ def decide_on_proposal(ctx: AppContext, req: DecideOnTransactionRequest):
     result = complete_transaction(req.id, req.status)
     ctx.logger.info(f"transaction {req.id} decision={req.status}: {result}")
 
-    return protobufify(APIResponse(decide_on_transaction=result))
+    return protobufify(Response(decide_on_transaction=result))

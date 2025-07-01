@@ -7,18 +7,29 @@ import { API as TransactionAPI } from "@app/api/sub/transaction";
 import { API as GoalAPI } from "@app/api/sub/goal";
 import { API as PrefectureAPI } from "@app/api/sub/prefecture";
 import { API as CompanyAPI } from "@app/api/sub/company";
+import { API as UserAPI } from "@app/api/sub/user";
 
 export namespace Hope {
     export async function send(request: Request): Promise<Response> {
         let response: Response;
 
-        if (request.login || request.user || request.logout) {
+        if (request.login || request.logout) {
             response = await SessionAPI.Session.handle(request);
 
-        } else if (request.allPrefectures || request.updatePrefectureLink) {
+        } else if (request.fullUser || request.partialUser) {
+            response = await UserAPI.User.handle(request);
+
+        } else if (request.allPrefectures || request.updatePrefectureLink || request.currentPrefecture) {
             response = await PrefectureAPI.Prefecture.handle(request);
 
-        } else if (request.createCompany) {
+        } else if (
+            request.createCompany ||
+            request.allCompanies ||
+            request.getCompany ||
+            request.allEmployees ||
+            request.employ ||
+            request.fire
+        ) {
             response = await CompanyAPI.Company.handle(request);
 
         } else if (

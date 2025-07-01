@@ -68,8 +68,8 @@ const MoneyTransferForm: React.FC<MoneyTransferFormProps> = ({ mode }) => {
 
         try {
             const moneyTxReq = CreateMoneyTransactionRequest.create({
-                sellerAccount: userBankAccount,
-                customerAccount: seller,
+                sellerBankAccountId: userBankAccount,
+                customerBankAccountId: seller,
                 amount: amt,
             });
 
@@ -78,12 +78,12 @@ const MoneyTransferForm: React.FC<MoneyTransferFormProps> = ({ mode }) => {
             );
 
             const resultStatus = getStatusMessage(
-                response.createTransaction?.status as TxStatus | undefined
+                response.createMoneyTransaction?.status as TxStatus | undefined
             );
 
             setMessage(resultStatus);
 
-            if (response.createTransaction?.status === TxStatus.OK) {
+            if (response.createMoneyTransaction?.status === TxStatus.OK) {
                 setSellerAccount("");
                 setAmount("");
             }

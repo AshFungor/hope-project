@@ -4,7 +4,7 @@ import { Request } from "@app/codegen/app/protos/request";
 import {
     CreateProductRequest,
     CreateProductResponse,
-} from "@app/codegen/app/protos/products/create";
+} from "@app/codegen/app/protos/product/create";
 
 import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
 

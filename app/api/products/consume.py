@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 
 from app.api import Blueprints
 from app.api.helpers import protobufify, pythonify
-from app.codegen.hope import Response as APIResponse
+from app.codegen.hope import Response as Response
 from app.codegen.product import (
     ConsumeProductRequest,
     ConsumeProductResponse,
@@ -29,7 +29,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
 
     if not product:
         return protobufify(
-            APIResponse(
+            Response(
                 consume_product=ConsumeProductResponse(
                     status=ConsumeProductResponseStatus.NOT_ENOUGH
                 )
@@ -40,7 +40,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
 
     if product.category.upper() not in consumable_categories:
         return protobufify(
-            APIResponse(
+            Response(
                 consume_product=ConsumeProductResponse(
                     status=ConsumeProductResponseStatus.NOT_CONSUMABLE
                 )
@@ -64,7 +64,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
 
     if not product_link:
         return protobufify(
-            APIResponse(
+            Response(
                 consume_product=ConsumeProductResponse(
                     status=ConsumeProductResponseStatus.NOT_ENOUGH
                 )
@@ -73,7 +73,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
 
     if not left:
         return protobufify(
-            APIResponse(
+            Response(
                 consume_product=ConsumeProductResponse(
                     status=ConsumeProductResponseStatus.ALREADY_CONSUMED
                 )
@@ -82,7 +82,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
 
     if product_link.count < left:
         return protobufify(
-            APIResponse(
+            Response(
                 consume_product=ConsumeProductResponse(
                     status=ConsumeProductResponseStatus.NOT_ENOUGH
                 )
@@ -107,7 +107,7 @@ def consume(ctx: AppContext, req: ConsumeProductRequest):
         ctx.database.session.commit()
 
     return protobufify(
-        APIResponse(
+        Response(
             consume_product=ConsumeProductResponse(
                 status=ConsumeProductResponseStatus.OK
             )

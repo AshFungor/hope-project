@@ -12,6 +12,7 @@ message CreateCompanyRequest {
     string about = 2;
     string prefecture = 3;
     repeated Founder founders = 4;
+    uint64 ceo_bank_account_id = 5;
 }
 
 message CreateCompanyResponse {
@@ -21,6 +22,7 @@ message CreateCompanyResponse {
         DUPLICATE_FOUNDERS = 2;
         MISSING_PREFECTURE = 3;
         DUPLICATE_NAME = 4;
+        SHARES_ERROR = 6;
     }
 
     Status status = 1;

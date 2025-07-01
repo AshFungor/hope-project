@@ -17,6 +17,7 @@ import "app/protos/company/create.proto";
 import "app/protos/company/employ.proto";
 import "app/protos/company/employees.proto";
 import "app/protos/company/get.proto";
+import "app/protos/company/fire.proto";
 
 import "app/protos/product/all.proto";
 import "app/protos/product/consume.proto";
@@ -38,7 +39,7 @@ message Response {
         session.LogoutResponse logout = 2;
 
         user.PartialUserResponse partial_user = 3;
-        user.UserResponse last_user = 4;
+        user.UserResponse full_user = 4;
 
         product.AllProductsResponse all_products = 5;
         product.AvailableProductsResponse available_products = 6;
@@ -64,5 +65,6 @@ message Response {
         company.EmployResponse employ = 22;
         company.AllEmployeesResponse all_employees = 23;
         company.GetCompanyResponse get_company = 24;
+        company.FireResponse fire = 25;
     }
 }

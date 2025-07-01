@@ -9,6 +9,7 @@ import {
     CreateCompanyResponse_Status,
     Founder,
 } from "@app/codegen/app/protos/company/create";
+import { AllPrefecturesRequest, AllPrefecturesResponse } from "@app/codegen/app/protos/prefecture/all";
 
 import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
 
@@ -22,24 +23,36 @@ export default function CreateCompanyForm() {
     const [about, setAbout] = useState("");
     const [prefectureId, setPrefectureId] = useState("");
     const [founders, setFounders] = useState<Founder[]>([]);
+    const [ceoId, setCeoId] = useState<number>(0);
     const [prefectures, setPrefectures] = useState<Prefecture[]>([]);
     const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
     useEffect(() => {
-        // TODO: Replace with your real API call for all prefectures
-        setPrefectures([
-            { id: 1, name: "Префектура 1" },
-            { id: 2, name: "Префектура 2" },
-        ]);
+        const fetchPrefectures = async () => {
+            try {
+                const req = AllPrefecturesRequest.create({});
+                const response = await Hope.send(Request.create({ allPrefectures: req })) as {
+                    allPrefectures?: AllPrefecturesResponse;
+                };
+                const received = response.allPrefectures?.prefectures ?? [];
+                setPrefectures(received.map((p) => ({
+                    id: Number(p.bankAccountId),
+                    name: p.name,
+                })));
+            } catch (err) {
+                console.error("Failed to load prefectures:", err);
+            }
+        };
+        fetchPrefectures();
     }, []);
 
     const addFounder = () => {
-        setFounders([...founders, Founder.create({ accountId: 0, share: 0 })]);
+        setFounders([...founders, Founder.create({ bankAccountId: 0, share: 0 })]);
     };
 
     const updateFounder = (index: number, field: "accountId" | "share", value: number) => {
         const updated = [...founders];
-        if (field === "accountId") updated[index].accountId = value;
+        if (field === "accountId") updated[index].bankAccountId = value;
         if (field === "share") updated[index].share = value;
         setFounders(updated);
     };
@@ -51,8 +64,22 @@ export default function CreateCompanyForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!companyName || !about || !prefectureId || founders.length === 0) {
-            setMessage({ contents: "Все поля обязательны!", status: AlertStatus.Error });
+        if (!companyName || !about || !prefectureId || founders.length === 0 || ceoId <= 0) {
+            setMessage({ contents: "Все поля обязательны, включая генерального директора", status: AlertStatus.Error });
+            return;
+        }
+
+        const invalidFounder = founders.find(
+            (f) =>
+                !f.bankAccountId || f.bankAccountId <= 0 ||
+                !f.share || f.share <= 0 || f.share > 100
+        );
+
+        if (invalidFounder) {
+            setMessage({
+                contents: "ID учредителя должен быть > 0, а доля — от 1% до 100%.",
+                status: AlertStatus.Error
+            });
             return;
         }
 
@@ -60,7 +87,15 @@ export default function CreateCompanyForm() {
             name: companyName,
             about: about,
             prefecture: prefectures.find((p) => p.id === parseInt(prefectureId))?.name ?? "",
-            founders: founders,
+            founders: [
+                ...founders.map((f) =>
+                    Founder.create({
+                        bankAccountId: f.bankAccountId,
+                        share: f.share / 100.0
+                    })
+                ),
+            ],
+            ceoBankAccountId: ceoId
         });
 
         const response = await Hope.send(Request.create({ createCompany: request })) as {
@@ -74,6 +109,7 @@ export default function CreateCompanyForm() {
                 setAbout("");
                 setPrefectureId("");
                 setFounders([]);
+                setCeoId(0);
                 break;
             case CreateCompanyResponse_Status.MISSING_FOUNDERS:
                 setMessage({ contents: "Не указаны учредители.", status: AlertStatus.Error });
@@ -141,24 +177,46 @@ export default function CreateCompanyForm() {
             </div>
 
             <div className="mb-3">
+                <strong>
+                    <label className="form-label">ID Генерального директора (CEO)</label>
+                </strong>
+                <Form.Control
+                    type="number"
+                    className="form-control text-center"
+                    value={ceoId === 0 ? "" : ceoId}
+                    onChange={(e) => setCeoId(Number(e.target.value))}
+                    placeholder="Введите ID счета CEO"
+                />
+            </div>
+
+            <div className="mb-3">
                 <strong className="form-label d-block mb-2">Учредители</strong>
 
                 {founders.map((founder, index) => (
                     <div key={index} className="d-flex gap-2 mb-2">
                         <input
-                            type="number"
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             className="form-control"
                             placeholder="ID учредителя"
-                            value={founder.accountId}
-                            onChange={(e) => updateFounder(index, "accountId", Number(e.target.value))}
+                            value={founder.bankAccountId === 0 ? "" : String(founder.bankAccountId)}
+                            onChange={(e) =>
+                                updateFounder(index, "accountId", parseInt(e.target.value.replace(/^0+/, "") || "0", 10))
+                            }
                         />
                         <input
-                            type="number"
+                            type="text"
+                            inputMode="decimal"
+                            pattern="[0-9]*"
                             className="form-control"
-                            placeholder="Доля"
-                            value={founder.share}
-                            onChange={(e) => updateFounder(index, "share", Number(e.target.value))}
+                            placeholder="Доля (%)"
+                            value={founder.share === 0 ? "" : String(founder.share)}
+                            onChange={(e) =>
+                                updateFounder(index, "share", parseInt(e.target.value.replace(/^0+/, "") || "0", 10))
+                            }
                         />
+
                         <Button variant="outline-danger" onClick={() => removeFounder(index)}>
                             &times;
                         </Button>

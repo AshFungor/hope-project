@@ -11,7 +11,7 @@ import GoalSection from "@app/widgets/shared/goal";
 import { Goal } from "@app/api/sub/goal";
 import { GetLastGoalRequest } from "@app/codegen/app/protos/goal/last";
 import { Request } from "@app/codegen/app/protos/request";
-import { ProductCountsRequest } from "@app/codegen/app/protos/products/count";
+import { ProductCountsRequest } from "@app/codegen/app/protos/product/count";
 
 export default function PersonalPage() {
     const { currentUser, refreshUser } = useUser();
@@ -56,7 +56,7 @@ export default function PersonalPage() {
                 throw Error("failed to fetch balance: could not complete request");
             }
             for (const count of counts) {
-                if (count.product?.id == 1) {
+                if (count.product?.category == "MONEY") {
                     setBalance(count?.count ?? 0);
                     return;
                 }

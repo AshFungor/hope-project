@@ -12,6 +12,10 @@ export namespace API {
                 return Protobuf.send("/api/prefecture/link/update", request, "POST");
             }
 
+            if (request.currentPrefecture) {
+                return Protobuf.send("/api/prefecture/current", request, "POST");
+            }
+
             throw new Error("Unsupported Prefecture payload type");
         }
     }
