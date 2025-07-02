@@ -83,7 +83,7 @@ class Processor:
             return cls.ok()
         
         if not (str(transaction.customer_bank_account_id).startswith('5') \
-                and str(transaction.seller_bank_account_id).startswith('4')):
+                and str(transaction.seller_bank_account_id).startswith('2')):
             return cls.ok()
 
         user: User = ctx.database.session.execute(

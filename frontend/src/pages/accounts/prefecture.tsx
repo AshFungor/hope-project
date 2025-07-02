@@ -81,7 +81,8 @@ export default function PrefectureAccountPage() {
             setIsPrefect(userIsPrefect);
             setIsEcoAssistant(userIsEcoAssistant);
 
-            const countReq: ProductCountsRequest = { bankAccountId: currentUser.bankAccountId };
+            // fix this
+            const countReq: ProductCountsRequest = { bankAccountId: prefectureBankAccount };
             const countResp = await Hope.sendTyped(
                 Request.create({ productCounts: countReq }),
                 "productCounts"
