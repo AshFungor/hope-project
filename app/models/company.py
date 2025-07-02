@@ -1,69 +1,49 @@
-from app.env import env
-
-import enum
 import datetime
+import enum
 
-from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.orm import mapped_column
 from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.modules.database.handlers import serial
-from app.modules.database.handlers import long_int
-from app.modules.database.handlers import c_datetime, c_datetime_fired
-from app.modules.database.handlers import variable_strings
-from app.modules.database.handlers import small_int
-from app.modules.database.handlers import ModelBase
-
-import app.modules.database.validators as validators
+from app.models.types import Datetime, Ints, ModelBase, VarStrings
 
 
 class Role(enum.StrEnum):
-    CEO = 'CEO'
-    FOUNDER = 'founder'
-    EMPLOYEE = 'employee'
-    CFO = 'CFO'
-    MARKETING_MANAGER = 'marketing_manager'
-    PRODUCTION_MANAGER = 'production_manager'
+    CEO = "CEO"
+    FOUNDER = "founder"
+    EMPLOYEE = "employee"
+    CFO = "CFO"
+    MARKETING_MANAGER = "marketing_manager"
+    PRODUCTION_MANAGER = "production_manager"
 
 
 class Company(ModelBase):
-    __tablename__ = 'company'
+    __tablename__ = "company"
 
-    id: Mapped[serial]
-    bank_account_id: Mapped[long_int] = mapped_column(ForeignKey('bank_account.id'))
-    prefecture_id: Mapped[long_int] = mapped_column(ForeignKey('prefecture.id'))
-    name: Mapped[variable_strings[64]] = mapped_column(unique=True)
-    about: Mapped[variable_strings[256]]
+    id: Mapped[Ints.Serial]
+    bank_account_id: Mapped[Ints.Long] = mapped_column(ForeignKey("bank_account.id"))
+    prefecture_id: Mapped[Ints.Long] = mapped_column(ForeignKey("prefecture.id"))
+    name: Mapped[VarStrings.Char64] = mapped_column(unique=True)
+    about: Mapped[VarStrings.Char256]
 
-    prefecture = relationship('Prefecture', foreign_keys=prefecture_id)
-    offices = relationship('Office', back_populates='company')
+    prefecture = relationship("Prefecture", foreign_keys=prefecture_id)
 
-    def __init__(
-        self,
-        bank_account_id: int,
-        prefecture_id: int,
-        name: str,
-        about: str
-    ) -> None:
-        self.bank_account_id = validators.IntValidator.validate(bank_account_id, 64, False)
-        self.prefecture_id = validators.IntValidator.validate(prefecture_id, 64, False)
-        self.name = validators.GenericTextValidator.validate(name, 64, False)
-        self.about = validators.GenericTextValidator.validate(about, 256, False)
-
-    def __repr__(self) -> str:
-        return '<Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+    def __init__(self, bank_account_id: int, prefecture_id: int, name: str, about: str):
+        self.bank_account_id = bank_account_id
+        self.prefecture_id = prefecture_id
+        self.name = name
+        self.about = about
 
 
 class User2Company(ModelBase):
-    __tablename__ = 'user_to_company'
+    __tablename__ = "user_to_company"
 
-    id: Mapped[serial]
-    user_id: Mapped[long_int] = mapped_column(ForeignKey('users.id'))
-    company_id: Mapped[long_int] = mapped_column(ForeignKey('company.id'))
-    role: Mapped[variable_strings[32]]
-    ratio: Mapped[small_int]
-    fired_at: Mapped[c_datetime_fired]
-    employed_at: Mapped[c_datetime]
+    id: Mapped[Ints.Serial]
+    user_id: Mapped[Ints.Long] = mapped_column(ForeignKey("users.id"))
+    company_id: Mapped[Ints.Long] = mapped_column(ForeignKey("company.id"))
+    role: Mapped[VarStrings.Char32]
+    ratio: Mapped[Ints.Short]
+    fired_at: Mapped[Datetime.DatetimeEmpty]  # type: ignore
+    employed_at: Mapped[Datetime.Datetime]  # type: ignore
 
     def __init__(
         self,
@@ -72,14 +52,11 @@ class User2Company(ModelBase):
         role: str,
         ratio: int,
         # fired_at: datetime.datetime | None,
-        employed_at: datetime.datetime
-    ) -> None:
-        self.user_id = validators.IntValidator.validate(user_id, 64, False)
-        self.company_id = validators.IntValidator.validate(company_id, 64, False)
-        self.role = validators.GenericTextValidator.validate(role, 32, False)
-        self.ratio = validators.IntValidator.validate(ratio, 16, True)
+        employed_at: datetime.datetime,
+    ):
+        self.user_id = user_id
+        self.company_id = company_id
+        self.role = role
+        self.ratio = ratio
         # self.fired_at = fired_at
-        self.employed_at = validators.DtValidator.validate(employed_at)
-
-    def __repr__(self) -> str:
-        return '<User2Company object with fields: ' + ';'.join([f'field: <{attr}> with value: {repr(value)}' for attr, value in self.__dict__.items()]) + '>'
+        self.employed_at = employed_at

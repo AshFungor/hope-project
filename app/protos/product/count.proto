@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/product.proto";
+
+message ProductCountsRequest {
+    int64 bank_account_id = 1;
+}
+
+message ProductCountsResponse {
+    message ProductWithCount {
+        types.Product product = 1;
+        uint64 count = 2;
+    }
+
+    repeated ProductWithCount products = 1;
+}

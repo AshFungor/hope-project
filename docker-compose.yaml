@@ -1,40 +1,50 @@
+volumes:
+  frontend_distribution:
+
 services:
   webapp:
     build: .
-    container_name: backend
-    env_file:
-      - path: .env
+    container_name: webapp
     volumes:
       - ./data/app_logs:/var/log:w
-      - ./app:/hope-project/app:rw
-    restart: always      
+      - .:/hope-project:rw
+    restart: always
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
-  database:
+  postgres:
     image: postgres:16.3
-    container_name: pg_db
-    env_file:
-      - path: .env
-        required: false
+    container_name: postgres
     environment:
-      - PGDATA=${SERVER_POSTGRES_DIRECTORY}/data
-      - PGUSER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=somepasswd
+      - POSTGRES_USER=hope
+      - POSTGRES_DB=hope
+      - PGDATA=/var/lib/pgsql/data
     volumes:
-      - ./data/database_data:${SERVER_POSTGRES_DIRECTORY}/data:rw
+      - ./data/database_data:/var/lib/pgsql/data:rw
     ports:
-      - ${SERVER_POSTGRES_EXPOSED_PORT}:${SERVER_POSTGRES_PORT}
+      - 6000:5432
     restart: always
     healthcheck:
-      test: pg_isready
+      test: pg_isready -U hope -d hope
       interval: 5s
       timeout: 5s
       retries: 10
-  reverse-proxy:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    command: sh -c "npm run build && tail -f /dev/null"
+    volumes:
+      - ./frontend:/frontend
+      - frontend_distribution:/frontend/dist:rw
+    restart: no
+
+  nginx:
     image: nginx:mainline
     container_name: nginx
     volumes:
-      - ./app/static:/static:ro
+      - frontend_distribution:/static:ro
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./data/nginx-logs:/var/log:rw
     ports:
@@ -43,3 +53,4 @@ services:
     restart: always
     depends_on:
       - webapp
+      - frontend

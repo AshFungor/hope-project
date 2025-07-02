@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package prefecture;
+
+import "app/protos/types/prefecture.proto";
+
+message CurrentPrefectureRequest {
+    uint64 bank_account_id = 1;
+};
+
+message CurrentPrefectureResponse {
+    types.Prefecture prefecture = 1;
+}

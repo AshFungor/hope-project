@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package city;
+
+import "app/protos/types/city_hall.proto";
+
+message CityHallRequest {}
+
+message CityHallResponse {
+    types.CityHall city_hall = 1;
+}

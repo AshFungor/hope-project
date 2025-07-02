@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package company;
+
+message FireRequest {
+    uint64 employee_bank_account_id = 1;
+    uint64 company_bank_account_id = 2;
+}
+
+message FireResponse {
+    enum Status {
+        OK = 0;
+        USER_NOT_FOUND = 2;
+        COMPANY_NOT_FOUND = 3;
+        EMPLOYER_NOT_AUTHORIZED = 4;
+        EMPLOYEE_IS_NOT_SUITABLE = 5;
+    }
+
+    Status status = 1;
+}

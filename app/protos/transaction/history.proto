@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package transaction;
+
+import "app/protos/types/transaction.proto";
+
+message ViewTransactionsRequest {
+    uint64 account = 1;
+}
+
+message ViewTransactionsResponse {
+    repeated types.Transaction transactions = 1;
+}

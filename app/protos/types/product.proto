@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package types;
+
+message Product {
+    string name = 2;
+    string category = 3;
+    int32 level = 4;
+    bool consumable = 5;
+};

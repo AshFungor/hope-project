@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/product.proto";
+
+message CreateProductRequest {
+    types.Product product = 1;
+}
+
+message CreateProductResponse {
+    // should probably rework into statuses
+    bool status = 1;
+}

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package types;
+
+message Goal {
+    uint64 bank_account_id = 1;
+    uint64 value = 3;
+}

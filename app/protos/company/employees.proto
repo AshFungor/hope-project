@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package company;
+
+import "app/protos/types/user.proto";
+import "app/protos/types/company.proto";
+
+message AllEmployeesRequest {
+    uint64 company_bank_account_id = 1;
+}
+
+message AllEmployeesResponse {
+    message Employee {
+        types.PartialUser info = 1;
+        types.EmployeeRole role = 2;
+    }
+
+    repeated Employee employees = 1;
+}

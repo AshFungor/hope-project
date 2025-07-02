@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/product.proto";
+
+message AllProductsRequest {}
+
+message AllProductsResponse {
+	repeated types.Product products = 1;
+}

@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package hope;
+
+import "app/protos/session/login.proto";
+import "app/protos/session/logout.proto";
+
+import "app/protos/user/full.proto";
+import "app/protos/user/partial.proto";
+
+import "app/protos/prefecture/all.proto";
+import "app/protos/prefecture/current.proto";
+import "app/protos/prefecture/link.proto";
+
+import "app/protos/company/all.proto";
+import "app/protos/company/create.proto";
+import "app/protos/company/employ.proto";
+import "app/protos/company/employees.proto";
+import "app/protos/company/get.proto";
+import "app/protos/company/fire.proto";
+
+import "app/protos/product/all.proto";
+import "app/protos/product/consume.proto";
+import "app/protos/product/count.proto";
+import "app/protos/product/create.proto";
+import "app/protos/product/available.proto";
+
+import "app/protos/transaction/create.proto";
+import "app/protos/transaction/history.proto";
+import "app/protos/transaction/decide.proto";
+import "app/protos/transaction/unpaid.proto";
+
+import "app/protos/goal/create.proto";
+import "app/protos/goal/last.proto";
+
+import "app/protos/city_hall/current.proto";
+
+
+message Response {
+    oneof payload {
+        session.LoginResponse login = 1;
+        session.LogoutResponse logout = 2;
+
+        user.PartialUserResponse partial_user = 3;
+        user.UserResponse full_user = 4;
+
+        product.AllProductsResponse all_products = 5;
+        product.AvailableProductsResponse available_products = 6;
+        product.ConsumeProductResponse consume_product = 7;
+        product.ProductCountsResponse product_counts = 8;
+        product.CreateProductResponse create_product = 9;
+
+        transaction.CreateTransactionResponse create_product_transaction = 10;
+        transaction.CreateTransactionResponse create_money_transaction = 11;
+        transaction.DecideOnTransactionResponse decide_on_transaction = 12;
+        transaction.ViewTransactionsResponse view_transaction_history = 13;
+        transaction.CurrentTransactionsResponse current_transactions = 14;
+
+        goal.CreateGoalResponse create_goal = 15;
+        goal.GetLastGoalResponse last_goal = 16;
+
+        prefecture.UpdateLinkResponse update_prefecture_link = 17;
+        prefecture.AllPrefecturesResponse all_prefectures = 18;
+        prefecture.CurrentPrefectureResponse current_prefecture = 19;
+
+        company.CreateCompanyResponse create_company = 20;
+        company.AllCompaniesResponse all_companies = 21;
+        company.EmployResponse employ = 22;
+        company.AllEmployeesResponse all_employees = 23;
+        company.GetCompanyResponse get_company = 24;
+        company.FireResponse fire = 25;
+
+        city.CityHallResponse city_hall = 26;
+
+        transaction.CreateTransactionResponse master_remove_money = 27;
+        transaction.CreateTransactionResponse master_add_money = 28;
+        transaction.CreateTransactionResponse master_add_product = 29;
+        transaction.CreateTransactionResponse master_remove_product = 30;
+
+        company.MasterChangeCEOResponse master_change_ceo = 31;
+    }
+}

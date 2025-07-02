@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package types;
+
+enum EmployeeRole {
+    ROLE_UNSPECIFIED = 0;
+    CEO = 1;
+    FOUNDER = 2;
+    EMPLOYEE = 3;
+    CFO = 4;
+    MARKETING_MANAGER = 5;
+    PRODUCTION_MANAGER = 6;
+}
+
+message Company {
+    uint64 bank_account_id = 2;
+    uint64 prefecture_bank_account_id = 3;
+    string name = 4;
+    string about = 5;
+}

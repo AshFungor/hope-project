@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package session;
+
+message LoginRequest {
+	string login = 1;
+	string password = 2;
+}
+
+message LoginResponse {
+    enum LoginStatus {
+		OK = 0;
+		UNAUTHORIZED = 1;
+		ERROR = 2;
+    };
+
+	uint64 bank_account_id = 1;
+    LoginStatus status = 2;
+}
