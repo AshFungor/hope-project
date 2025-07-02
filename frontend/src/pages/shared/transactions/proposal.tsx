@@ -70,15 +70,17 @@ const NewTransactionForm: React.FC<NewTransactionFormProps> = ({ mode }) => {
 
     useEffect(() => {
         const fetchProducts = async () => {
+            if (!effectiveAccountId) return;
+
             const result = await Hope.sendTyped(
-                Request.create({ allProducts: {} }),
-                'allProducts'
+                Request.create({ availableProducts: { bankAccountId: effectiveAccountId } }),
+                'availableProducts'
             );
             setProducts(result.products ?? []);
         };
 
         fetchProducts();
-    }, []);
+    }, [effectiveAccountId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -115,72 +117,74 @@ const NewTransactionForm: React.FC<NewTransactionFormProps> = ({ mode }) => {
 
     return (
         <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}
+            sx={{ maxWidth: 500, mx: 'auto', mt: 4, overflowX: 'auto' }}
         >
-            <MessageAlert
-                message={message?.contents ?? ''}
-                status={message?.status ?? AlertStatus.Info}
-            />
-
-            <Stack spacing={3}>
-                <Typography>
-                    <strong>Ваш счёт:</strong> {effectiveAccountId}
-                </Typography>
-
-                <TextField
-                    label="Счёт получателя"
-                    type="number"
-                    value={sellerAccount}
-                    onChange={(e) => setSellerAccount(e.target.value)}
-                    placeholder="Введите счёт получателя"
-                    fullWidth
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                sx={{ minWidth: 400 }}
+            >
+                <MessageAlert
+                    message={message?.contents ?? ''}
+                    status={message?.status ?? AlertStatus.Info}
                 />
 
-                <FormControl fullWidth>
-                    <InputLabel id="product-label">Продукт</InputLabel>
-                    <Select
-                        labelId="product-label"
-                        value={productName}
-                        label="Продукт"
-                        onChange={(e) => setProductName(e.target.value)}
-                    >
-                        <MenuItem value="">
-                            <em>Выбрать продукт</em>
-                        </MenuItem>
-                        {products
-                            .filter((p) => p.name !== 'надик')
-                            .map((product) => (
+                <Stack spacing={3}>
+                    <Typography>
+                        <strong>Ваш счёт:</strong> {effectiveAccountId}
+                    </Typography>
+
+                    <TextField
+                        label="Счёт получателя"
+                        type="number"
+                        value={sellerAccount}
+                        onChange={(e) => setSellerAccount(e.target.value)}
+                        placeholder="Введите счёт получателя"
+                        fullWidth
+                    />
+
+                    <FormControl fullWidth>
+                        <InputLabel id="product-label">Продукт</InputLabel>
+                        <Select
+                            labelId="product-label"
+                            value={productName}
+                            label="Продукт"
+                            onChange={(e) => setProductName(e.target.value)}
+                        >
+                            <MenuItem value="">
+                                <em>Выбрать продукт</em>
+                            </MenuItem>
+                            {products.map((product) => (
                                 <MenuItem key={product.name} value={product.name}>
                                     {product.name}
                                 </MenuItem>
                             ))}
-                    </Select>
-                </FormControl>
+                        </Select>
+                    </FormControl>
 
-                <TextField
-                    label="Количество товара"
-                    type="number"
-                    value={count}
-                    onChange={(e) => setCount(e.target.value)}
-                    placeholder="Введите количество товара"
-                    fullWidth
-                />
+                    <TextField
+                        label="Количество товара"
+                        type="number"
+                        value={count}
+                        onChange={(e) => setCount(e.target.value)}
+                        placeholder="Введите количество товара"
+                        fullWidth
+                    />
 
-                <TextField
-                    label="Цена сделки"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="Введите цену сделки"
-                    fullWidth
-                />
+                    <TextField
+                        label="Цена сделки"
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="Введите цену сделки"
+                        fullWidth
+                    />
 
-                <Button type="submit" variant="contained" color="success">
-                    Подтверждаю
-                </Button>
-            </Stack>
+                    <Button type="submit" variant="contained" color="success">
+                        Подтверждаю
+                    </Button>
+                </Stack>
+            </Box>
         </Box>
     );
 };

@@ -64,31 +64,36 @@ const Row: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
             <TableCell>{t.createdAt}</TableCell>
             <TableCell>{t.updatedAt}</TableCell>
             <TableCell>{t.side}</TableCell>
+            <TableCell>{(t.side == 'seller') ? t.customerBankAccountId : t.sellerBankAccountId}</TableCell>
         </TableRow>
     );
 };
 
 const TransactionsTable: React.FC<{ transactions: Transaction[] }> = ({ transactions }) => (
-    <Table>
-        <TableHead>
-            <TableRow>
-                <TableCell>Номер транзакции</TableCell>
-                <TableCell>Товар</TableCell>
-                <TableCell>Количество</TableCell>
-                <TableCell>Цена</TableCell>
-                <TableCell>Статус</TableCell>
-                <TableCell>Создано</TableCell>
-                <TableCell>Обновлено</TableCell>
-                <TableCell>Сторона сделки</TableCell>
-            </TableRow>
-        </TableHead>
-        <TableBody>
-            {transactions.map((t) => (
-                <Row key={t.transactionId} transaction={t} />
-            ))}
-        </TableBody>
-    </Table>
+    <Box sx={{ overflowX: 'auto', width: '100%' }}>
+        <Table sx={{ minWidth: 800 }}>
+            <TableHead>
+                <TableRow>
+                    <TableCell>Номер транзакции</TableCell>
+                    <TableCell>Товар</TableCell>
+                    <TableCell>Количество</TableCell>
+                    <TableCell>Цена</TableCell>
+                    <TableCell>Статус</TableCell>
+                    <TableCell>Создано</TableCell>
+                    <TableCell>Обновлено</TableCell>
+                    <TableCell>Сторона сделки</TableCell>
+                    <TableCell>Счет второй стороны</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {transactions.map((t) => (
+                    <Row key={t.transactionId} transaction={t} />
+                ))}
+            </TableBody>
+        </Table>
+    </Box>
 );
+
 
 export default function TransactionHistory({ mode }: TransactionHistoryProps) {
     const params = useParams();

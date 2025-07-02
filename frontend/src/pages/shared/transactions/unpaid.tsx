@@ -11,7 +11,6 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Box from '@mui/material/Box';
 
 import { Hope } from '@app/api/api';
 import { Request } from '@app/codegen/app/protos/request';
@@ -111,6 +110,8 @@ const TransactionDecisionTable: React.FC<{ accountId: number }> = ({ accountId }
                 return { contents: 'Продавец не найден.', status: AlertStatus.Error };
             case TransactionStatusReason.MULTIPLE_PRODUCTS:
                 return { contents: 'Транзакция не поддерживает несколько товаров одновременно.', status: AlertStatus.Error };
+            case TransactionStatusReason.PREFECTURES_DO_NOT_MATCH:
+                return { contents: 'Транзакция не может быть совершена между компанией и покупателем в разных префектурах', status: AlertStatus.Error };
             default:
                 return { contents: `Неизвестный статус транзакции (${status})`, status: AlertStatus.Error };
         }

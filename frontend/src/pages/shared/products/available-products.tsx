@@ -9,6 +9,7 @@ import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 import { useUser } from '@app/contexts/user';
 import { PageMode } from '@app/types';
@@ -130,41 +131,43 @@ const ProductTable: React.FC<{
                 status={message?.status ?? AlertStatus.Info}
             />
 
-            <Table sx={{ mt: 2 }}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Название товара</TableCell>
-                        <TableCell>Количество</TableCell>
-                        <TableCell>Уровень</TableCell>
-                        <TableCell />
-                    </TableRow>
-                </TableHead>
+            <Box sx={{ overflowX: 'auto', width: '100%', mt: 2 }}>
+                <Table sx={{ minWidth: 600 }}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Название товара</TableCell>
+                            <TableCell>Количество</TableCell>
+                            <TableCell>Уровень</TableCell>
+                            <TableCell />
+                        </TableRow>
+                    </TableHead>
 
-                {categories.map((category) => (
-                    <React.Fragment key={category ?? ''}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell colSpan={4}>
-                                    <Typography variant="h6">{category}</Typography>
-                                </TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {products
-                                .filter((p) => p.product?.category === category)
-                                .map((p) => (
-                                    <ProductRow
-                                        key={p.product?.name}
-                                        product={p}
-                                        effectiveAccountId={effectiveAccountId}
-                                        onConsumed={visitConsumeResponse}
-                                        showConsumeButton={showConsumeButton}
-                                    />
-                                ))}
-                        </TableBody>
-                    </React.Fragment>
-                ))}
-            </Table>
+                    {categories.map((category) => (
+                        <React.Fragment key={category ?? ''}>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell colSpan={4}>
+                                        <Typography variant="h6">{category}</Typography>
+                                    </TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {products
+                                    .filter((p) => p.product?.category === category)
+                                    .map((p) => (
+                                        <ProductRow
+                                            key={p.product?.name}
+                                            product={p}
+                                            effectiveAccountId={effectiveAccountId}
+                                            onConsumed={visitConsumeResponse}
+                                            showConsumeButton={showConsumeButton}
+                                        />
+                                    ))}
+                            </TableBody>
+                        </React.Fragment>
+                    ))}
+                </Table>
+            </Box>
         </>
     );
 };

@@ -28,10 +28,26 @@ from app.codegen.transaction import (
 @login_required
 @pythonify(MasterRemoveMoneyRequest)
 def master_remove_money(ctx: AppContext, req: MasterRemoveMoneyRequest):
-    if not ctx.database.session.get(BankAccount, req.customer_bank_account_id):
+    customer_account = ctx.database.session.get(BankAccount, req.customer_bank_account_id)
+    if not customer_account:
         return protobufify(Response(create_money_transaction=make_status(TransactionStatusReason.CUSTOMER_MISSING)))
 
     with wrap_crud_context():
+        if req.amount <= 0:
+            return protobufify(Response(create_money_transaction=make_status(TransactionStatusReason.AMOUNT_OUT_OF_BOUNDS)))
+
+        wallet = get_products(ctx, req.customer_bank_account_id, ctx.config.money_product_id)
+        if not wallet:
+            wallet = Product2BankAccount(
+                bank_account_id=req.customer_bank_account_id,
+                product_id=ctx.config.money_product_id,
+                count=0,
+            )
+            ctx.database.session.add(wallet)
+
+        if wallet.count < abs(req.amount):
+            return protobufify(Response(create_money_transaction=make_status(TransactionStatusReason.CUSTOMER_MISSING_MONEY)))
+
         tx = Transaction(
             ctx.config.money_product_id,
             req.customer_bank_account_id,
@@ -44,20 +60,13 @@ def master_remove_money(ctx: AppContext, req: MasterRemoveMoneyRequest):
             "master: remove money",
         )
 
-        wallet = get_products(ctx, req.customer_bank_account_id, ctx.config.money_product_id)
-        if not wallet:
-            wallet = Product2BankAccount(
-                bank_account_id=req.customer_bank_account_id,
-                product_id=ctx.config.money_product_id,
-                count=0,
-            )
-            ctx.database.session.add(wallet)
         wallet.count -= abs(req.amount)
 
         ctx.database.session.add(tx)
         ctx.database.session.commit()
 
     return protobufify(Response(create_money_transaction=make_status(TransactionStatusReason.OK)))
+
 
 
 @Blueprints.transactions.route("/api/transaction/master/add_money", methods=["POST"])
@@ -152,6 +161,21 @@ def master_remove_product(ctx: AppContext, req: MasterRemoveProductRequest):
         return protobufify(Response(create_product_transaction=make_status(TransactionStatusReason.MULTIPLE_PRODUCTS)))
 
     with wrap_crud_context():
+        if req.count <= 0:
+            return protobufify(Response(create_product_transaction=make_status(TransactionStatusReason.COUNT_OUT_OF_BOUNDS)))
+
+        wallet = get_products(ctx, req.customer_bank_account_id, product.id)
+        if not wallet:
+            wallet = Product2BankAccount(
+                bank_account_id=req.customer_bank_account_id,
+                product_id=product.id,
+                count=0,
+            )
+            ctx.database.session.add(wallet)
+
+        if wallet.count < abs(req.count):
+            return protobufify(Response(create_product_transaction=make_status(TransactionStatusReason.SELLER_MISSING)))
+
         tx = Transaction(
             product.id,
             req.customer_bank_account_id,
@@ -164,14 +188,6 @@ def master_remove_product(ctx: AppContext, req: MasterRemoveProductRequest):
             "master: remove product",
         )
 
-        wallet = get_products(ctx, req.customer_bank_account_id, product.id)
-        if not wallet:
-            wallet = Product2BankAccount(
-                bank_account_id=req.customer_bank_account_id,
-                product_id=product.id,
-                count=0,
-            )
-            ctx.database.session.add(wallet)
         wallet.count -= abs(req.count)
 
         ctx.database.session.add(tx)

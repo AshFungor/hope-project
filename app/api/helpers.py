@@ -22,7 +22,8 @@ def pythonify(ctx: AppContext, cls: Type[Message], might_be_empty: bool = True):
                 return "bad request", 406
 
             msg, payload = which_one_of(req, "payload")
-            # if empty, this check passes even for goog payloads
+            ctx.logger.debug(f"handling message: {req}")
+            # if empty, this check passes even for good payloads
             if not isinstance(payload, cls) and not might_be_empty:
                 ctx.logger.debug(f"{f.__name__}: failed to parse incoming request: want type: {cls.__name__}; " f"got instead: {msg}")
                 return f"bad request: expected {cls.__name__}", 406
@@ -34,10 +35,13 @@ def pythonify(ctx: AppContext, cls: Type[Message], might_be_empty: bool = True):
     return factory
 
 
-def protobufify(obj: Response, status: int = 200) -> FlaskResponse:
+@function_context
+def protobufify(ctx: AppContext, obj: Response, status: int = 200) -> FlaskResponse:
     """
     Serialize as top-level Response, wrapping payload if needed.
     """
+    ctx.logger.debug(f"sending response: {obj}")
+
     try:
         return FlaskResponse(bytes(obj), content_type="application/protobuf", status=status)
     except (ValueError, KeyError):

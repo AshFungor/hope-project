@@ -21,6 +21,20 @@ import Autocomplete from '@mui/material/Autocomplete';
 
 import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
+const TransactionStatusReasonLabels: Record<number, string> = {
+    0: 'Операция выполнена успешно',
+    1: 'Покупатель и продавец совпадают',
+    2: 'Транзакция уже обработана',
+    3: 'Количество выходит за пределы',
+    4: 'Сумма выходит за пределы',
+    5: 'У продавца нет товара',
+    6: 'У покупателя недостаточно денег',
+    7: 'Покупатель отсутствует',
+    8: 'Продавец отсутствует',
+    9: 'Найдено несколько продуктов',
+    10: 'Префектуры не совпадают',
+};
+
 const MasterActionsPage: React.FC = () => {
     const [products, setProducts] = useState<string[]>([]);
     const [expanded, setExpanded] = useState<string | false>(false);
@@ -57,69 +71,105 @@ const MasterActionsPage: React.FC = () => {
             setMessage(null);
         };
 
-    const handleMoney = async (action: 'remove' | 'add') => {
-        try {
-            const account = action === 'remove' ? removeMoneyAccount : addMoneyAccount;
-            const amount = action === 'remove' ? removeMoneyAmount : addMoneyAmount;
-
-            const req = action === 'remove'
-                ? MasterRemoveMoneyRequest.create({
-                    customerBankAccountId: Number(account),
-                    amount: Number(amount),
-                })
-                : MasterAddMoneyRequest.create({
-                    customerBankAccountId: Number(account),
-                    amount: Number(amount),
-                });
-
-            const request = Request.create(
-                action === 'remove'
-                    ? { masterRemoveMoney: req }
-                    : { masterAddMoney: req }
-            );
-
-            await Hope.send(request);
-            setMessage({ contents: `Операция '${action}' надики выполнена успешно`, status: AlertStatus.Info });
-        } catch (err) {
-            console.error(err);
-            setMessage({ contents: `Ошибка при выполнении операции '${action}' надики`, status: AlertStatus.Error });
-        }
-    };
-
-    const handleProduct = async (action: 'remove' | 'add') => {
-        try {
-            const account = action === 'remove' ? removeProductAccount : addProductAccount;
-            const product = action === 'remove' ? removeProductName : addProductName;
-            const count = action === 'remove' ? removeProductCount : addProductCount;
-            const amount = action === 'remove' ? removeProductAmount : addProductAmount;
-
-            const req = action === 'remove'
-                ? MasterRemoveProductRequest.create({
-                    customerBankAccountId: Number(account),
-                    product: product,
-                    count: Number(count),
-                    amount: Number(amount),
-                })
-                : MasterAddProductRequest.create({
-                    customerBankAccountId: Number(account),
-                    product: product,
-                    count: Number(count),
-                    amount: Number(amount),
-                });
-
-            const request = Request.create(
-                action === 'remove'
-                    ? { masterRemoveProduct: req }
-                    : { masterAddProduct: req }
-            );
-
-            await Hope.send(request);
-            setMessage({ contents: `Операция '${action}' товар выполнена успешно`, status: AlertStatus.Info });
-        } catch (err) {
-            console.error(err);
-            setMessage({ contents: `Ошибка при выполнении операции '${action}' товар`, status: AlertStatus.Error });
-        }
-    };
+        const handleMoney = async (action: 'remove' | 'add') => {
+            try {
+                const account = action === 'remove' ? removeMoneyAccount : addMoneyAccount;
+                const amount = action === 'remove' ? removeMoneyAmount : addMoneyAmount;
+        
+                const req = action === 'remove'
+                    ? MasterRemoveMoneyRequest.create({
+                        customerBankAccountId: Number(account),
+                        amount: Number(amount),
+                    })
+                    : MasterAddMoneyRequest.create({
+                        customerBankAccountId: Number(account),
+                        amount: Number(amount),
+                    });
+        
+                const request = Request.create(
+                    action === 'remove'
+                        ? { masterRemoveMoney: req }
+                        : { masterAddMoney: req }
+                );
+        
+                const response = await Hope.send(request);
+        
+                const status = response.createMoneyTransaction?.status;
+        
+                const messageText = TransactionStatusReasonLabels[status ?? -1] || 'Неизвестная ошибка';
+                const statusType = status === 0 ? AlertStatus.Info : AlertStatus.Error;
+        
+                setMessage({ contents: messageText, status: statusType });
+        
+                if (status === 0) {
+                    if (action === 'remove') {
+                        setRemoveMoneyAccount('');
+                        setRemoveMoneyAmount('');
+                    } else {
+                        setAddMoneyAccount('');
+                        setAddMoneyAmount('');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                setMessage({ contents: `Ошибка при выполнении операции '${action}' надики`, status: AlertStatus.Error });
+            }
+        };
+        
+        const handleProduct = async (action: 'remove' | 'add') => {
+            try {
+                const account = action === 'remove' ? removeProductAccount : addProductAccount;
+                const product = action === 'remove' ? removeProductName : addProductName;
+                const count = action === 'remove' ? removeProductCount : addProductCount;
+                const amount = action === 'remove' ? removeProductAmount : addProductAmount;
+        
+                const req = action === 'remove'
+                    ? MasterRemoveProductRequest.create({
+                        customerBankAccountId: Number(account),
+                        product: product,
+                        count: Number(count),
+                        amount: Number(amount),
+                    })
+                    : MasterAddProductRequest.create({
+                        customerBankAccountId: Number(account),
+                        product: product,
+                        count: Number(count),
+                        amount: Number(amount),
+                    });
+        
+                const request = Request.create(
+                    action === 'remove'
+                        ? { masterRemoveProduct: req }
+                        : { masterAddProduct: req }
+                );
+        
+                const response = await Hope.send(request);
+        
+                const status = response.createProductTransaction?.status;
+        
+                const messageText = TransactionStatusReasonLabels[status ?? -1] || 'Неизвестная ошибка';
+                const statusType = status === 0 ? AlertStatus.Info : AlertStatus.Error;
+        
+                setMessage({ contents: messageText, status: statusType });
+        
+                if (status === 0) {
+                    if (action === 'remove') {
+                        setRemoveProductAccount('');
+                        setRemoveProductName('');
+                        setRemoveProductCount('');
+                        setRemoveProductAmount('');
+                    } else {
+                        setAddProductAccount('');
+                        setAddProductName('');
+                        setAddProductCount('');
+                        setAddProductAmount('');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                setMessage({ contents: `Ошибка при выполнении операции '${action}' товар`, status: AlertStatus.Error });
+            }
+        };
 
     return (
         <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>

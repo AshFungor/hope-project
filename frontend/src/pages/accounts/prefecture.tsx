@@ -140,6 +140,10 @@ export default function PrefectureAccountPage() {
                         <TableCell>Заместитель по соц. политике</TableCell>
                         <TableCell>{socialAssistantName}</TableCell>
                     </TableRow>
+                    <TableRow>
+                        <TableCell>Номер банковского счета</TableCell>
+                        <TableCell>{prefectureBankAccount}</TableCell>
+                    </TableRow>
                 </TableBody>
             </Table>
 

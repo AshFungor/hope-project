@@ -84,10 +84,10 @@ export default function NewProductPage() {
                             onChange={(e) => setCategory(e.target.value)}
                         >
                             <MenuItem value="">Выберите категорию</MenuItem>
-                            <MenuItem value="Energy">ENERGY</MenuItem>
-                            <MenuItem value="Resource">FOOD</MenuItem>
-                            <MenuItem value="ProductTech">TECHNIC</MenuItem>
-                            <MenuItem value="ProductClothes">CLOTHES</MenuItem>
+                            <MenuItem value="ENERGY">ENERGY</MenuItem>
+                            <MenuItem value="FOOD">FOOD</MenuItem>
+                            <MenuItem value="TECHNIC">TECHNIC</MenuItem>
+                            <MenuItem value="CLOTHES">CLOTHES</MenuItem>
                         </Select>
                     </FormControl>
 

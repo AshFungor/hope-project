@@ -50,52 +50,56 @@ export function CompanyEmployees({
             <Typography variant="h6" sx={{ mb: 3 }}>
                 Сотрудники
             </Typography>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Имя</TableCell>
-                        <TableCell>Фамилия</TableCell>
-                        <TableCell>Отчество</TableCell>
-                        <TableCell>Должность</TableCell>
-                        {(canFireKeyRoles || canFireWorkers) && <TableCell />}
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {employees.map((e, index) => {
-                        const canFire =
-                            (canFireKeyRoles && e.role !== EmployeeRole.EMPLOYEE && e.role !== EmployeeRole.CEO) ||
-                            (canFireWorkers && e.role === EmployeeRole.EMPLOYEE);
 
-                        return (
-                            <TableRow key={index}>
-                                <TableCell>{e.info?.name}</TableCell>
-                                <TableCell>{e.info?.lastName}</TableCell>
-                                <TableCell>{e.info?.patronymic}</TableCell>
-                                <TableCell>{roleLabel(e.role)}</TableCell>
-                                {(canFireKeyRoles || canFireWorkers) && (
-                                    <TableCell>
-                                        {canFire ? (
-                                            <Button
-                                                variant="outlined"
-                                                size="small"
-                                                color="error"
-                                                onClick={() => onFire(e.info?.bankAccountId ?? 0, e.role)}
-                                            >
-                                                Уволить
-                                            </Button>
-                                        ) : (
-                                            <Typography variant="body2" color="text.secondary">-</Typography>
-                                        )}
-                                    </TableCell>
-                                )}
-                            </TableRow>
-                        );
-                    })}
-                </TableBody>
-            </Table>
+            <Box sx={{ overflowX: 'auto' }}>
+                <Table sx={{ minWidth: 600 }}>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Имя</TableCell>
+                            <TableCell>Фамилия</TableCell>
+                            <TableCell>Отчество</TableCell>
+                            <TableCell>Должность</TableCell>
+                            {(canFireKeyRoles || canFireWorkers) && <TableCell />}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {employees.map((e, index) => {
+                            const canFire =
+                                (canFireKeyRoles && e.role !== EmployeeRole.EMPLOYEE && e.role !== EmployeeRole.CEO) ||
+                                (canFireWorkers && e.role === EmployeeRole.EMPLOYEE);
+
+                            return (
+                                <TableRow key={index}>
+                                    <TableCell>{e.info?.name}</TableCell>
+                                    <TableCell>{e.info?.lastName}</TableCell>
+                                    <TableCell>{e.info?.patronymic}</TableCell>
+                                    <TableCell>{roleLabel(e.role)}</TableCell>
+                                    {(canFireKeyRoles || canFireWorkers) && (
+                                        <TableCell>
+                                            {canFire ? (
+                                                <Button
+                                                    variant="outlined"
+                                                    size="small"
+                                                    color="error"
+                                                    onClick={() => onFire(e.info?.bankAccountId ?? 0, e.role)}
+                                                >
+                                                    Уволить
+                                                </Button>
+                                            ) : (
+                                                <Typography variant="body2" color="text.secondary">-</Typography>
+                                            )}
+                                        </TableCell>
+                                    )}
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </Box>
         </Box>
     );
 }
+
 
 export default function CompanyEmployeesPage() {
     const { companyId } = useParams<{ companyId: string }>();

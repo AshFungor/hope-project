@@ -30,6 +30,7 @@ def get_all_companies(ctx: AppContext, req: AllCompaniesRequest):
             orm.select(Company)
             .join(User2Company, Company.id == User2Company.company_id)
             .filter(User2Company.user_id == user.id)
+            .distinct()
         ).all()
 
     elif req.globally:

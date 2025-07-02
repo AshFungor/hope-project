@@ -144,6 +144,10 @@ export default function CityHallPage() {
                         <TableCell>Министр социальной политики</TableCell>
                         <TableCell>{socialAssistantName}</TableCell>
                     </TableRow>
+                    <TableRow>
+                        <TableCell>Номер банковского счета</TableCell>
+                        <TableCell>{cityHallBankAccount}</TableCell>
+                    </TableRow>
                 </TableBody>
             </Table>
 

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -13,6 +13,7 @@ import { Request } from '@app/codegen/app/protos/request';
 import BalanceSection from '@app/widgets/shared/balance';
 import { Goal } from '@app/codegen/app/protos/types/goal';
 import { CreateGoalRequest } from '@app/codegen/app/protos/goal/create';
+import { ProductCountsRequest } from '@app/codegen/app/protos/product/count';
 
 import { PageMode } from '@app/types';
 import { useUser } from '@app/contexts/user';
@@ -25,17 +26,38 @@ export default function GoalFormPage({ mode }: GoalFormPageProps) {
     const params = useParams();
     const { bankAccountId } = useUser();
     const navigate = useNavigate();
-    const location = useLocation();
 
     const effectiveAccountId =
-        mode === PageMode.Org
-            ? Number(params.orgId)
-            : bankAccountId;
+        mode === PageMode.Org ? Number(params.orgId) : bankAccountId;
 
-    const paramsSearch = new URLSearchParams(location.search);
-    const current = Number(paramsSearch.get('current'));
-
+    const [balance, setBalance] = useState<number | null>(null);
     const [value, setValue] = useState<number | undefined>();
+
+    useEffect(() => {
+        if (!effectiveAccountId) return;
+
+        const fetchBalance = async () => {
+            const countReq = ProductCountsRequest.create({
+                bankAccountId: effectiveAccountId,
+            });
+            const countResponse = await Hope.send(
+                Request.create({ productCounts: countReq })
+            );
+
+            const counts = countResponse?.productCounts?.products ?? null;
+            if (counts) {
+                for (const count of counts) {
+                    if (count.product?.category === 'MONEY') {
+                        setBalance(count?.count ?? 0);
+                        return;
+                    }
+                }
+            }
+            setBalance(0);
+        };
+
+        fetchBalance();
+    }, [effectiveAccountId]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +106,7 @@ export default function GoalFormPage({ mode }: GoalFormPageProps) {
                     <strong>Ваш счёт:</strong> {effectiveAccountId}
                 </Typography>
 
-                <BalanceSection current={current} />
+                <BalanceSection current={balance ?? 0} />
 
                 <TextField
                     type="number"
@@ -99,7 +121,13 @@ export default function GoalFormPage({ mode }: GoalFormPageProps) {
                     <Button type="submit" variant="contained" color="success" size="small">
                         Установить цель
                     </Button>
-                    <Button type="button" variant="outlined" color="secondary" size="small" onClick={handleSkip}>
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                        onClick={handleSkip}
+                    >
                         Пропустить
                     </Button>
                 </Stack>

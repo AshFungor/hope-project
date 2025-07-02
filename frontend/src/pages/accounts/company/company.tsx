@@ -129,11 +129,15 @@ export default function CompanyCabinetPage() {
             const countReq: ProductCountsRequest = {
                 bankAccountId: Number(companyId),
             };
-            const countResp = await Hope.send(Request.create({ productCounts: countReq })) as {
+            
+            const grpcRequest = Request.create({ productCounts: countReq });
+            const countResp = await Hope.send(grpcRequest) as {
                 productCounts?: ProductCountsResponse;
             };
+            
             const counts = countResp?.productCounts?.products ?? [];
             const money = counts.find(p => p.product?.category === 'MONEY');
+            
             setBalance(money?.count ?? 0);
         };
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '@app/contexts/user'
 
 import { Hope } from '@app/api/api';
 import { Request } from '@app/codegen/app/protos/request';
@@ -20,10 +21,11 @@ interface Company {
 export default function CompanyListPage() {
     const [companies, setCompanies] = useState<Company[]>([]);
     const navigate = useNavigate();
+    const currentUser = useUser()
 
     useEffect(() => {
         const loadCompanies = async () => {
-            const req: AllCompaniesRequest = { globally: true };
+            const req: AllCompaniesRequest = { relatedUserBankAccountId: currentUser.bankAccountId };
             const response = await Hope.send(Request.create({ allCompanies: req })) as {
                 allCompanies?: AllCompaniesResponse;
             };

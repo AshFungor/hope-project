@@ -166,6 +166,8 @@ def view_proposal_history(ctx: AppContext, req: ViewTransactionsRequest):
                     status=TxStatus.from_string(tx.status.upper()),
                     updated_at=local_datetime(ctx, tx.updated_at).strftime(str_format),
                     created_at=local_datetime(ctx, tx.created_at).strftime(str_format),
+                    customer_bank_account_id=tx.customer_bank_account_id,
+                    seller_bank_account_id=tx.seller_bank_account_id,
                     side=role,
                     is_money=(product.id == ctx.config.money_product_id),
                 )

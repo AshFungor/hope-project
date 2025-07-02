@@ -1,0 +1,25 @@
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: application logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: webapp
+          __path__: /var/log/app/*.log
+
+  - job_name: nginx logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx
+          __path__: /var/log/nginx/*.log
