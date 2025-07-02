@@ -24,17 +24,22 @@ flask_extensions: !flask_extensions
 consumption: !consumption
   food:
     count: 1
-    price: 80
+    price: 95
     period_days: 1
 
   clothes:
     count: 1
-    price: 120
+    price: 125
     period_days: 2
 
   technic:
     count: 1
-    price: 150
+    price: 195
     period_days: 4
+
+  energy:
+    count: 10
+    price: 50
+    period_days: 1
 
 money_product_id: 1

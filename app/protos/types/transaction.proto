@@ -13,6 +13,7 @@ enum TransactionStatusReason {
     CUSTOMER_MISSING = 7;
     SELLER_MISSING = 8;
     MULTIPLE_PRODUCTS = 9;
+    PREFECTURES_DO_NOT_MATCH = 10;
 }
 
 message Transaction {

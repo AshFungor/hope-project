@@ -3,7 +3,7 @@ import sqlalchemy as orm
 from app.codegen.transaction import DecideOnTransactionResponse, DecideOnTransactionRequestStatus
 from app.codegen.types import TransactionStatusReason
 from app.context import AppContext, function_context
-from app.models import BankAccount, Product2BankAccount, Transaction, TransactionStatus
+from app.models import BankAccount, Product2BankAccount, Transaction, TransactionStatus, User, Prefecture, Company, Product
 
 
 class Processor:
@@ -81,6 +81,36 @@ class Processor:
 
             transaction.status = TransactionStatus.ACCEPTED
             return cls.ok()
+        
+        if not (str(transaction.customer_bank_account_id).startswith('5') \
+                and str(transaction.seller_bank_account_id).startswith('4')):
+            return cls.ok()
+
+        user: User = ctx.database.session.execute(
+            orm.select(User).filter(User.bank_account_id == transaction.customer_bank_account_id)
+        ).scalar_one_or_none()
+        if user is None:
+            return TransactionStatusReason.CUSTOMER_MISSING
+
+        prefecture = ctx.database.session.get(Prefecture, user.prefecture_id)
+        if prefecture is None:
+            return TransactionStatusReason.CUSTOMER_MISSING
+
+        company = ctx.database.session.execute(
+            orm.select(Company).filter(
+                Company.bank_account_id == transaction.seller_bank_account_id
+            )
+        ).scalar_one_or_none()
+
+        if company is None:
+            return TransactionStatusReason.SELLER_MISSING
+
+        good = ctx.database.session.execute(
+            orm.select(Product).filter(Product.id == transaction.product_id)
+        ).scalar_one_or_none()
+
+        if prefecture.id != company.prefecture_id and good.category.lower() != "energy":
+            return TransactionStatusReason.PREFECTURES_DO_NOT_MATCH
 
         if not seller_products or seller_products.count < transaction.count:
             return TransactionStatusReason.SELLER_MISSING_GOODS
