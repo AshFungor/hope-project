@@ -48,9 +48,17 @@ class CRUD:
     @classmethod
     @wrap_crud_call
     def create_bank_account(cls, kind: BankAccount.AccountMapping) -> int:
-        bank_account = BankAccount.from_kind(kind)
+        base_id = BankAccount.from_kind(kind)
+        id_ = base_id
+
+        while cls.__ctx.database.session.get(BankAccount, id_) is not None:
+            cls.__ctx.logger.warning(f"BankAccount ID {id_} already exists, incrementing")
+            id_ += 1
+
+        bank_account = BankAccount(id=id_)
         bind_account = Product2BankAccount(bank_account.id, 1, 0)
-        cls.__ctx.database.session.add_all(bank_account, bind_account)
+        cls.__ctx.database.session.add_all([bank_account, bind_account])
+
         return bank_account.id
 
     @classmethod
@@ -69,6 +77,7 @@ class CRUD:
         account = cls.create_bank_account(BankAccount.AccountMapping.USER)
         user.bank_account_id = account
         cls.__ctx.database.session.add(user)
+        return user
 
     @classmethod
     @wrap_crud_call

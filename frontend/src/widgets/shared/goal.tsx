@@ -50,7 +50,7 @@ export default function GoalSection({ goal, balance }: GoalSelectionProperties) 
                         variant="determinate"
                         value={progress}
                         sx={{ height: 10, borderRadius: 5 }}
-                        color="success"
+                        color="primary"
                     />
                 </Box>
                 <Typography variant="body2" sx={{ minWidth: 35 }}>

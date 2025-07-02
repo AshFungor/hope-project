@@ -21,6 +21,6 @@ def bulk(f: Callable):
             return "No selected file", 406
 
         stream = StringIO(file.stream.read().decode("utf-8-sig"))
-        f(ctx, stream)
+        return f(ctx, stream)
 
     return wrapper

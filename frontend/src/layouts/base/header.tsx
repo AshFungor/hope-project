@@ -54,7 +54,7 @@ export default function Header({ showLogout = false }: { showLogout?: boolean })
                 {showLogout && (
                     <Button
                         variant="outlined"
-                        color="inherit"
+                        color="primary"
                         onClick={handleLogout}
                         sx={{ ml: 'auto' }}
                     >
