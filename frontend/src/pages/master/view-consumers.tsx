@@ -33,6 +33,17 @@ export default function ViewConsumersPage() {
     const [currentCategory, setCurrentCategory] = useState("all");
     const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
+    const countsOkStatus = ((consumers: Consumer[], category: string) => {
+        if (category === "all") {
+            return consumers.filter(
+                (con) => Object.keys(con.categoryStatus)
+                .every((c) => con.categoryStatus[c] === "ok")
+            ).length
+        }
+
+        return consumers.filter((c) => c.categoryStatus[category] === "ok").length
+    })
+
     // Fetch categories dynamically
     useEffect(() => {
         const fetchCategories = async () => {
@@ -98,7 +109,7 @@ export default function ViewConsumersPage() {
                 status={message?.status ?? AlertStatus.Info}
             />
 
-            <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+            <Stack direction="row" sx={{ mb: 3 }}>
                 <FormControl>
                     <InputLabel>Категория</InputLabel>
                     <Select
@@ -164,6 +175,9 @@ export default function ViewConsumersPage() {
 
             <Typography sx={{ mt: 2 }}>
                 Показано: {consumers.length}
+            </Typography>
+            <Typography>
+                Пользователи, употребившие текущую категорию: {countsOkStatus(consumers, currentCategory)}
             </Typography>
         </Container>
     );
