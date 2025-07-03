@@ -270,6 +270,16 @@ export default function CompanyCabinetPage() {
 								variant="outlined"
 								size="large"
 								onClick={() =>
+									handleNavigate(`/company/${company.bankAccountId}/employees`)
+								}
+							>
+								Работники
+							</Button>
+
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
 									handleNavigate(
 										`/company/${company.bankAccountId}/production/employ`
 									)

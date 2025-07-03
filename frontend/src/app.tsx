@@ -103,6 +103,10 @@ function App() {
 								element={<CompanyEmployeesPage />}
 							/>
 							<Route
+								path="/company/:companyId/employees"
+								element={<CompanyEmployeesPage />}
+							/>
+							<Route
 								path="/company/:companyId/ceo/employ"
 								element={
 									<CompanyEmployPage
