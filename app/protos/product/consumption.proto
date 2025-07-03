@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/consumer.proto";
+
+message ViewConsumersRequest {
+    // FOOD. etc.
+    string category = 1;
+}
+
+message ViewConsumersResponse {
+    repeated types.Consumer consumers = 1;
+}
+
+message CollectConsumersRequest {
+    repeated uint64 user_ids = 1;
+    repeated string categories = 2;
+}
+
+message CollectConsumersResponse {
+    bool success = 1;
+    string message = 2;
+}

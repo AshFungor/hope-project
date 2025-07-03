@@ -32,7 +32,8 @@ const MasterHomePage: React.FC = () => {
                 {NavButton('/master/resources', 'Про ресурсы/товары/энергию')}
                 {NavButton('/master/prefecture/update', 'Сменить префектуру')}
                 {NavButton('/master/company/create', 'Создать фирму')}
-                {NavButton('/master/company/change-ceo', 'Сменить CEO')} {/* ✅ Added label */}
+                {NavButton('/master/company/change-ceo', 'Сменить CEO')}
+                {NavButton('/master/company/view-consumers', 'Сменить CEO')}
             </Stack>
         </Container>
     );

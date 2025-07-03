@@ -33,6 +33,8 @@ import CompanyEmployPage from "@app/pages/accounts/company/employ";
 
 import PrefectureAccountPage from "@app/pages/accounts/prefecture"
 
+import ViewConsumersPage from "@app/pages/master/view-consumers"
+
 import MainLayout from './layouts/main';
 
 import { EmployeeRole } from './codegen/app/protos/types/company';
@@ -103,6 +105,7 @@ function App() {
                             <Route path="/master/prefecture/update" element={<SwitchPrefectureForm />} />
                             <Route path="/master/company/create" element={<CreateCompanyForm />} />
                             <Route path="/master/company/change-ceo" element={<MasterChangeCEOPage />} />
+                            <Route path="/master/company/view-consumers" element={<ViewConsumersPage />} />
                         </Route>
 
                         <Route element={<AuthLayout />}>

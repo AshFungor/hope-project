@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package types;
+
+import "app/protos/types/user.proto";
+
+message Consumer {
+    PartialUser user = 1;
+    map<string, string> category_status = 6;
+}

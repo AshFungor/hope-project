@@ -35,6 +35,8 @@ import "app/protos/goal/last.proto";
 
 import "app/protos/city_hall/current.proto";
 
+import "app/protos/product/consumption.proto";
+
 
 message Response {
     oneof payload {
@@ -78,5 +80,8 @@ message Response {
         transaction.CreateTransactionResponse master_remove_product = 30;
 
         company.MasterChangeCEOResponse master_change_ceo = 31;
+
+        product.ViewConsumersResponse view_consumers = 32;
+        product.CollectConsumersResponse collect_consumers = 33;
     }
 }

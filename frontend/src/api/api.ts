@@ -40,7 +40,9 @@ export namespace Hope {
             request.availableProducts ||
             request.consumeProduct ||
             request.productCounts ||
-            request.createProduct
+            request.createProduct ||
+            request.viewConsumers ||
+            request.collectConsumers
         ) {
             response = await ProductAPI.Product.handle(request);
 

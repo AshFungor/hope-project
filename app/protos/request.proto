@@ -36,6 +36,8 @@ import "app/protos/goal/last.proto";
 
 import "app/protos/city_hall/current.proto";
 
+import "app/protos/product/consumption.proto";
+
 message Request {
     oneof payload {
         session.LoginRequest login = 1;
@@ -78,5 +80,8 @@ message Request {
         transaction.MasterRemoveProductRequest master_remove_product = 30;
 
         company.MasterChangeCEORequest master_change_ceo = 31;
+
+        product.ViewConsumersRequest view_consumers = 32;
+        product.CollectConsumersRequest collect_consumers = 33;
     }
 }

@@ -24,6 +24,14 @@ export namespace API {
                 return Protobuf.send("/api/products/create", request, "POST");
             }
 
+            if (request.viewConsumers) {
+                return Protobuf.send("/api/products/consumers/view", request, "POST");
+            }
+
+            if (request.collectConsumers) {
+                return Protobuf.send("/api/products/consumers/collect", request, "POST");
+            }
+
             throw new Error("Unsupported Product payload type");
         }
     }
