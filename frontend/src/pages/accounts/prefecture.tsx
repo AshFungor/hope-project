@@ -90,7 +90,7 @@ export default function PrefectureAccountPage() {
             const money = countResp.products?.find(p => p.product?.category === "MONEY");
             setBalance(money?.count ?? 0);
 
-            const goalReq: GetLastGoalRequest = { bankAccountId: currentUser.bankAccountId };
+            const goalReq: GetLastGoalRequest = { bankAccountId: p.bankAccountId };
             const goalResp = await Hope.sendTyped(Request.create({ lastGoal: goalReq }), "lastGoal");
             const g = goalResp.goal;
 
