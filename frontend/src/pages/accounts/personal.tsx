@@ -54,7 +54,7 @@ export default function PersonalPage() {
 				navigate('/personal/goal/new');
 				return;
 			}
-			setGoal(new Goal(lastGoal.bankAccountId, lastGoal.value));
+			setGoal(new Goal(lastGoal.bankAccountId, lastGoal.value, lastGoal.currentProgress));
 
 			const countReq = ProductCountsRequest.create({
 				bankAccountId: currentUser.bankAccountId,
@@ -84,7 +84,7 @@ export default function PersonalPage() {
 			<Accordion defaultExpanded>
 				<AccordionSummary expandIcon={<ExpandMoreIcon />}>Профиль</AccordionSummary>
 				<AccordionDetails>
-					<GoalSection goal={goal} balance={balance} />
+					<GoalSection goal={goal} />
 
 					<Box
 						className="blur"

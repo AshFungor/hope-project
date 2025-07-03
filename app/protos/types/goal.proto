@@ -5,6 +5,6 @@ package types;
 message Goal {
     uint64 bank_account_id = 1;
     // we used to assume that progress = balance - amount_on_setup
-    uint64 current_progress = 2;
+    int64 current_progress = 2;
     uint64 value = 3;
 }

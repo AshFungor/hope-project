@@ -13,7 +13,7 @@ class Protoc:
     # make sure to pull deps first, especially with npm
     __base_command_name = "protoc"
     __ts_plugin_path = Path("frontend/node_modules/.bin")
-    # activate environment for python
+    __py_plugin_path = Path(".venv/bin")
 
     @classmethod
     def collect_files(cls, proto_dir: Path = Path.cwd()) -> List[Path]:
@@ -23,7 +23,7 @@ class Protoc:
     def invoke(cls, output_param: str, output_dir: str):
         path = os.environ["PATH"]
         env = {
-            "PATH": f"{path}:{cls.__ts_plugin_path}",
+            "PATH": f"{path}:{cls.__ts_plugin_path}:{cls.__py_plugin_path}",
         }
 
         result = subprocess.run(

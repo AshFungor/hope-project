@@ -23,7 +23,10 @@ from app.models.queries import CRUD, calculate_progress, get_last, wrap_crud_con
 @pythonify(GetLastGoalRequest)
 def get_last_goal(ctx: AppContext, req: GetLastGoalRequest):
     last: Goal = get_last(req.bank_account_id, current_day_only=True)
-    progress = calculate_progress(req.bank_account_id, timedelta(days=1), last)
+    progress = calculate_progress(req.bank_account_id, last, timedelta(days=1))
+
+    if progress is None:
+        progress = 0
 
     if last is None:
         return protobufify(Response(last_goal=GetLastGoalResponse(goal=None)))

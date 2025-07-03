@@ -125,7 +125,7 @@ export default function CompanyCabinetPage() {
 
 			const g = goalResp.lastGoal?.goal;
 			if (g) {
-				setGoal(new GoalModel(Number(g.bankAccountId), Number(g.value)));
+				setGoal(new GoalModel(Number(g.bankAccountId), Number(g.value), g.currentProgress));
 			} else {
 				if (fCeo) {
 					navigate(`/company/${companyId}/goal/new`);
@@ -166,7 +166,7 @@ export default function CompanyCabinetPage() {
 						</Typography>
 					</Box>
 
-					<GoalSection goal={goal} balance={balance} />
+					<GoalSection goal={goal} />
 					<BalanceSection current={balance} />
 
 					<Table>

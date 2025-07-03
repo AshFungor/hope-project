@@ -84,7 +84,9 @@ class AppConfig(YAMLObject):
             return cls({category: cls.CategoryInfo(**data) for category, data in raw_dict.items()})
 
     @dataclass
-    class AccountMapping:
+    class AccountMapping(YAMLObject):
+        yaml_tag = "!account_mapping"
+
         city_hall: int = 1
         company: int = 2
         prefecture: int = 3

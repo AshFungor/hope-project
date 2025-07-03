@@ -6,10 +6,9 @@ import Typography from '@mui/material/Typography';
 
 interface GoalSelectionProperties {
 	goal: Goal | null;
-	balance: number;
 }
 
-export default function GoalSection({ goal, balance }: GoalSelectionProperties) {
+export default function GoalSection({ goal }: GoalSelectionProperties) {
 	if (!goal || goal.value === null) {
 		return (
 			<Box
@@ -28,7 +27,7 @@ export default function GoalSection({ goal, balance }: GoalSelectionProperties) 
 		);
 	}
 
-	const progress = goal.getRate(balance);
+	const progress = goal.getRate();
 
 	return (
 		<Box

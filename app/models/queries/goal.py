@@ -27,23 +27,25 @@ def calculate_progress(ctx: AppContext, bank_account_id: int, goal: Goal, span: 
     if bank_account is None:
         return None
 
+    if not goal:
+        return None
+
     money = CRUD.query_money(bank_account_id)
 
-    to_lift = ctx.database.session.execute(
-        orm.func.sum(
-            orm.select(Transaction.count).filter(
-                orm.and_(
-                    orm.or_(
-                        orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.prefecture)),
-                        orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.city_hall)),
-                    ),
-                    Transaction.status == TransactionStatus.ACCEPTED,
-                    Transaction.product_id == ctx.config.money_product_id,
-                    Transaction.created_at >= datetime.now() - span,
-                    Transaction.seller_bank_account_id == bank_account_id,
-                )
+    to_lift = (
+        ctx.database.session.scalar(
+            orm.select(orm.func.sum(Transaction.count)).where(
+                orm.or_(
+                    orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.prefecture)),
+                    orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.city_hall)),
+                ),
+                Transaction.status == TransactionStatus.ACCEPTED,
+                Transaction.product_id == ctx.config.money_product_id,
+                Transaction.created_at >= datetime.now() - span,
+                Transaction.seller_bank_account_id == bank_account_id,
             )
         )
+        or 0
     )
 
-    return money - goal.amount_on_setup + to_lift
+    return int(money - goal.amount_on_setup + to_lift)

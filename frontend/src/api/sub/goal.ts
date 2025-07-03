@@ -6,14 +6,15 @@ import { Goal as GoalType } from '@app/codegen/app/protos/types/goal';
 export class Goal implements GoalType {
 	constructor(
 		public bankAccountId: number,
-		public value: number
+		public value: number,
+		public currentProgress: number,
 	) {}
 
-	getRate(currentBalance: number): number {
+	getRate(): number {
 		if (!this.value || this.value === 0) {
 			return 0;
 		}
-		return Math.min(100, Math.floor((currentBalance / this.value) * 100));
+		return Math.min(100, Math.floor((this.currentProgress / this.value) * 100));
 	}
 }
 

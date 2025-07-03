@@ -44,7 +44,7 @@ consumption: !consumption
 
 money_product_id: 1
 
-account_mapping:
+account_mapping: !account_mapping
   city_hall: 1
   company: 2
   prefecture: 3

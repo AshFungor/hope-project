@@ -98,7 +98,7 @@ export default function PrefectureAccountPage() {
 			const g = goalResp.goal;
 
 			if (g) {
-				setGoal(new Goal(Number(g.bankAccountId), g.value));
+				setGoal(new Goal(Number(g.bankAccountId), g.value, g.currentProgress));
 			} else {
 				if (userIsPrefect) {
 					navigate(`/prefecture/${p.bankAccountId}/goal/new`);
@@ -122,7 +122,7 @@ export default function PrefectureAccountPage() {
 			</Box>
 
 			<BalanceSection current={balance} />
-			<GoalSection goal={goal} balance={balance} />
+			<GoalSection goal={goal} />
 
 			<Table sx={{ mt: 3 }}>
 				<TableHead>
