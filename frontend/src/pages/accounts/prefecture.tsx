@@ -81,12 +81,12 @@ export default function PrefectureAccountPage() {
             setIsPrefect(userIsPrefect);
             setIsEcoAssistant(userIsEcoAssistant);
 
-            // fix this
-            const countReq: ProductCountsRequest = { bankAccountId: prefectureBankAccount };
+            const countReq: ProductCountsRequest = { bankAccountId: p.bankAccountId };
             const countResp = await Hope.sendTyped(
                 Request.create({ productCounts: countReq }),
                 "productCounts"
             );
+
             const money = countResp.products?.find(p => p.product?.category === "MONEY");
             setBalance(money?.count ?? 0);
 
