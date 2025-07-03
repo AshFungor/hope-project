@@ -84,6 +84,13 @@ class AppConfig(YAMLObject):
             return cls({category: cls.CategoryInfo(**data) for category, data in raw_dict.items()})
 
     @dataclass
+    class AccountMapping:
+        city_hall: int = 1
+        company: int = 2
+        prefecture: int = 3
+        user: int = 5
+
+    @dataclass
     class FlaskExtensions(YAMLObject):
         yaml_tag = "!flask_extensions"
 
@@ -100,6 +107,7 @@ class AppConfig(YAMLObject):
     flask_extensions: FlaskExtensions
     consumption: Consumption
     money_product_id: int
+    account_mapping: AccountMapping
 
 
 class AppContext:

@@ -6,9 +6,15 @@ import { Hope } from '@app/api/api';
 import { Request } from '@app/codegen/app/protos/request';
 
 import { GetCompanyRequest, GetCompanyResponse } from '@app/codegen/app/protos/company/get';
-import { CurrentPrefectureRequest, CurrentPrefectureResponse } from '@app/codegen/app/protos/prefecture/current';
+import {
+	CurrentPrefectureRequest,
+	CurrentPrefectureResponse,
+} from '@app/codegen/app/protos/prefecture/current';
 import { GetLastGoalRequest, GetLastGoalResponse } from '@app/codegen/app/protos/goal/last';
-import { AllEmployeesRequest, AllEmployeesResponse } from '@app/codegen/app/protos/company/employees';
+import {
+	AllEmployeesRequest,
+	AllEmployeesResponse,
+} from '@app/codegen/app/protos/company/employees';
 import { ProductCountsRequest, ProductCountsResponse } from '@app/codegen/app/protos/product/count';
 
 import { Goal as GoalModel } from '@app/api/sub/goal';
@@ -29,246 +35,276 @@ import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 
 interface Company {
-    bankAccountId: number;
-    name: string;
-    about: string;
+	bankAccountId: number;
+	name: string;
+	about: string;
 }
 
 interface CEO {
-    name: string;
-    lastName: string;
-    patronymic: string;
+	name: string;
+	lastName: string;
+	patronymic: string;
 }
 
 export default function CompanyCabinetPage() {
-    const { companyId } = useParams<{ companyId: string }>();
-    const { currentUser } = useUser();
-    const navigate = useNavigate();
+	const { companyId } = useParams<{ companyId: string }>();
+	const { currentUser } = useUser();
+	const navigate = useNavigate();
 
-    const [goal, setGoal] = useState<GoalModel | null>(null);
-    const [balance, setBalance] = useState(0);
-    const [company, setCompany] = useState<Company | null>(null);
-    const [ceo, setCeo] = useState<CEO | null>(null);
-    const [prefectureName, setPrefectureName] = useState<string>('');
+	const [goal, setGoal] = useState<GoalModel | null>(null);
+	const [balance, setBalance] = useState(0);
+	const [company, setCompany] = useState<Company | null>(null);
+	const [ceo, setCeo] = useState<CEO | null>(null);
+	const [prefectureName, setPrefectureName] = useState<string>('');
 
-    const [fCeo, setFCeo] = useState(false);
-    const [fCfo, setFCfo] = useState(false);
-    const [fMark, setFMark] = useState(false);
-    const [fProd, setFProd] = useState(false);
+	const [fCeo, setFCeo] = useState(false);
+	const [fCfo, setFCfo] = useState(false);
+	const [fMark, setFMark] = useState(false);
+	const [fProd, setFProd] = useState(false);
 
-    useEffect(() => {
-        const loadCompanyData = async () => {
-            if (!companyId) return;
+	useEffect(() => {
+		const loadCompanyData = async () => {
+			if (!companyId) return;
 
-            const companyReq: GetCompanyRequest = {
-                companyBankAccountId: Number(companyId),
-            };
-            const companyResp = await Hope.send(Request.create({ getCompany: companyReq })) as {
-                getCompany?: GetCompanyResponse;
-            };
+			const companyReq: GetCompanyRequest = {
+				companyBankAccountId: Number(companyId),
+			};
+			const companyResp = (await Hope.send(Request.create({ getCompany: companyReq }))) as {
+				getCompany?: GetCompanyResponse;
+			};
 
-            const c = companyResp.getCompany?.company;
-            if (!c) return;
+			const c = companyResp.getCompany?.company;
+			if (!c) return;
 
-            setCompany({
-                bankAccountId: Number(c.bankAccountId),
-                name: c.name,
-                about: c.about,
-            });
+			setCompany({
+				bankAccountId: Number(c.bankAccountId),
+				name: c.name,
+				about: c.about,
+			});
 
-            const employeesReq: AllEmployeesRequest = {
-                companyBankAccountId: c.bankAccountId,
-            };
-            const employeesResp = await Hope.send(Request.create({ allEmployees: employeesReq })) as {
-                allEmployees?: AllEmployeesResponse;
-            };
+			const employeesReq: AllEmployeesRequest = {
+				companyBankAccountId: c.bankAccountId,
+			};
+			const employeesResp = (await Hope.send(
+				Request.create({ allEmployees: employeesReq })
+			)) as {
+				allEmployees?: AllEmployeesResponse;
+			};
 
-            const employees = employeesResp.allEmployees?.employees ?? [];
+			const employees = employeesResp.allEmployees?.employees ?? [];
 
-            employees.forEach((e) => {
-                if (e.role === EmployeeRole.CEO) {
-                    setCeo({
-                        name: e.info?.name ?? '',
-                        lastName: e.info?.lastName ?? '',
-                        patronymic: e.info?.patronymic ?? '',
-                    });
-                }
+			employees.forEach((e) => {
+				if (e.role === EmployeeRole.CEO) {
+					setCeo({
+						name: e.info?.name ?? '',
+						lastName: e.info?.lastName ?? '',
+						patronymic: e.info?.patronymic ?? '',
+					});
+				}
 
-                if (e.info?.bankAccountId !== currentUser?.bankAccountId) {
-                    return;
-                }
+				if (e.info?.bankAccountId !== currentUser?.bankAccountId) {
+					return;
+				}
 
-                if (e.role === EmployeeRole.CEO) setFCeo(true);
-                if (e.role === EmployeeRole.CFO) setFCfo(true);
-                if (e.role === EmployeeRole.MARKETING_MANAGER) setFMark(true);
-                if (e.role === EmployeeRole.PRODUCTION_MANAGER) setFProd(true);
-            });
+				if (e.role === EmployeeRole.CEO) setFCeo(true);
+				if (e.role === EmployeeRole.CFO) setFCfo(true);
+				if (e.role === EmployeeRole.MARKETING_MANAGER) setFMark(true);
+				if (e.role === EmployeeRole.PRODUCTION_MANAGER) setFProd(true);
+			});
 
-            const prefReq: CurrentPrefectureRequest = { bankAccountId: c.bankAccountId };
-            const prefResp = await Hope.send(Request.create({ currentPrefecture: prefReq })) as {
-                currentPrefecture?: CurrentPrefectureResponse;
-            };
-            setPrefectureName(prefResp.currentPrefecture?.prefecture?.name ?? '');
+			const prefReq: CurrentPrefectureRequest = { bankAccountId: c.bankAccountId };
+			const prefResp = (await Hope.send(Request.create({ currentPrefecture: prefReq }))) as {
+				currentPrefecture?: CurrentPrefectureResponse;
+			};
+			setPrefectureName(prefResp.currentPrefecture?.prefecture?.name ?? '');
 
-            const goalReq: GetLastGoalRequest = { bankAccountId: Number(companyId) };
-            const goalResp = await Hope.send(Request.create({ lastGoal: goalReq })) as {
-                lastGoal?: GetLastGoalResponse;
-            };
+			const goalReq: GetLastGoalRequest = { bankAccountId: Number(companyId) };
+			const goalResp = (await Hope.send(Request.create({ lastGoal: goalReq }))) as {
+				lastGoal?: GetLastGoalResponse;
+			};
 
-            const g = goalResp.lastGoal?.goal;
-            if (g) {
-                setGoal(new GoalModel(Number(g.bankAccountId), Number(g.value)));
-            } else {
-                if (fCeo) {
-                    navigate(`/company/${companyId}/goal/new`);
-                    return;
-                }
-                setGoal(null);
-            }
+			const g = goalResp.lastGoal?.goal;
+			if (g) {
+				setGoal(new GoalModel(Number(g.bankAccountId), Number(g.value)));
+			} else {
+				if (fCeo) {
+					navigate(`/company/${companyId}/goal/new`);
+					return;
+				}
+				setGoal(null);
+			}
 
-            const countReq: ProductCountsRequest = {
-                bankAccountId: Number(companyId),
-            };
-            
-            const grpcRequest = Request.create({ productCounts: countReq });
-            const countResp = await Hope.send(grpcRequest) as {
-                productCounts?: ProductCountsResponse;
-            };
-            
-            const counts = countResp?.productCounts?.products ?? [];
-            const money = counts.find(p => p.product?.category === 'MONEY');
-            
-            setBalance(money?.count ?? 0);
-        };
+			const countReq: ProductCountsRequest = {
+				bankAccountId: Number(companyId),
+			};
 
-        loadCompanyData();
-    }, [companyId, navigate, fCeo]);
+			const grpcRequest = Request.create({ productCounts: countReq });
+			const countResp = (await Hope.send(grpcRequest)) as {
+				productCounts?: ProductCountsResponse;
+			};
 
-    const handleNavigate = (path: string) => {
-        navigate(path);
-    };
+			const counts = countResp?.productCounts?.products ?? [];
+			const money = counts.find((p) => p.product?.category === 'MONEY');
 
-    return (
-        <Container sx={{ mt: 4 }}>
-            {company && (
-                <>
-                    <Box sx={{ textAlign: 'center', mb: 3 }}>
-                        <Typography variant="h4" component="h3">
-                            Фирма "{company.name}"
-                        </Typography>
-                    </Box>
+			setBalance(money?.count ?? 0);
+		};
 
-                    <GoalSection goal={goal} balance={balance} />
-                    <BalanceSection current={balance} />
+		loadCompanyData();
+	}, [companyId, navigate, fCeo]);
 
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell colSpan={2}>Данные о фирме:</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell>Номер банковского счета:</TableCell>
-                                <TableCell>{company.bankAccountId}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>Описание фирмы:</TableCell>
-                                <TableCell>{company.about}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>Ген. директор:</TableCell>
-                                <TableCell>{ceo?.name} {ceo?.patronymic} {ceo?.lastName}</TableCell>
-                            </TableRow>
-                            <TableRow>
-                                <TableCell>Префектура:</TableCell>
-                                <TableCell>{prefectureName}</TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+	const handleNavigate = (path: string) => {
+		navigate(path);
+	};
 
-                    <Stack spacing={2} sx={{ my: 5 }}>
-                        {fCfo && (
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/money`)}
-                            >
-                                Перевод средств
-                            </Button>
-                        )}
+	return (
+		<Container sx={{ mt: 4 }}>
+			{company && (
+				<>
+					<Box sx={{ textAlign: 'center', mb: 3 }}>
+						<Typography variant="h4" component="h3">
+							Фирма "{company.name}"
+						</Typography>
+					</Box>
 
-                        {fMark && (
-                            <>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/product`)}
-                                >
-                                    Выставить счёт
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/unpaid`)}
-                                >
-                                    Входящие счета
-                                </Button>
-                            </>
-                        )}
+					<GoalSection goal={goal} balance={balance} />
+					<BalanceSection current={balance} />
 
-                        {fProd && (
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/proposal/history`)}
-                            >
-                                История счетов
-                            </Button>
-                        )}
-                    </Stack>
+					<Table>
+						<TableHead>
+							<TableRow>
+								<TableCell colSpan={2}>Данные о фирме:</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							<TableRow>
+								<TableCell>Номер банковского счета:</TableCell>
+								<TableCell>{company.bankAccountId}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>Описание фирмы:</TableCell>
+								<TableCell>{company.about}</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>Ген. директор:</TableCell>
+								<TableCell>
+									{ceo?.name} {ceo?.patronymic} {ceo?.lastName}
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell>Префектура:</TableCell>
+								<TableCell>{prefectureName}</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
 
-                    {fProd && (
-                        <Stack spacing={2} sx={{ mb: 5 }}>
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/products`)}
-                            >
-                                Наши ресурсы/энергия/товары
-                            </Button>
+					<Stack spacing={2} sx={{ my: 5 }}>
+						{fCfo && (
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(
+										`/company/${company.bankAccountId}/proposal/money`
+									)
+								}
+							>
+								Перевод средств
+							</Button>
+						)}
 
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/production/employ`)}
-                            >
-                                Принять на работу
-                            </Button>
-                        </Stack>
-                    )}
+						{fMark && (
+							<>
+								<Button
+									variant="outlined"
+									size="large"
+									onClick={() =>
+										handleNavigate(
+											`/company/${company.bankAccountId}/proposal/product`
+										)
+									}
+								>
+									Выставить счёт
+								</Button>
+								<Button
+									variant="outlined"
+									size="large"
+									onClick={() =>
+										handleNavigate(
+											`/company/${company.bankAccountId}/proposal/unpaid`
+										)
+									}
+								>
+									Входящие счета
+								</Button>
+							</>
+						)}
 
-                    {fCeo && (
-                        <Stack spacing={2} sx={{ mb: 5 }}>
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/workers`)}
-                            >
-                                Сотрудники
-                            </Button>
+						{fProd && (
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(
+										`/company/${company.bankAccountId}/proposal/history`
+									)
+								}
+							>
+								История счетов
+							</Button>
+						)}
+					</Stack>
 
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                onClick={() => handleNavigate(`/company/${company.bankAccountId}/ceo/employ`)}
-                            >
-                                Принять на работу
-                            </Button>
-                        </Stack>
-                    )}
-                </>
-            )}
-        </Container>
-    );
+					{fProd && (
+						<Stack spacing={2} sx={{ mb: 5 }}>
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(`/company/${company.bankAccountId}/products`)
+								}
+							>
+								Наши ресурсы/энергия/товары
+							</Button>
+
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(
+										`/company/${company.bankAccountId}/production/employ`
+									)
+								}
+							>
+								Принять на работу
+							</Button>
+						</Stack>
+					)}
+
+					{fCeo && (
+						<Stack spacing={2} sx={{ mb: 5 }}>
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(`/company/${company.bankAccountId}/workers`)
+								}
+							>
+								Сотрудники
+							</Button>
+
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() =>
+									handleNavigate(`/company/${company.bankAccountId}/ceo/employ`)
+								}
+							>
+								Принять на работу
+							</Button>
+						</Stack>
+					)}
+				</>
+			)}
+		</Container>
+	);
 }

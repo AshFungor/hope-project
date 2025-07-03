@@ -1,69 +1,53 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
+from shutil import rmtree
+from typing import List
 
 
-def clean_output_dir(out_dir: Path):
-    if not out_dir.exists():
+class Protoc:
+    # make sure to pull deps first, especially with npm
+    __base_command_name = "protoc"
+    __ts_plugin_path = Path("frontend/node_modules/.bin")
+    # activate environment for python
+
+    @classmethod
+    def collect_files(cls, proto_dir: Path = Path.cwd()) -> List[Path]:
+        return list(proto_dir.rglob("*.proto"))
+
+    @classmethod
+    def invoke(cls, output_param: str, output_dir: str):
+        path = os.environ["PATH"]
+        env = {
+            "PATH": f"{path}:{cls.__ts_plugin_path}",
+        }
+
+        result = subprocess.run(
+            [cls.__base_command_name, f"--{output_param}={output_dir}", f"--proto_path={Path.cwd()}", *cls.collect_files()],
+            env=os.environ.update(env),
+        )
+
+        if result.returncode:
+            sys.exit(result.returncode)
+
+
+def clean_output_dir(output_dir: Path):
+    if not output_dir.is_dir():
         return
 
-    for path in out_dir.iterdir():
-        if path.name == ".gitkeep":
-            continue
-        if path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            # Recursively delete directories
-            for sub in path.rglob("*"):
-                if sub.is_file():
-                    sub.unlink()
-                elif sub.is_dir():
-                    try:
-                        sub.rmdir()
-                    except OSError:
-                        pass
-            try:
-                path.rmdir()
-            except OSError:
-                pass
+    for dir, dirs, files in output_dir.walk():
+        for file in files:
+            if file == ".gitkeep":
+                continue
 
+            (dir / file).unlink()
 
-def generate_python_protobufs(proto_dir: Path, py_out_dir: Path):
-    clean_output_dir(py_out_dir)
-
-    proto_files = list(proto_dir.rglob("*.proto"))
-    cmd = [
-        "protoc",
-        f"--proto_path={proto_dir}",
-        f"--python_betterproto_out={py_out_dir}",
-        *map(str, proto_files),
-    ]
-
-    result = subprocess.run(cmd)
-    if result.returncode != 0:
-        sys.exit(result.returncode)
-
-
-def generate_ts_protobufs(proto_dir: Path, ts_out_dir: Path):
-    clean_output_dir(ts_out_dir)
-
-    plugin_path = Path.cwd() / "frontend/node_modules/.bin/protoc-gen-ts_proto"
-
-    proto_files = list(proto_dir.rglob("*.proto"))
-    cmd = [
-        "protoc",
-        f"--proto_path={proto_dir}",
-        f"--plugin=protoc-gen-ts_proto={plugin_path}",
-        f"--ts_proto_out={ts_out_dir}",
-        *map(str, proto_files),
-    ]
-
-    result = subprocess.run(cmd)
-    if result.returncode != 0:
-        sys.exit(result.returncode)
+        for folded_dir in dirs:
+            rmtree(dir / folded_dir)
 
 
 def main():
@@ -73,11 +57,12 @@ def main():
     parser.add_argument("--ts_out", action="store", help="TypeScript output directory")
     args = parser.parse_args()
 
-    if args.py_out is not None:
-        generate_python_protobufs(args.proto_dir, Path(args.py_out))
     if args.ts_out is not None:
-        generate_ts_protobufs(args.proto_dir, Path(args.ts_out))
-    print("Protobuf generation complete.")
+        clean_output_dir(Path(args.ts_out))
+        Protoc.invoke("ts_proto_out", Path(args.ts_out))
+    if args.py_out is not None:
+        clean_output_dir(Path(args.py_out))
+        Protoc.invoke("python_betterproto_out", Path(args.py_out))
 
 
 if __name__ == "__main__":

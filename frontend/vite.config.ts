@@ -20,20 +20,20 @@ export default defineConfig(({ command }): UserConfig => {
 		plugins: [react()],
 		server: isDev
 			? {
-				proxy: {
-					'/api': {
-						target: config.API_URL,
-						changeOrigin: true,
-						secure: false,
+					proxy: {
+						'/api': {
+							target: config.API_URL,
+							changeOrigin: true,
+							secure: false,
+						},
 					},
-				},
-			}
+				}
 			: undefined,
 		build: !isDev
 			? {
-				outDir: 'dist',
-				sourcemap: false,
-			}
+					outDir: 'dist',
+					sourcemap: false,
+				}
 			: undefined,
 		define: {
 			__API_URL__: JSON.stringify(config.API_URL),

@@ -1,4 +1,4 @@
 export enum PageMode {
-    Personal = 'personal',
-    Org = 'company',
+	Personal = 'personal',
+	Org = 'company',
 }

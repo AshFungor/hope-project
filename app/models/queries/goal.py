@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import sqlalchemy as orm
 
 from app.context import AppContext, function_context
-from app.models import Goal
+from app.models import BankAccount, Goal, Transaction, TransactionStatus
+from app.models.queries import CRUD
 
 
 @function_context
@@ -18,3 +19,31 @@ def get_last(ctx: AppContext, bank_account: int, current_day_only: bool = False)
         return None
 
     return last
+
+
+@function_context
+def calculate_progress(ctx: AppContext, bank_account_id: int, goal: Goal, span: timedelta) -> Optional[int]:
+    bank_account = ctx.database.session.get(BankAccount, bank_account_id)
+    if bank_account is None:
+        return None
+
+    money = CRUD.query_money(bank_account_id)
+
+    to_lift = ctx.database.session.execute(
+        orm.func.sum(
+            orm.select(Transaction.count).filter(
+                orm.and_(
+                    orm.or_(
+                        orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.prefecture)),
+                        orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.city_hall)),
+                    ),
+                    Transaction.status == TransactionStatus.ACCEPTED,
+                    Transaction.product_id == ctx.config.money_product_id,
+                    Transaction.created_at >= datetime.now() - span,
+                    Transaction.seller_bank_account_id == bank_account_id,
+                )
+            )
+        )
+    )
+
+    return money - goal.amount_on_setup + to_lift

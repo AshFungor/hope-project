@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '@app/contexts/user'
+import { useUser } from '@app/contexts/user';
 
 import { Hope } from '@app/api/api';
 import { Request } from '@app/codegen/app/protos/request';
@@ -14,57 +14,59 @@ import ListItemText from '@mui/material/ListItemText';
 import Box from '@mui/material/Box';
 
 interface Company {
-    bankAccountId: number;
-    name: string;
+	bankAccountId: number;
+	name: string;
 }
 
 export default function CompanyListPage() {
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const navigate = useNavigate();
-    const currentUser = useUser()
+	const [companies, setCompanies] = useState<Company[]>([]);
+	const navigate = useNavigate();
+	const currentUser = useUser();
 
-    useEffect(() => {
-        const loadCompanies = async () => {
-            const req: AllCompaniesRequest = { relatedUserBankAccountId: currentUser.bankAccountId };
-            const response = await Hope.send(Request.create({ allCompanies: req })) as {
-                allCompanies?: AllCompaniesResponse;
-            };
+	useEffect(() => {
+		const loadCompanies = async () => {
+			const req: AllCompaniesRequest = {
+				relatedUserBankAccountId: currentUser.bankAccountId,
+			};
+			const response = (await Hope.send(Request.create({ allCompanies: req }))) as {
+				allCompanies?: AllCompaniesResponse;
+			};
 
-            const loaded = response.allCompanies?.companies ?? [];
-            setCompanies(
-                loaded.map(c => ({
-                    bankAccountId: Number(c.bankAccountId),
-                    name: c.name,
-                }))
-            );
-        };
+			const loaded = response.allCompanies?.companies ?? [];
+			setCompanies(
+				loaded.map((c) => ({
+					bankAccountId: Number(c.bankAccountId),
+					name: c.name,
+				}))
+			);
+		};
 
-        loadCompanies();
-    }, []);
+		loadCompanies();
+	}, []);
 
-    const handleClick = (companyId: number) => {
-        navigate(`/company/${companyId}`);
-    };
+	const handleClick = (companyId: number) => {
+		navigate(`/company/${companyId}`);
+	};
 
-    return (
-        <Container sx={{ mt: 4 }}>
-            <Box sx={{ textAlign: 'center', mb: 3 }}>
-                <Typography variant="h4">
-                    <strong>Список доступных фирм</strong>
-                </Typography>
-            </Box>
+	return (
+		<Container sx={{ mt: 4 }}>
+			<Box sx={{ textAlign: 'center', mb: 3 }}>
+				<Typography variant="h4">
+					<strong>Список доступных фирм</strong>
+				</Typography>
+			</Box>
 
-            <List sx={{ maxWidth: 600, mx: 'auto' }}>
-                {companies.map((company) => (
-                    <ListItemButton
-                        key={company.bankAccountId}
-                        onClick={() => handleClick(company.bankAccountId)}
-                        sx={{ textAlign: 'center' }}
-                    >
-                        <ListItemText primary={company.name} />
-                    </ListItemButton>
-                ))}
-            </List>
-        </Container>
-    );
+			<List sx={{ maxWidth: 600, mx: 'auto' }}>
+				{companies.map((company) => (
+					<ListItemButton
+						key={company.bankAccountId}
+						onClick={() => handleClick(company.bankAccountId)}
+						sx={{ textAlign: 'center' }}
+					>
+						<ListItemText primary={company.name} />
+					</ListItemButton>
+				))}
+			</List>
+		</Container>
+	);
 }

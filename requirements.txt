@@ -15,5 +15,4 @@ colorlog
 pyaml
 protobuf
 betterproto[compiler]
-betterproto
 pytest

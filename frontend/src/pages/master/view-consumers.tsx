@@ -1,184 +1,193 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 
 import {
-    Box,
-    Container,
-    Typography,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    Select,
-    MenuItem,
-    Button,
-    FormControl,
-    InputLabel,
-    Stack,
-} from "@mui/material";
+	Box,
+	Container,
+	Typography,
+	Table,
+	TableHead,
+	TableRow,
+	TableCell,
+	TableBody,
+	Select,
+	MenuItem,
+	Button,
+	FormControl,
+	InputLabel,
+	Stack,
+} from '@mui/material';
 
-import { Hope } from "@app/api/api";
-import { Request } from "@app/codegen/app/protos/request";
+import { Hope } from '@app/api/api';
+import { Request } from '@app/codegen/app/protos/request';
 import {
-    ViewConsumersRequest,
-    CollectConsumersRequest,
-} from "@app/codegen/app/protos/product/consumption";
+	ViewConsumersRequest,
+	CollectConsumersRequest,
+} from '@app/codegen/app/protos/product/consumption';
 
-import { Consumer } from "@app/codegen/app/protos/types/consumer";
-import MessageAlert, { AlertStatus } from "@app/widgets/shared/alert";
+import { Consumer } from '@app/codegen/app/protos/types/consumer';
+import MessageAlert, { AlertStatus } from '@app/widgets/shared/alert';
 
 export default function ViewConsumersPage() {
-    const [categories, setCategories] = useState<string[]>([]);
-    const [consumers, setConsumers] = useState<Consumer[]>([]);
-    const [currentCategory, setCurrentCategory] = useState("all");
-    const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
+	const [categories, setCategories] = useState<string[]>([]);
+	const [consumers, setConsumers] = useState<Consumer[]>([]);
+	const [currentCategory, setCurrentCategory] = useState('all');
+	const [message, setMessage] = useState<{ contents: string; status: AlertStatus } | null>(null);
 
-    const countsOkStatus = ((consumers: Consumer[], category: string) => {
-        if (category === "all") {
-            return consumers.filter(
-                (con) => Object.keys(con.categoryStatus)
-                .every((c) => con.categoryStatus[c] === "ok")
-            ).length
-        }
+	const countsOkStatus = (consumers: Consumer[], category: string) => {
+		if (category === 'all') {
+			return consumers.filter((con) =>
+				Object.keys(con.categoryStatus).every((c) => con.categoryStatus[c] === 'ok')
+			).length;
+		}
 
-        return consumers.filter((c) => c.categoryStatus[category] === "ok").length
-    })
+		return consumers.filter((c) => c.categoryStatus[category] === 'ok').length;
+	};
 
-    // Fetch categories dynamically
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const response = await Hope.sendTyped(Request.create({ allProducts: {} }), "allProducts");
-                const products = response.products ?? [];
+	// Fetch categories dynamically
+	useEffect(() => {
+		const fetchCategories = async () => {
+			try {
+				const response = await Hope.sendTyped(
+					Request.create({ allProducts: {} }),
+					'allProducts'
+				);
+				const products = response.products ?? [];
 
-                const uniqueConsumable = Array.from(
-                    new Set(
-                        products
-                            .filter((p) => p.consumable)
-                            .map((p) => p.category.toUpperCase())
-                    )
-                );
+				const uniqueConsumable = Array.from(
+					new Set(
+						products.filter((p) => p.consumable).map((p) => p.category.toUpperCase())
+					)
+				);
 
-                setCategories(uniqueConsumable);
-            } catch (err) {
-                console.error(err);
-                setMessage({
-                    contents: "Ошибка при загрузке списка категорий",
-                    status: AlertStatus.Error,
-                });
-            }
-        };
+				setCategories(uniqueConsumable);
+			} catch (err) {
+				console.error(err);
+				setMessage({
+					contents: 'Ошибка при загрузке списка категорий',
+					status: AlertStatus.Error,
+				});
+			}
+		};
 
-        fetchCategories();
-    }, []);
+		fetchCategories();
+	}, []);
 
-    const fetchConsumers = async (category: string) => {
-        const req = ViewConsumersRequest.create({ category });
-        const response = await Hope.sendTyped(Request.create({ viewConsumers: req }), "viewConsumers");
-        setConsumers(response.consumers ?? []);
-    };
+	const fetchConsumers = async (category: string) => {
+		const req = ViewConsumersRequest.create({ category });
+		const response = await Hope.sendTyped(
+			Request.create({ viewConsumers: req }),
+			'viewConsumers'
+		);
+		setConsumers(response.consumers ?? []);
+	};
 
-    useEffect(() => {
-        fetchConsumers(currentCategory);
-    }, [currentCategory]);
+	useEffect(() => {
+		fetchConsumers(currentCategory);
+	}, [currentCategory]);
 
-    const handleCollect = async () => {
-        const req = CollectConsumersRequest.create({
-            userIds: consumers.map((u) => u.user?.bankAccountId ?? 0),
-            categories: currentCategory === "all" ? categories : [currentCategory],
-        });
+	const handleCollect = async () => {
+		const req = CollectConsumersRequest.create({
+			userIds: consumers.map((u) => u.user?.bankAccountId ?? 0),
+			categories: currentCategory === 'all' ? categories : [currentCategory],
+		});
 
-        const response = await Hope.sendTyped(Request.create({ collectConsumers: req }), "collectConsumers");
+		const response = await Hope.sendTyped(
+			Request.create({ collectConsumers: req }),
+			'collectConsumers'
+		);
 
-        setMessage({
-            contents: response.message,
-            status: response.success ? AlertStatus.Info : AlertStatus.Error,
-        });
+		setMessage({
+			contents: response.message,
+			status: response.success ? AlertStatus.Info : AlertStatus.Error,
+		});
 
-        await fetchConsumers(currentCategory);
-    };
+		await fetchConsumers(currentCategory);
+	};
 
-    return (
-        <Container sx={{ mt: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                Просмотр потребления
-            </Typography>
+	return (
+		<Container sx={{ mt: 4 }}>
+			<Typography variant="h4" gutterBottom>
+				Просмотр потребления
+			</Typography>
 
-            <MessageAlert
-                message={message?.contents ?? null}
-                status={message?.status ?? AlertStatus.Info}
-            />
+			<MessageAlert
+				message={message?.contents ?? null}
+				status={message?.status ?? AlertStatus.Info}
+			/>
 
-            <Stack direction="row" sx={{ mb: 3 }}>
-                <FormControl>
-                    <InputLabel>Категория</InputLabel>
-                    <Select
-                        value={currentCategory}
-                        label="Категория"
-                        onChange={(e) => setCurrentCategory(e.target.value)}
-                        sx={{ minWidth: 200 }}
-                    >
-                        <MenuItem value="all">Все</MenuItem>
-                        {categories.map((cat) => (
-                            <MenuItem key={cat} value={cat}>
-                                {cat}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+			<Stack direction="row" sx={{ mb: 3 }}>
+				<FormControl>
+					<InputLabel>Категория</InputLabel>
+					<Select
+						value={currentCategory}
+						label="Категория"
+						onChange={(e) => setCurrentCategory(e.target.value)}
+						sx={{ minWidth: 200 }}
+					>
+						<MenuItem value="all">Все</MenuItem>
+						{categories.map((cat) => (
+							<MenuItem key={cat} value={cat}>
+								{cat}
+							</MenuItem>
+						))}
+					</Select>
+				</FormControl>
 
-                <Button variant="contained" color="success" onClick={() => fetchConsumers(currentCategory)}>
-                    Обновить
-                </Button>
+				<Button
+					variant="contained"
+					color="success"
+					onClick={() => fetchConsumers(currentCategory)}
+				>
+					Обновить
+				</Button>
 
-                <Button variant="contained" color="primary" onClick={handleCollect}>
-                    Списать
-                </Button>
-            </Stack>
+				<Button variant="contained" color="primary" onClick={handleCollect}>
+					Списать
+				</Button>
+			</Stack>
 
-            <Box sx={{ overflowX: "auto" }}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Банковский счет</TableCell>
-                            <TableCell>Фамилия</TableCell>
-                            <TableCell>Имя</TableCell>
-                            <TableCell>Отчество</TableCell>
-                            {categories.map(
-                                (cat) =>
-                                    (currentCategory === "all" || currentCategory === cat) && (
-                                        <TableCell key={cat}>{cat}</TableCell>
-                                    )
-                            )}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {consumers.map((c) => (
-                            <TableRow key={c.user?.bankAccountId}>
-                                <TableCell>{c.user?.bankAccountId}</TableCell>
-                                <TableCell>{c.user?.lastName}</TableCell>
-                                <TableCell>{c.user?.name}</TableCell>
-                                <TableCell>{c.user?.patronymic}</TableCell>
-                                {categories.map(
-                                    (cat) =>
-                                        (currentCategory === "all" || currentCategory === cat) && (
-                                            <TableCell key={cat}>
-                                                {c.categoryStatus?.[cat] ?? "-"}
-                                            </TableCell>
-                                        )
-                                )}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </Box>
+			<Box sx={{ overflowX: 'auto' }}>
+				<Table>
+					<TableHead>
+						<TableRow>
+							<TableCell>Банковский счет</TableCell>
+							<TableCell>Фамилия</TableCell>
+							<TableCell>Имя</TableCell>
+							<TableCell>Отчество</TableCell>
+							{categories.map(
+								(cat) =>
+									(currentCategory === 'all' || currentCategory === cat) && (
+										<TableCell key={cat}>{cat}</TableCell>
+									)
+							)}
+						</TableRow>
+					</TableHead>
+					<TableBody>
+						{consumers.map((c) => (
+							<TableRow key={c.user?.bankAccountId}>
+								<TableCell>{c.user?.bankAccountId}</TableCell>
+								<TableCell>{c.user?.lastName}</TableCell>
+								<TableCell>{c.user?.name}</TableCell>
+								<TableCell>{c.user?.patronymic}</TableCell>
+								{categories.map(
+									(cat) =>
+										(currentCategory === 'all' || currentCategory === cat) && (
+											<TableCell key={cat}>
+												{c.categoryStatus?.[cat] ?? '-'}
+											</TableCell>
+										)
+								)}
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</Box>
 
-            <Typography sx={{ mt: 2 }}>
-                Показано: {consumers.length}
-            </Typography>
-            <Typography>
-                Пользователи, употребившие текущую категорию: {countsOkStatus(consumers, currentCategory)}
-            </Typography>
-        </Container>
-    );
+			<Typography sx={{ mt: 2 }}>Показано: {consumers.length}</Typography>
+			<Typography>
+				Пользователи, употребившие текущую категорию:{' '}
+				{countsOkStatus(consumers, currentCategory)}
+			</Typography>
+		</Container>
+	);
 }

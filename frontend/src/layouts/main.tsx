@@ -7,13 +7,20 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 
 export default function MainLayout() {
-    return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', overflow: 'hidden' }}>
-            <Header showLogout />
-            <Container component="main" sx={{ flexGrow: 1, my: 4 }}>
-                <Outlet />
-            </Container>
-            <Footer />
-        </Box>
-    );
+	return (
+		<Box
+			sx={{
+				display: 'flex',
+				flexDirection: 'column',
+				minHeight: '100vh',
+				overflow: 'hidden',
+			}}
+		>
+			<Header showLogout />
+			<Container component="main" sx={{ flexGrow: 1, my: 4 }}>
+				<Outlet />
+			</Container>
+			<Footer />
+		</Box>
+	);
 }
