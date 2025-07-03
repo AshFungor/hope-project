@@ -33,7 +33,7 @@ const MasterHomePage: React.FC = () => {
                 {NavButton('/master/prefecture/update', 'Сменить префектуру')}
                 {NavButton('/master/company/create', 'Создать фирму')}
                 {NavButton('/master/company/change-ceo', 'Сменить CEO')}
-                {NavButton('/master/company/view-consumers', 'Сменить CEO')}
+                {NavButton('/master/company/view-consumers', 'Потребление')}
             </Stack>
         </Container>
     );
