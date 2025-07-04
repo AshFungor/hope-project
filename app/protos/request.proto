@@ -24,6 +24,7 @@ import "app/protos/product/consume.proto";
 import "app/protos/product/count.proto";
 import "app/protos/product/create.proto";
 import "app/protos/product/available.proto";
+import "app/protos/product/history.proto";
 
 import "app/protos/transaction/create.proto";
 import "app/protos/transaction/history.proto";
@@ -83,5 +84,6 @@ message Request {
 
         product.ViewConsumersRequest view_consumers = 32;
         product.CollectConsumersRequest collect_consumers = 33;
+        product.ConsumptionHistoryRequest view_consumption_history = 34;
     }
 }

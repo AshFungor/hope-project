@@ -1,17 +1,27 @@
-import sqlalchemy as orm
+from datetime import datetime, timedelta
 
+import sqlalchemy as orm
 from flask_login import login_required
-from datetime import timedelta, datetime
 
 from app.api import Blueprints
-from app.api.helpers import protobufify, pythonify
+from app.api.helpers import local_datetime, protobufify, pythonify
 from app.codegen.hope import Response
-from app.codegen.product import ViewConsumersRequest, ViewConsumersResponse, CollectConsumersRequest, CollectConsumersResponse
+from app.codegen.product import (
+    CollectConsumersRequest,
+    CollectConsumersResponse,
+    ConsumptionHistoryRequest,
+    ConsumptionHistoryResponse,
+    ConsumptionHistoryResponseConsumptionEntry,
+    ConsumptionHistoryResponseEntries,
+    ConsumptionHistoryResponseError,
+    ViewConsumersRequest,
+    ViewConsumersResponse,
+)
 from app.codegen.types import Consumer, PartialUser
-
+from app.codegen.types import Product as ProductProto
 from app.context import AppContext
-from app.models.queries import wrap_crud_context, needs_to_consume
-from app.models import User, Product, Consumption, Product2BankAccount
+from app.models import BankAccount, Consumption, Product, Product2BankAccount, User
+from app.models.queries import needs_to_consume, wrap_crud_context
 
 
 @Blueprints.product.route("/api/products/consumers/view", methods=["POST"])
@@ -24,14 +34,12 @@ def view_consumers(ctx: AppContext, req: ViewConsumersRequest):
     if category != "ALL" and category.lower() not in configured:
         return protobufify(Response(view_consumers=ViewConsumersResponse(consumers=[])))
 
-    users = ctx.database.session.scalars(
-        orm.select(User)
-    ).all()
+    users = ctx.database.session.scalars(orm.select(User)).all()
 
     result = []
     for user in users:
         mapper = {}
-        for cat in (configured if category == "ALL" else [category.lower()]):
+        for cat in configured if category == "ALL" else [category.lower()]:
             norm = configured[cat]
             left = needs_to_consume(
                 user.bank_account_id,
@@ -120,9 +128,39 @@ def collect_consumers(ctx: AppContext, req: CollectConsumersRequest):
 
     ctx.database.session.commit()
 
-    return protobufify(Response(
-        collect_consumers=CollectConsumersResponse(
-            success=True,
-            message=f"processed: {count}"
+    return protobufify(Response(collect_consumers=CollectConsumersResponse(success=True, message=f"processed: {count}")))
+
+
+@Blueprints.product.route("/api/products/consumers/history", methods=["POST"])
+@login_required
+@pythonify(ConsumptionHistoryRequest)
+def history(ctx: AppContext, req: ConsumptionHistoryRequest):
+    account = ctx.database.session.get(BankAccount, req.bank_account_id)
+
+    if account is None:
+        return protobufify(
+            Response(view_consumption_history=ConsumptionHistoryResponse(error=ConsumptionHistoryResponseError.BANK_ACCOUNT_NOT_FOUND))
         )
-    ))
+
+    if not str(account.id).startswith(str(ctx.config.account_mapping.user)):
+        return protobufify(Response(view_consumption_history=ConsumptionHistoryResponse(error=ConsumptionHistoryResponseError.NOT_A_USER)))
+
+    results = ctx.database.session.execute(
+        orm.select(Consumption, Product).filter(Consumption.bank_account_id == account.id).join(Product, Product.id == Consumption.product_id)
+    ).all()
+
+    response = []
+    for consumption, product in results:
+        response.append(
+            ConsumptionHistoryResponseConsumptionEntry(
+                consumed_at=local_datetime(ctx, consumption.consumed_at).strftime("%Y-%m-%d %H:%M"),
+                count=consumption.count,
+                product=ProductProto(
+                    name=product.name,
+                    category=product.category,
+                    level=product.level,
+                ),
+            )
+        )
+
+    return protobufify(Response(view_consumption_history=ConsumptionHistoryResponse(entries=ConsumptionHistoryResponseEntries(entries=response))))

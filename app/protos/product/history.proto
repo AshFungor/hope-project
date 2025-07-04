@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package product;
+
+import "app/protos/types/product.proto";
+
+message ConsumptionHistoryRequest {
+    uint64 bank_account_id = 1;
+}
+
+message ConsumptionHistoryResponse {
+    message ConsumptionEntry {
+        string consumed_at = 1;
+        uint64 count = 2;
+        types.Product product = 3;
+    }
+
+    enum Error {
+        BANK_ACCOUNT_NOT_FOUND = 0;
+        NOT_A_USER = 1;
+    }
+
+    message Entries {
+        repeated ConsumptionEntry entries = 2;
+    }
+
+    oneof payload {
+        Entries entries = 1;
+        Error error = 2;
+    }
+}

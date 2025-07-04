@@ -130,6 +130,13 @@ export default function PersonalPage() {
 						<Button variant="outlined" size="large" onClick={goToProducts}>
 							Перейти к продуктам
 						</Button>
+						<Button
+							variant="outlined"
+							size="large"
+							onClick={() => navigate('/personal/consumption/history')}
+						>
+							История потребления
+						</Button>
 					</Box>
 				</AccordionDetails>
 			</Accordion>

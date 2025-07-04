@@ -32,6 +32,10 @@ export namespace API {
 				return Protobuf.send('/api/products/consumers/collect', request, 'POST');
 			}
 
+			if (request.viewConsumptionHistory) {
+				return Protobuf.send('/api/products/consumers/history', request, 'POST')
+			}
+
 			throw new Error('Unsupported Product payload type');
 		}
 	}

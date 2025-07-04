@@ -42,7 +42,8 @@ export namespace Hope {
 			request.productCounts ||
 			request.createProduct ||
 			request.viewConsumers ||
-			request.collectConsumers
+			request.collectConsumers ||
+			request.viewConsumptionHistory
 		) {
 			response = await ProductAPI.Product.handle(request);
 		} else if (

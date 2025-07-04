@@ -9,13 +9,14 @@ import { PageMode } from '@app/types';
 import HomePage from '@app/pages/home';
 import LoginPage from '@app/pages/login';
 
-import PersonalPage from '@app/pages/accounts/personal';
+import PersonalPage from '@app/pages/accounts/personal/personal';
 import GoalPage from '@app/pages/shared/new-goal';
 import ProductsPage from '@app/pages/shared/products/available-products';
 import TransactionDecisionPage from '@app/pages/shared/transactions/unpaid';
 import TransactionHistory from '@app/pages/shared/transactions/history';
 import MoneyTransferForm from '@app/pages/shared/transactions/transaction';
 import NewTransactionForm from '@app/pages/shared/transactions/proposal';
+import ConsumptionHistoryPage from '@app/pages/accounts/personal/consumption-history'
 
 import MasterHomePage from '@app/pages/master/master';
 import CityHallPage from '@app/pages/accounts/city-hall';
@@ -70,6 +71,10 @@ function App() {
 							<Route
 								path="/personal/proposal/product"
 								element={<NewTransactionForm mode={PageMode.Personal} />}
+							/>
+							<Route
+								path="/personal/consumption/history"
+								element={<ConsumptionHistoryPage />}
 							/>
 
 							<Route path="/companies" element={<CompanyListPage />} />
