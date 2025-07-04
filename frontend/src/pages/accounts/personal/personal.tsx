@@ -127,16 +127,18 @@ export default function PersonalPage() {
 					</Table>
 
 					<Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-						<Button variant="outlined" size="large" onClick={goToProducts}>
-							Перейти к продуктам
-						</Button>
-						<Button
-							variant="outlined"
-							size="large"
-							onClick={() => navigate('/personal/consumption/history')}
-						>
-							История потребления
-						</Button>
+						<Stack spacing={2}>
+							<Button variant="outlined" size="large" onClick={goToProducts}>
+								Перейти к продуктам
+							</Button>
+							<Button
+								variant="outlined"
+								size="large"
+								onClick={() => navigate('/personal/consumption/history')}
+							>
+								История потребления
+							</Button>
+						</Stack>
 					</Box>
 				</AccordionDetails>
 			</Accordion>
