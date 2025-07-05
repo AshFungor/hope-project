@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -21,6 +22,18 @@ def get_last(ctx: AppContext, bank_account: int, current_day_only: bool = False)
     return last
 
 
+# class GoalProgress:
+#     @dataclass
+#     class GoalProgressProperties:
+#         goal: Goal
+#         bank_account_id: int
+#         span: timedelta
+
+#     @classmethod
+#     def calculate_progress_for_prefecture(ctx: AppContext, properties: GoalProgressProperties) -> Optional[int]:
+#         ctx.database.session.
+
+
 @function_context
 def calculate_progress(ctx: AppContext, bank_account_id: int, goal: Goal, span: timedelta) -> Optional[int]:
     bank_account = ctx.database.session.get(BankAccount, bank_account_id)
@@ -34,7 +47,7 @@ def calculate_progress(ctx: AppContext, bank_account_id: int, goal: Goal, span: 
 
     to_lift = (
         ctx.database.session.scalar(
-            orm.select(orm.func.sum(Transaction.count)).where(
+            orm.select(orm.func.sum(Transaction.count)).filter(
                 orm.or_(
                     orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.prefecture)),
                     orm.cast(Transaction.customer_bank_account_id, orm.String).startswith(str(ctx.config.account_mapping.city_hall)),

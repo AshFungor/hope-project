@@ -115,7 +115,7 @@ export default function ViewConsumersPage() {
 				status={message?.status ?? AlertStatus.Info}
 			/>
 
-			<Stack direction="row" sx={{ mb: 3 }}>
+			<Stack direction="row" spacing={2} sx={{ mb: 3 }}>
 				<FormControl>
 					<InputLabel>Категория</InputLabel>
 					<Select

@@ -39,6 +39,8 @@ import "app/protos/city_hall/current.proto";
 
 import "app/protos/product/consumption.proto";
 
+import "app/protos/metrics.proto";
+
 message Request {
     oneof payload {
         session.LoginRequest login = 1;
@@ -85,5 +87,7 @@ message Request {
         product.ViewConsumersRequest view_consumers = 32;
         product.CollectConsumersRequest collect_consumers = 33;
         product.ConsumptionHistoryRequest view_consumption_history = 34;
+
+        MetricRequest metric = 35;
     }
 }

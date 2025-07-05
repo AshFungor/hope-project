@@ -9,6 +9,8 @@ services:
     volumes:
       - ./data/app_logs:/var/log:w
       - .:/hope-project:rw
+    environment:
+      - PROMETHEUS_MULTIPROC_DIR=/tmp/metrics
     restart: always
     depends_on:
       postgres:
@@ -56,26 +58,15 @@ services:
       - webapp
       - frontend
 
-  loki:
-    image: grafana/loki:latest
-    container_name: loki
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    depends_on:
-      - promtail
-
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
     volumes:
-      - ./data/app_logs:/var/log/app:ro
-      - ./data/nginx-logs:/var/log/nginx:ro
-      - ./promtail-config.yaml:/etc/promtail/promtail.yaml:ro
-    command: -config.file=/etc/promtail/promtail.yaml
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
     depends_on:
-     - webapp
-     - nginx
+      - webapp
 
   grafana:
     image: grafana/grafana:latest
@@ -86,8 +77,8 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
+      - ./dashboards:/etc/grafana/provisioning/dashboards
       - grafana_data:/var/lib/grafana
     depends_on:
-      - promtail
-      - loki
+      - prometheus
     restart: always

@@ -1,9 +1,12 @@
 from datetime import timedelta
 
 from flask_login import LoginManager
+from prometheus_flask_exporter.multiprocess import GunicornInternalPrometheusMetrics
 
 from app.context import AppConfig, AppContext, class_context
 from app.models import User
+
+metrics = GunicornInternalPrometheusMetrics.for_app_factory()
 
 
 class FlaskExtensions:
@@ -13,6 +16,8 @@ class FlaskExtensions:
             cls.__init_csrf()
         if config.flask_extensions.login_manager:
             cls.__init_login_manager()
+        if config.flask_extensions.metrics:
+            cls.__init_metrics()
 
     @classmethod
     @class_context
@@ -31,3 +36,9 @@ class FlaskExtensions:
     @classmethod
     def __init_csrf(cls):
         raise NotImplementedError
+
+    @classmethod
+    @class_context
+    def __init_metrics(cls, ctx: AppContext):
+        ctx.logger.info("setting up flask metrics")
+        metrics.init_app(ctx.app)

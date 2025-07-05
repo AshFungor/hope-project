@@ -12,4 +12,6 @@ RUN pip install --no-cache-dir -r requirements.txt --break-system-packages
 WORKDIR /hope-project/
 ENV PYTHONPATH ${PYTHONPATH}:/hope-project/app/
 
+RUN mkdir /tmp/metrics
+
 CMD ["gunicorn", "--workers=8", "--bind=webapp:5000", "app.main:create_app()"]

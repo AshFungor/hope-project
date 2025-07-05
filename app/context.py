@@ -98,6 +98,7 @@ class AppConfig(YAMLObject):
 
         csrf: bool = True
         login_manager: bool = True
+        metrics: bool = True
 
     def __post_init__(self):
         self.timezone = ZoneInfo(self.timezone)

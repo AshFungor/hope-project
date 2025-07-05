@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package hope;
+
+message MetricRequest {
+    enum Metric {
+        COMPANY_INCOME = 0;
+        COMPANY_PRODUCTION = 1;
+        COMPANY_GOALS = 2;
+    }
+
+    Metric metric = 1;
+}
+
+message MetricResponse {
+    // metric payload comes in json, since
+    // they change frequently :)
+
+    string json = 1;
+}

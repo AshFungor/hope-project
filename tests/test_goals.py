@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import datetime
 
 import pytest
@@ -10,31 +11,39 @@ from app.codegen.goal import (
 )
 from app.codegen.hope import Request, Response
 from app.codegen.types import Goal as GoalProto
-from app.context import AppContext
-from app.models import BankAccount, Goal, Product, Product2BankAccount
+from app.context import AppContext, class_context
+from app.models import BankAccount, Goal, Product, Product2BankAccount, User
+from app.models.queries import CRUD
+from tests.helpers.orm import TestCRUD
 
 
-@pytest.fixture
+@dataclass
+class GoalContext:
+    account: BankAccount
+    wallet: Product2BankAccount
+
+    @class_context
+    def __init__(self, ctx: AppContext):
+        TestCRUD.create_money()
+        user = TestCRUD.create_user()
+
+        self.account = ctx.database.session.get(BankAccount, user.bank_account_id)
+        self.wallet = CRUD.query_money(self.account.id)
+
+
+@pytest.fixture(scope="module")
 def goal_data():
     ctx = AppContext.safe_load()
 
     with ctx.app.app_context():
-        session = ctx.database.session
-
-        account = BankAccount(id=123)
-        link = Product2BankAccount(product_id=1, bank_account_id=123, count=100)
-        money = Product(name="money", category="MONEY", level=2)
-
-        session.add_all([account, money, link])
-        session.commit()
-
-        yield account
+        yield GoalContext()
 
         # deleting by one does not work for some reason
-        session.execute(orm.delete(Goal))
-        session.execute(orm.delete(BankAccount))
-        session.execute(orm.delete(Product2BankAccount))
-        session.commit()
+        ctx.database.session.execute(orm.delete(Goal))
+        ctx.database.session.execute(orm.delete(User))
+        ctx.database.session.execute(orm.delete(BankAccount))
+        ctx.database.session.execute(orm.delete(Product2BankAccount))
+        ctx.database.session.commit()
 
 
 def test_create_goal(client, goal_data, logged_in_normal):

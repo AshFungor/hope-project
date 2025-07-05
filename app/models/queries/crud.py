@@ -1,7 +1,9 @@
 from contextlib import contextmanager
 from datetime import datetime
-from functools import wraps
-from typing import Callable, List, Tuple
+from enum import StrEnum
+from functools import lru_cache, wraps
+from random import randint
+from typing import Callable, List, Set, Tuple
 
 import sqlalchemy as orm
 
@@ -41,40 +43,74 @@ def wrap_crud_context(ctx: AppContext):
 
 
 class CRUD:
-    """Simple CRUD methods, built to be reusable"""
+    """
+    Simple CRUD methods, built to be reusable
+
+    Take note, these methods do not commit by themselves, you have
+    to call session.commit() yourself.
+    """
 
     __ctx = AppContext.safe_load()
+    # number of digits after scope id
+    __bank_account_tail_len = 4
+
+    class AccountType(StrEnum):
+        CITY_HALL = "city_hall"
+        COMPANY = "company"
+        PREFECTURE = "prefecture"
+        USER = "user"
+
+    @classmethod
+    def __from_kind(cls, kind: AccountType) -> int:
+        tail = randint(10**cls.__bank_account_tail_len, 10 ** (cls.__bank_account_tail_len + 1) - 1)
+
+        leading = 0
+        match kind:
+            case cls.AccountType.CITY_HALL:
+                leading = cls.__ctx.config.account_mapping.city_hall
+            case cls.AccountType.COMPANY:
+                leading = cls.__ctx.config.account_mapping.company
+            case cls.AccountType.PREFECTURE:
+                leading = cls.__ctx.config.account_mapping.prefecture
+            case cls.AccountType.USER:
+                leading = cls.__ctx.config.account_mapping.user
+
+        s = f"{leading}{tail}"[: 1 + cls.__bank_account_tail_len]
+        return int(s)
+
+    @classmethod
+    @lru_cache
+    def __existing_bank_account_ids(cls) -> Set[int]:
+        return set(cls.__ctx.database.session.execute(orm.select(BankAccount.id)).all())
 
     @classmethod
     @wrap_crud_call
-    def create_bank_account(cls, kind: BankAccount.AccountMapping) -> int:
-        base_id = BankAccount.from_kind(kind)
-        id_ = base_id
+    def create_bank_account(cls, kind: AccountType) -> int:
+        existing_ids = cls.__existing_bank_account_ids()
 
-        while cls.__ctx.database.session.get(BankAccount, id_) is not None:
-            cls.__ctx.logger.warning(f"BankAccount ID {id_} already exists, incrementing")
-            id_ += 1
+        bank_account_id = cls.__from_kind(kind)
+        while bank_account_id in existing_ids:
+            bank_account_id = cls.__from_kind(kind)
 
-        bank_account = BankAccount(id=id_)
-        bind_account = Product2BankAccount(bank_account.id, 1, 0)
+        bank_account = BankAccount(id=bank_account_id)
+        # create money
+        bind_account = Product2BankAccount(bank_account.id, cls.__ctx.config.money_product_id, 0)
         cls.__ctx.database.session.add_all([bank_account, bind_account])
 
         return bank_account.id
 
     @classmethod
     @wrap_crud_call
-    def create_company(cls, company: Company, founders: List[Tuple[int, float]]):
+    def create_company(cls, company: Company):
+        account = cls.create_bank_account(cls.AccountType.COMPANY)
+        company.bank_account_id = account
         cls.__ctx.database.session.add(company)
-        cls.__ctx.database.session.add_all(
-            [User2Company(founder_id, company.id, Role.FOUNDER, ratio, datetime.now()) for founder_id, ratio in founders]
-        )
-
-        cls.__ctx.database.session.commit()
+        return company
 
     @classmethod
     @wrap_crud_call
     def create_user(cls, user: User):
-        account = cls.create_bank_account(BankAccount.AccountMapping.USER)
+        account = cls.create_bank_account(cls.AccountType.USER)
         user.bank_account_id = account
         cls.__ctx.database.session.add(user)
         return user
@@ -99,7 +135,7 @@ class CRUD:
     @classmethod
     @wrap_crud_call
     def query_money(cls, account: int) -> int:
-        return cls.query_product(account, 1)
+        return cls.query_product(account, cls.__ctx.config.money_product_id)
 
     @classmethod
     @wrap_crud_call

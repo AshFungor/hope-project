@@ -146,7 +146,10 @@ def history(ctx: AppContext, req: ConsumptionHistoryRequest):
         return protobufify(Response(view_consumption_history=ConsumptionHistoryResponse(error=ConsumptionHistoryResponseError.NOT_A_USER)))
 
     results = ctx.database.session.execute(
-        orm.select(Consumption, Product).filter(Consumption.bank_account_id == account.id).join(Product, Product.id == Consumption.product_id)
+        orm.select(Consumption, Product)
+        .filter(Consumption.bank_account_id == account.id)
+        .join(Product, Product.id == Consumption.product_id)
+        .order_by(orm.desc(Consumption.consumed_at))
     ).all()
 
     response = []

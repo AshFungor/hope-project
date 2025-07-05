@@ -38,6 +38,7 @@ import "app/protos/city_hall/current.proto";
 
 import "app/protos/product/consumption.proto";
 
+import "app/protos/metrics.proto";
 
 message Response {
     oneof payload {
@@ -85,5 +86,7 @@ message Response {
         product.ViewConsumersResponse view_consumers = 32;
         product.CollectConsumersResponse collect_consumers = 33;
         product.ConsumptionHistoryResponse view_consumption_history = 34;
+
+        MetricResponse metric = 35;
     }
 }
