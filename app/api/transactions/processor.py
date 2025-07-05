@@ -1,9 +1,21 @@
 import sqlalchemy as orm
 
-from app.codegen.transaction import DecideOnTransactionResponse, DecideOnTransactionRequestStatus
+from app.codegen.transaction import (
+    DecideOnTransactionRequestStatus,
+    DecideOnTransactionResponse,
+)
 from app.codegen.types import TransactionStatusReason
 from app.context import AppContext, function_context
-from app.models import BankAccount, Product2BankAccount, Transaction, TransactionStatus, User, Prefecture, Company, Product
+from app.models import (
+    BankAccount,
+    Company,
+    Prefecture,
+    Product,
+    Product2BankAccount,
+    Transaction,
+    TransactionStatus,
+    User,
+)
 
 
 class Processor:
@@ -35,7 +47,7 @@ class Processor:
 
     @classmethod
     def check_bounds(cls, transaction: Transaction) -> TransactionStatusReason:
-        if transaction.amount <= 0:
+        if transaction.amount < 0:
             return TransactionStatusReason.AMOUNT_OUT_OF_BOUNDS
         if transaction.count <= 0:
             return TransactionStatusReason.COUNT_OUT_OF_BOUNDS
